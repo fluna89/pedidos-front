@@ -20,45 +20,53 @@ Registro de funcionalidades implementadas y planificadas.
 ## Roadmap (funcionalidades futuras)
 
 ### v0.2.0 - Acceso y Registro
+
 - [ ] Modo invitado (pedido sin cuenta)
 - [ ] Registro con email y contraseña
 - [ ] Login con Google (OAuth)
 - [ ] Recuperación de contraseña
 
 ### v0.3.0 - Gestión de Direcciones
+
 - [ ] CRUD de direcciones de entrega
 - [ ] Alias, comentarios y dirección activa
 - [ ] Validación de cobertura
 
 ### v0.4.0 - Catálogo y Armado del Pedido
+
 - [ ] Listado de productos con formatos
 - [ ] Selección de sabores con límite por formato
 - [ ] Adicionales con costo extra
 - [ ] Comentarios por producto y por pedido
 
 ### v0.5.0 - Costos de Delivery
+
 - [ ] Cálculo de costo de envío por distancia
 - [ ] Visualización del costo antes de confirmar
 - [ ] Bloqueo si dirección fuera de cobertura
 
 ### v0.6.0 - Programa de Fidelización (Puntos)
+
 - [ ] Acumulación y visualización de puntos
 - [ ] Canje de puntos como descuento
 - [ ] Códigos de descuento / cupones
 
 ### v0.7.0 - Medios de Pago
+
 - [ ] Mercado Pago (API oficial)
 - [ ] Transferencia bancaria
 - [ ] Tarjeta crédito/débito
 - [ ] Efectivo al delivery
 
 ### v0.8.0 - Panel del Usuario
+
 - [ ] Estado en tiempo real del pedido activo
 - [ ] Historial de pedidos
 - [ ] Saldo de puntos y vencimiento
 - [ ] Gestión de direcciones y datos de cuenta
 
 ### Futuro
+
 - [ ] Integración con backend real (Python)
 - [ ] Notificaciones en tiempo real
 - [ ] Testing (Vitest + React Testing Library)

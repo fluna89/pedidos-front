@@ -96,15 +96,15 @@ Lee el archivo `package.json` y descarga todas las librerías que el proyecto ne
 
 ## 5. Scripts disponibles
 
-| Comando                | Descripción                           |
-| ---------------------- | ------------------------------------- |
+| Comando                | Descripción                                                                                                                                     |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | `npm run dev`          | Inicia servidor de desarrollo (Vite) en `localhost:5173`. Tiene hot-reload: al guardar un archivo, el cambio se ve al instante en el navegador. |
-| `npm run build`        | Genera build de producción en `dist/`. Bundlea, minifica y optimiza todo el código para subir a un servidor. |
-| `npm run preview`      | Levanta un servidor local que sirve el contenido de `dist/` para probar el build antes de deployar. |
-| `npm run lint`         | Analiza el código con ESLint buscando errores y malas prácticas. No modifica nada, solo reporta. |
-| `npm run lint:fix`     | Igual que `lint` pero corrige automáticamente los problemas que puede. |
-| `npm run format`       | Reformatea todos los archivos con Prettier (indentación, comillas, etc.). |
-| `npm run format:check` | Verifica si el formato es correcto sin modificar nada. Útil para CI/CD. |
+| `npm run build`        | Genera build de producción en `dist/`. Bundlea, minifica y optimiza todo el código para subir a un servidor.                                    |
+| `npm run preview`      | Levanta un servidor local que sirve el contenido de `dist/` para probar el build antes de deployar.                                             |
+| `npm run lint`         | Analiza el código con ESLint buscando errores y malas prácticas. No modifica nada, solo reporta.                                                |
+| `npm run lint:fix`     | Igual que `lint` pero corrige automáticamente los problemas que puede.                                                                          |
+| `npm run format`       | Reformatea todos los archivos con Prettier (indentación, comillas, etc.).                                                                       |
+| `npm run format:check` | Verifica si el formato es correcto sin modificar nada. Útil para CI/CD.                                                                         |
 
 ## 6. Estructura del proyecto
 

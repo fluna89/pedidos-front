@@ -1,16 +1,27 @@
-import './App.css'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { AuthProvider } from '@/context/AuthContext'
+import AppLayout from '@/components/layout/AppLayout'
+import HomePage from '@/pages/HomePage'
+import LoginPage from '@/pages/LoginPage'
+import RegisterPage from '@/pages/RegisterPage'
+import RecoverPage from '@/pages/RecoverPage'
+import GuestPage from '@/pages/GuestPage'
 
 function App() {
   return (
-    <div className="app">
-      <header className="app-header">
-        <h1>🍔 Pedidos</h1>
-        <p>Sistema de pedidos para delivery y retiro en local</p>
-      </header>
-      <main className="app-main">
-        <p>Proyecto en construcción...</p>
-      </main>
-    </div>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route element={<AppLayout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/recover" element={<RecoverPage />} />
+            <Route path="/guest" element={<GuestPage />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   )
 }
 

@@ -2,14 +2,20 @@
 
 > Fuente: Documento de requerimientos, Sección 2
 
+## Criterios generales de diseño
+
+- **Mobile first** para las vistas de cliente e invitado (la mayoría de los usuarios pedirán desde el celular)
+- **Desktop oriented** para el panel de administración (operación desde navegador de escritorio)
+- Diseño **responsive**: todas las vistas deben funcionar correctamente en ambos formatos
+
 ## 2.1 Acceso y Registro
 
-| Funcionalidad              | Detalle                                                                                              |
-| -------------------------- | ---------------------------------------------------------------------------------------------------- |
-| Modo invitado              | El usuario puede realizar un pedido sin crear cuenta. Solo se solicitan datos mínimos (nombre, teléfono/mail, dirección). |
-| Registro con email y contraseña | Creación de cuenta con email y contraseña. Verificación por email.                              |
-| Login con Google           | Autenticación OAuth con cuenta Google.                                                               |
-| Recuperación de contraseña | Flujo estándar de recuperación vía email.                                                            |
+| Funcionalidad                   | Detalle                                                                                                                   |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Modo invitado                   | El usuario puede realizar un pedido sin crear cuenta. Solo se solicitan datos mínimos (nombre, teléfono/mail, dirección). |
+| Registro con email y contraseña | Creación de cuenta con email y contraseña. Verificación por email.                                                        |
+| Login con Google                | Autenticación OAuth con cuenta Google.                                                                                    |
+| Recuperación de contraseña      | Flujo estándar de recuperación vía email.                                                                                 |
 
 ## 2.2 Gestión de Direcciones
 
@@ -25,15 +31,15 @@ El usuario registrado puede gestionar múltiples direcciones de entrega con las 
 
 El catálogo presenta los productos disponibles para delivery. Los productos marcados como 'solo mostrador' no se muestran en la app de pedidos online.
 
-| Elemento                    | Descripción                                                                                         |
-| --------------------------- | --------------------------------------------------------------------------------------------------- |
-| Formatos disponibles (delivery) | ½ kg, 1 kg, 2 kg, tarrina, pote, etc. (configurables desde admin).                             |
-| Formatos solo mostrador     | Cucurucho, vasito y otros. Ocultos en la app de delivery.                                           |
-| Selección de sabores        | Cada formato tiene un límite de sabores configurado: 3 o 4 según el formato.                        |
-| Sabores sin stock           | Los sabores deshabilitados por el admin no aparecen disponibles para selección.                      |
-| Adicionales                 | Categorías de adicionales con costo extra (ej: cobertura, salsa, mix-ins). Precio configurado por adicional. |
-| Comentario por producto     | El cliente puede dejar una nota libre por ítem del pedido.                                          |
-| Comentario general del pedido | Campo de observaciones general para el pedido completo.                                           |
+| Elemento                        | Descripción                                                                                                  |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Formatos disponibles (delivery) | ½ kg, 1 kg, 2 kg, tarrina, pote, etc. (configurables desde admin).                                           |
+| Formatos solo mostrador         | Cucurucho, vasito y otros. Ocultos en la app de delivery.                                                    |
+| Selección de sabores            | Cada formato tiene un límite de sabores configurado: 3 o 4 según el formato.                                 |
+| Sabores sin stock               | Los sabores deshabilitados por el admin no aparecen disponibles para selección.                              |
+| Adicionales                     | Categorías de adicionales con costo extra (ej: cobertura, salsa, mix-ins). Precio configurado por adicional. |
+| Comentario por producto         | El cliente puede dejar una nota libre por ítem del pedido.                                                   |
+| Comentario general del pedido   | Campo de observaciones general para el pedido completo.                                                      |
 
 ## 2.4 Costos de Delivery
 
