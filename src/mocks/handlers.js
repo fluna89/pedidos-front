@@ -8,6 +8,7 @@ import {
   mockAddresses,
   mockStoreLocation,
   mockMaxDeliveryKm,
+  mockDeliveryZones,
 } from './data'
 
 const MOCK_DELAY = 300 // ms
@@ -52,6 +53,35 @@ export async function createOrder(orderData) {
     ...orderData,
     status: 'pendiente',
     createdAt: new Date().toISOString(),
+  }
+}
+
+// ── Delivery ───────────────────────────────────────────
+
+/**
+ * Calculate delivery cost for given coordinates.
+ * Returns { inCoverage, distanceKm, zone, cost }
+ */
+export async function calcDeliveryCost(lat, lng) {
+  await delay()
+  if (lat == null || lng == null) {
+    return { inCoverage: false, distanceKm: null, zone: null, cost: 0 }
+  }
+  const km = distanceKm(
+    mockStoreLocation.lat,
+    mockStoreLocation.lng,
+    lat,
+    lng,
+  )
+  if (km > mockMaxDeliveryKm) {
+    return { inCoverage: false, distanceKm: Math.round(km * 10) / 10, zone: null, cost: 0 }
+  }
+  const zone = mockDeliveryZones.find((z) => km <= z.maxKm) ?? mockDeliveryZones.at(-1)
+  return {
+    inCoverage: true,
+    distanceKm: Math.round(km * 10) / 10,
+    zone: { id: zone.id, name: zone.name },
+    cost: zone.cost,
   }
 }
 

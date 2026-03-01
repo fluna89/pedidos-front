@@ -105,13 +105,23 @@ Registro de funcionalidades implementadas y planificadas.
 
 ---
 
+## [0.5.0] - 2026-03-01
+
+### Implementado
+
+- **Toggle delivery / retiro en local** en la página de checkout
+- **Selector de dirección** para usuarios registrados, con indicador de cobertura
+- **Formulario de dirección inline** para invitados (calle + ciudad)
+- **Cálculo automático de costo de envío** por distancia (Haversine), con zonas configurables (Cercana, Media, Lejana)
+- **Zonas de delivery mock** con 3 tramos: hasta 1.5 km ($500), hasta 3 km ($800), hasta 5 km ($1200)
+- **Bloqueo de pedido** si la dirección está fuera de cobertura (alerta visual + botón deshabilitado)
+- **Desglose de costos** en resumen: subtotal + envío + total
+- **Handler `calcDeliveryCost`** que retorna zona, distancia y costo
+- **Estado derivado** para loading de costo (sin setState sincrónico en effects)
+
+---
+
 ## Roadmap (funcionalidades futuras)
-
-### v0.5.0 - Costos de Delivery
-
-- [ ] Cálculo de costo de envío por distancia
-- [ ] Visualización del costo antes de confirmar
-- [ ] Bloqueo si dirección fuera de cobertura
 
 ### v0.6.0 - Programa de Fidelización (Puntos)
 

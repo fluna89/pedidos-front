@@ -242,6 +242,14 @@ export const mockOrderStatuses = [
 export const mockStoreLocation = { lat: -34.6037, lng: -58.3816 } // CABA centro
 export const mockMaxDeliveryKm = 5
 
+// Delivery zones — cost tiers by distance (km)
+// Sorted ascending by maxKm. The first matching zone applies.
+export const mockDeliveryZones = [
+  { id: 'zone-1', name: 'Cercana', maxKm: 1.5, cost: 500 },
+  { id: 'zone-2', name: 'Media', maxKm: 3, cost: 800 },
+  { id: 'zone-3', name: 'Lejana', maxKm: 5, cost: 1200 },
+]
+
 export const mockAddresses = [
   {
     id: 'addr-1',
