@@ -14,7 +14,7 @@ export default function Header() {
     <header className="sticky top-0 z-50 border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
         <Link to="/" className="text-lg font-bold text-gray-900 dark:text-gray-100">
-          � Heladería
+          Ainara Helados
         </Link>
 
         <nav className="flex items-center gap-2">

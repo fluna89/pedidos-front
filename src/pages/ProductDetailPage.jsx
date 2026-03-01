@@ -171,7 +171,7 @@ export default function ProductDetailPage() {
                   ({selectedFlavors.length}/{maxFlavors})
                 </span>
               </Label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="flex flex-wrap gap-2">
                 {allFlavors.map((flavor) => {
                   const selected = selectedFlavors.some(
                     (f) => f.id === flavor.id,
@@ -185,9 +185,9 @@ export default function ProductDetailPage() {
                       type="button"
                       disabled={atLimit}
                       className={cn(
-                        'flex items-center gap-2 rounded-md border px-3 py-2 text-sm transition-colors',
+                        'rounded-full border px-3 py-1.5 text-sm transition-colors',
                         selected
-                          ? 'border-gray-900 bg-gray-50 dark:border-gray-100 dark:bg-gray-800'
+                          ? 'border-gray-900 bg-gray-900 text-white dark:border-gray-100 dark:bg-gray-100 dark:text-gray-900'
                           : atLimit
                             ? 'cursor-not-allowed border-gray-100 text-gray-300 dark:border-gray-800 dark:text-gray-600'
                             : 'border-gray-200 hover:border-gray-400 dark:border-gray-700 dark:hover:border-gray-500',
@@ -195,9 +195,9 @@ export default function ProductDetailPage() {
                       onClick={() => toggleFlavor(flavor)}
                     >
                       {selected && (
-                        <Check className="h-3.5 w-3.5 shrink-0 text-green-600 dark:text-green-400" />
+                        <Check className="mr-1 inline h-3.5 w-3.5 align-text-bottom" />
                       )}
-                      <span className="truncate">{flavor.name}</span>
+                      {flavor.name}
                     </button>
                   )
                 })}

@@ -91,6 +91,19 @@ Registro de funcionalidades implementadas y planificadas.
 
 ---
 
+## [0.4.1] - 2026-03-01
+
+### Implementado
+
+- **Catálogo de heladería**: datos mock adaptados con 16 sabores, helados por kilo/cucurucho/vasito, postres, tortas heladas, milkshakes y bebidas
+- **Selección de sabores por formato**: cada formato define `maxFlavors`, el usuario elige sabores con límite visual
+- **Sabores en carrito y checkout**: se muestran los sabores elegidos en cada línea del pedido
+- **Chips de sabores**: layout tipo chip (`flex-wrap`, `rounded-full`) que se adapta al ancho sin truncar nombres largos
+- **Branding**: nombre del local "Ainara Helados" en header y homepage
+- **ngrok**: `server.allowedHosts` configurado para dominios `*.ngrok-free.app`
+
+---
+
 ## Roadmap (funcionalidades futuras)
 
 ### v0.5.0 - Costos de Delivery

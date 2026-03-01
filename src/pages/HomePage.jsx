@@ -6,7 +6,7 @@ export default function HomePage() {
   return (
     <div className="flex flex-col items-center gap-6 py-12 text-center">
       <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-        Bienvenido a nuestra Heladería
+        Bienvenido a Ainara Helados
       </h1>
       <p className="max-w-md text-gray-500 dark:text-gray-400">
         Helado artesanal para delivery o retiro en local. Explorá nuestros
