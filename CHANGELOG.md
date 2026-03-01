@@ -33,6 +33,18 @@ Registro de funcionalidades implementadas y planificadas.
 
 ---
 
+## [0.2.1] - 2026-03-01
+
+### Implementado
+
+- **Login con Google** (OAuth mock) con botón e ícono SVG
+- **Modo oscuro** con toggle sol/luna en header, persistido en localStorage
+- **Detección automática** del tema del sistema (prefers-color-scheme)
+- **Clases `dark:`** en todos los componentes UI y páginas
+- **GuestRoute** para redirigir usuarios logueados fuera de login/register
+
+---
+
 ## [0.3.0] - 2026-03-01
 
 ### Implementado
@@ -47,6 +59,17 @@ Registro de funcionalidades implementadas y planificadas.
 - **AddressContext** con estado global de direcciones y dirección activa
 - **Componente Textarea** UI reutilizable con dark mode
 - **ProtectedRoute** para restringir acceso a rutas autenticadas
+
+---
+
+## [0.3.1] - 2026-03-01
+
+### Implementado
+
+- **Campos de dirección extendidos**: piso, departamento y barrio como campos separados
+- **Alias y ciudad obligatorios** con validación en formulario
+- **Etiquetas "(opcional)"** en campos no obligatorios (piso, depto, barrio, comentario)
+- **Convención de formularios**: campos opcionales marcados, obligatorios sin asterisco
 
 ---
 
@@ -66,6 +89,8 @@ Registro de funcionalidades implementadas y planificadas.
 ### v0.3.1 - Campos de dirección extendidos
 
 - [x] Piso, departamento y barrio como campos separados
+- [x] Alias y ciudad obligatorios
+- [x] Etiquetas de campos opcionales
 
 ### v0.4.0 - Catálogo y Armado del Pedido
 

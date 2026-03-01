@@ -37,8 +37,18 @@ export default function AddressForm({ initial, onSubmit, onCancel, loading }) {
     e.preventDefault()
     setError('')
 
+    if (!form.alias.trim()) {
+      setError('El alias es obligatorio')
+      return
+    }
+
     if (!form.street.trim()) {
       setError('La dirección es obligatoria')
+      return
+    }
+
+    if (!form.city.trim()) {
+      setError('La ciudad es obligatoria')
       return
     }
 
@@ -73,10 +83,11 @@ export default function AddressForm({ initial, onSubmit, onCancel, loading }) {
               placeholder="Ej: Casa, Trabajo"
               value={form.alias}
               onChange={handleChange}
+              required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="street">Dirección *</Label>
+            <Label htmlFor="street">Dirección</Label>
             <Input
               id="street"
               name="street"
@@ -88,7 +99,7 @@ export default function AddressForm({ initial, onSubmit, onCancel, loading }) {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label htmlFor="floor">Piso</Label>
+              <Label htmlFor="floor">Piso <span className="text-gray-400 dark:text-gray-500">(opcional)</span></Label>
               <Input
                 id="floor"
                 name="floor"
@@ -98,7 +109,7 @@ export default function AddressForm({ initial, onSubmit, onCancel, loading }) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="apartment">Depto</Label>
+              <Label htmlFor="apartment">Depto <span className="text-gray-400 dark:text-gray-500">(opcional)</span></Label>
               <Input
                 id="apartment"
                 name="apartment"
@@ -109,7 +120,7 @@ export default function AddressForm({ initial, onSubmit, onCancel, loading }) {
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="neighborhood">Barrio</Label>
+            <Label htmlFor="neighborhood">Barrio <span className="text-gray-400 dark:text-gray-500">(opcional)</span></Label>
             <Input
               id="neighborhood"
               name="neighborhood"
@@ -126,10 +137,11 @@ export default function AddressForm({ initial, onSubmit, onCancel, loading }) {
               placeholder="CABA"
               value={form.city}
               onChange={handleChange}
+              required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="comment">Comentario</Label>
+            <Label htmlFor="comment">Comentario <span className="text-gray-400 dark:text-gray-500">(opcional)</span></Label>
             <Textarea
               id="comment"
               name="comment"
