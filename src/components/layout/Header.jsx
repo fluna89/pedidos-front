@@ -3,7 +3,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { useTheme } from '@/hooks/useTheme'
 import { useCart } from '@/hooks/useCart'
 import { Button } from '@/components/ui/button'
-import { LogOut, MapPin, Moon, ShoppingCart, Sun, UtensilsCrossed, User } from 'lucide-react'
+import { IceCreamCone, LogOut, MapPin, Moon, ShoppingCart, Sun, UtensilsCrossed, User } from 'lucide-react'
 
 export default function Header() {
   const { user, isAuthenticated, isGuest, logout } = useAuth()
@@ -13,7 +13,8 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
-        <Link to="/" className="text-lg font-bold text-gray-900 dark:text-gray-100">
+        <Link to="/" className="flex items-center gap-1.5 text-lg font-bold text-gray-900 dark:text-gray-100">
+          <IceCreamCone className="h-5 w-5" />
           Ainara Helados
         </Link>
 
