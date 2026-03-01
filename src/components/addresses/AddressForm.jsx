@@ -11,7 +11,15 @@ import {
   CardFooter,
 } from '@/components/ui/card'
 
-const EMPTY = { alias: '', street: '', city: '', comment: '' }
+const EMPTY = {
+  alias: '',
+  street: '',
+  floor: '',
+  apartment: '',
+  neighborhood: '',
+  city: '',
+  comment: '',
+}
 
 function buildInitial(initial) {
   return initial ? { ...EMPTY, ...initial } : EMPTY
@@ -78,6 +86,38 @@ export default function AddressForm({ initial, onSubmit, onCancel, loading }) {
               required
             />
           </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label htmlFor="floor">Piso</Label>
+              <Input
+                id="floor"
+                name="floor"
+                placeholder="3"
+                value={form.floor}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="apartment">Depto</Label>
+              <Input
+                id="apartment"
+                name="apartment"
+                placeholder="B"
+                value={form.apartment}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="neighborhood">Barrio</Label>
+            <Input
+              id="neighborhood"
+              name="neighborhood"
+              placeholder="San Nicolás"
+              value={form.neighborhood}
+              onChange={handleChange}
+            />
+          </div>
           <div className="space-y-2">
             <Label htmlFor="city">Ciudad</Label>
             <Input
@@ -93,7 +133,7 @@ export default function AddressForm({ initial, onSubmit, onCancel, loading }) {
             <Textarea
               id="comment"
               name="comment"
-              placeholder="Piso, depto, timbre, referencias..."
+              placeholder="Timbre, referencias..."
               value={form.comment}
               onChange={handleChange}
               rows={2}

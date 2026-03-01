@@ -63,6 +63,10 @@ Registro de funcionalidades implementadas y planificadas.
 - [x] Alias, comentarios y dirección activa
 - [x] Validación de cobertura
 
+### v0.3.1 - Campos de dirección extendidos
+
+- [x] Piso, departamento y barrio como campos separados
+
 ### v0.4.0 - Catálogo y Armado del Pedido
 
 - [ ] Listado de productos con formatos

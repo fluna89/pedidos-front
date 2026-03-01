@@ -41,8 +41,14 @@ export default function AddressCard({
           </div>
           <p className="text-sm text-gray-600 dark:text-gray-400">
             {address.street}
-            {address.city ? `, ${address.city}` : ''}
+            {address.floor ? `, Piso ${address.floor}` : ''}
+            {address.apartment ? ` ${address.apartment}` : ''}
           </p>
+          {(address.neighborhood || address.city) && (
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {[address.neighborhood, address.city].filter(Boolean).join(', ')}
+            </p>
+          )}
           {address.comment && (
             <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
               {address.comment}
