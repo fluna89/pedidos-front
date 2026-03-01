@@ -85,7 +85,7 @@ export default function ProductDetailPage() {
   }
 
   const flavorsComplete =
-    !product?.hasFlavors || (maxFlavors > 0 && selectedFlavors.length === maxFlavors)
+    !product?.hasFlavors || (maxFlavors > 0 && selectedFlavors.length >= 1)
 
   function handleAddToCart() {
     if (!selectedFormat || !flavorsComplete) return
@@ -168,7 +168,7 @@ export default function ProductDetailPage() {
               <Label>
                 Sabores{' '}
                 <span className="text-gray-400 dark:text-gray-500">
-                  ({selectedFlavors.length}/{maxFlavors})
+                  ({selectedFlavors.length} de {maxFlavors} máx.)
                 </span>
               </Label>
               <div className="flex flex-wrap gap-2">
