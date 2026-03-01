@@ -75,23 +75,6 @@ Registro de funcionalidades implementadas y planificadas.
 
 ## Roadmap (funcionalidades futuras)
 
-### v0.2.1 - Login con Google + Modo oscuro
-
-- [x] Login con Google (OAuth mock)
-- [x] Modo oscuro con toggle (persistido en localStorage)
-
-### v0.3.0 - Gestión de Direcciones
-
-- [x] CRUD de direcciones de entrega
-- [x] Alias, comentarios y dirección activa
-- [x] Validación de cobertura
-
-### v0.3.1 - Campos de dirección extendidos
-
-- [x] Piso, departamento y barrio como campos separados
-- [x] Alias y ciudad obligatorios
-- [x] Etiquetas de campos opcionales
-
 ### v0.4.0 - Catálogo y Armado del Pedido
 
 - [ ] Listado de productos con formatos
