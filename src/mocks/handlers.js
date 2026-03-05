@@ -17,6 +17,51 @@ import {
 
 const MOCK_DELAY = 300 // ms
 
+// ── In-memory order store (session persistence) ───────────────────
+// Starts with mockOrders from data.js, new orders are appended at runtime.
+const orders = [...mockOrders]
+
+// Status progression timers (configurable seconds per step)
+const STATUS_INTERVAL = 15_000 // 15 s per step
+
+const deliveryFlow = [
+  'pendiente',
+  'confirmado',
+  'en_preparacion',
+  'listo',
+  'en_camino',
+  'entregado',
+]
+const pickupFlow = [
+  'pendiente',
+  'confirmado',
+  'en_preparacion',
+  'listo',
+  'entregado',
+]
+
+/** Automatically advance an order through its status flow. */
+function simulateStatusProgression(order) {
+  const flow = order.orderType === 'pickup' ? pickupFlow : deliveryFlow
+  let idx = flow.indexOf(order.status)
+  if (idx === -1) return
+
+  function advance() {
+    idx++
+    if (idx >= flow.length) return
+    order.status = flow[idx]
+    order.updatedAt = new Date().toISOString()
+    if (idx < flow.length - 1) {
+      setTimeout(advance, STATUS_INTERVAL)
+    }
+  }
+
+  // Start after one interval
+  if (idx < flow.length - 1) {
+    setTimeout(advance, STATUS_INTERVAL)
+  }
+}
+
 function delay(ms = MOCK_DELAY) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
@@ -52,12 +97,26 @@ export async function getMenuItem(id) {
 
 export async function createOrder(orderData) {
   await delay(500)
-  return {
+
+  const method = mockPaymentMethods.find((m) => m.id === orderData.paymentMethodId)
+
+  const order = {
     id: Date.now(),
+    userId: orderData.userId ?? 1, // default mock user
     ...orderData,
     status: 'pendiente',
+    paymentMethod: method?.name ?? 'Desconocido',
+    paymentStatus: 'pendiente_pago',
     createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   }
+
+  orders.push(order)
+
+  // Start simulated status progression
+  simulateStatusProgression(order)
+
+  return { ...order }
 }
 
 // ── User Panel ────────────────────────────────────────
@@ -65,7 +124,7 @@ export async function createOrder(orderData) {
 /** Get all orders for a user, sorted newest first. */
 export async function getUserOrders(userId) {
   await delay()
-  return mockOrders
+  return orders
     .filter((o) => o.userId === userId)
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .map((o) => ({ ...o }))
@@ -75,7 +134,7 @@ export async function getUserOrders(userId) {
 export async function getActiveOrder(userId) {
   await delay()
   const terminalStatuses = ['entregado', 'cancelado']
-  const active = mockOrders.find(
+  const active = orders.find(
     (o) => o.userId === userId && !terminalStatuses.includes(o.status),
   )
   return active ? { ...active } : null
@@ -111,6 +170,15 @@ export async function processPayment(orderId, paymentMethodId, amount) {
   if (!method) throw new Error('Método de pago no válido')
 
   const isPending = method.type === 'cash' || method.type === 'manual'
+  const paymentStatus = isPending ? 'pendiente_pago' : 'pagado'
+
+  // Update the order in the in-memory store
+  const stored = orders.find((o) => o.id === orderId)
+  if (stored) {
+    stored.paymentStatus = paymentStatus
+    stored.updatedAt = new Date().toISOString()
+  }
+
   const messages = {
     cash: 'Tené el monto exacto preparado para cuando llegue el delivery',
     manual:
@@ -122,7 +190,7 @@ export async function processPayment(orderId, paymentMethodId, amount) {
     paymentId: 'pay-' + Date.now(),
     method: method.name,
     amount,
-    status: isPending ? 'pendiente_pago' : 'pagado',
+    status: paymentStatus,
     message: isPending
       ? messages[method.type]
       : 'Pago procesado correctamente',

@@ -33,7 +33,7 @@ import RedeemPoints from '@/components/loyalty/RedeemPoints'
 import PaymentMethodSelector from '@/components/checkout/PaymentMethodSelector'
 
 export default function CheckoutPage() {
-  const { isAuthenticated, isGuest } = useAuth()
+  const { isAuthenticated, isGuest, user } = useAuth()
   const { items, subtotal, clearCart } = useCart()
   const { addresses, activeId, selectActive, activeAddress } = useAddresses()
   const { eligible: loyaltyEligible, earnAfterOrder, redeemPoints } = useLoyalty()
@@ -132,6 +132,7 @@ export default function CheckoutPage() {
 
       // 2. Create the order
       const order = await createOrder({
+        userId: user?.id,
         items,
         orderType,
         subtotal,

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { getActiveOrder } from '@/mocks/handlers'
-import { orderStatusLabels } from '@/mocks/data'
 import { useAuth } from '@/hooks/useAuth'
 import {
   Card,
@@ -28,16 +27,26 @@ const pickupSteps = [
   'entregado',
 ]
 
+// Short labels for the compact progress bar (avoid layout overflow)
+const shortLabels = {
+  pendiente: 'Pendiente',
+  confirmado: 'Confirmado',
+  en_preparacion: 'Preparación',
+  listo: 'Listo',
+  en_camino: 'En camino',
+  entregado: 'Entregado',
+}
+
 function StatusProgress({ status, orderType }) {
   const steps = orderType === 'pickup' ? pickupSteps : deliverySteps
   const currentIdx = steps.indexOf(status)
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-start gap-1">
       {steps.map((step, i) => {
         const done = i <= currentIdx
         return (
-          <div key={step} className="flex flex-1 flex-col items-center gap-1">
+          <div key={step} className="flex min-w-0 flex-1 flex-col items-center gap-1">
             <div
               className={
                 done
@@ -46,13 +55,13 @@ function StatusProgress({ status, orderType }) {
               }
             />
             <span
-              className={`text-[10px] leading-tight ${
+              className={`truncate text-center text-[10px] leading-tight ${
                 done
                   ? 'font-medium text-green-700 dark:text-green-400'
                   : 'text-gray-400 dark:text-gray-500'
               }`}
             >
-              {orderStatusLabels[step] || step}
+              {shortLabels[step] || step}
             </span>
           </div>
         )
@@ -69,15 +78,25 @@ export default function ActiveOrderSection() {
   useEffect(() => {
     if (!user?.id) return
     let cancelled = false
-    getActiveOrder(user.id)
-      .then((result) => {
-        if (!cancelled) setOrder(result)
-      })
-      .catch((err) => {
-        if (!cancelled) setError(err.message)
-      })
+
+    function fetchOrder() {
+      getActiveOrder(user.id)
+        .then((result) => {
+          if (!cancelled) setOrder(result)
+        })
+        .catch((err) => {
+          if (!cancelled) setError(err.message)
+        })
+    }
+
+    fetchOrder()
+
+    // Poll every 10 s so simulated status progression is visible
+    const interval = setInterval(fetchOrder, 10_000)
+
     return () => {
       cancelled = true
+      clearInterval(interval)
     }
   }, [user?.id])
 
