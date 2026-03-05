@@ -254,39 +254,6 @@ export const orderStatusLabels = {
 
 export const mockOrders = [
   {
-    id: 2048,
-    userId: 1,
-    status: 'en_camino',
-    orderType: 'delivery',
-    items: [
-      {
-        name: 'Helado por kilo',
-        format: '1 kg',
-        flavors: 'Dulce de leche, Chocolate, Frutilla, Sambayón, Pistacho',
-        quantity: 1,
-        unitPrice: 9000,
-      },
-      {
-        name: 'Milkshake',
-        format: 'Grande (500ml)',
-        flavors: 'Frutilla',
-        quantity: 2,
-        unitPrice: 4200,
-      },
-    ],
-    subtotal: 17400,
-    deliveryCost: 800,
-    pointsRedeemed: 0,
-    coupon: null,
-    couponDiscount: 0,
-    total: 18200,
-    paymentMethod: 'Mercado Pago',
-    paymentStatus: 'pagado',
-    address: { alias: 'Casa', street: 'Av. Corrientes 1234' },
-    createdAt: '2026-03-04T15:30:00Z',
-    updatedAt: '2026-03-04T16:10:00Z',
-  },
-  {
     id: 2035,
     userId: 1,
     status: 'entregado',
