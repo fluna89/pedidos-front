@@ -69,7 +69,7 @@ export default function Header() {
             </>
           ) : (
             <Link to="/login">
-              <Button variant="ghost" size="icon" className="bg-green-100/60 text-green-600 hover:bg-green-100 hover:text-green-700 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50 dark:hover:text-green-300 sm:w-auto sm:px-3">
+              <Button variant="ghost" size="icon" className="bg-green-200/70 text-green-700 hover:bg-green-200 hover:text-green-800 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50 dark:hover:text-green-300 sm:w-auto sm:px-3">
                 <CircleUserRound className="h-4 w-4 sm:mr-1" />
                 <span className="hidden sm:inline">Ingresar</span>
               </Button>
