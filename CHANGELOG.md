@@ -2,6 +2,14 @@
 
 Registro de funcionalidades implementadas y planificadas.
 
+## [0.8.9] - 2026-03-05
+
+### Corregido
+
+- **Barra de progreso mobile**: labels ultra cortos para evitar solapamiento (Pend. · Conf. · Prep. · Listo · Envío · Entreg.)
+
+---
+
 ## [0.8.8] - 2026-03-05
 
 ### Mejorado

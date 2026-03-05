@@ -29,12 +29,12 @@ const pickupSteps = [
 
 // Short labels for the compact progress bar (avoid layout overflow)
 const shortLabels = {
-  pendiente: 'Pendiente',
-  confirmado: 'Confirmado',
-  en_preparacion: 'Preparación',
+  pendiente: 'Pend.',
+  confirmado: 'Conf.',
+  en_preparacion: 'Prep.',
   listo: 'Listo',
-  en_camino: 'En camino',
-  entregado: 'Entregado',
+  en_camino: 'Envío',
+  entregado: 'Entreg.',
 }
 
 function StatusProgress({ status, orderType }) {
@@ -55,7 +55,7 @@ function StatusProgress({ status, orderType }) {
               }
             />
             <span
-              className={`truncate text-center text-[10px] leading-tight ${
+              className={`w-full text-center text-[10px] leading-tight ${
                 done
                   ? 'font-medium text-green-700 dark:text-green-400'
                   : 'text-gray-400 dark:text-gray-500'
