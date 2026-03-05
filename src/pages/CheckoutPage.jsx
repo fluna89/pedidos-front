@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { useCart } from '@/hooks/useCart'
 import { useAddresses } from '@/hooks/useAddresses'
 import { useLoyalty } from '@/hooks/useLoyalty'
-import { calcDeliveryCost } from '@/mocks/handlers'
+import { calcDeliveryCost, createOrder, processPayment } from '@/mocks/handlers'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -25,16 +25,18 @@ import {
   Truck,
   Store,
   AlertTriangle,
+  Loader2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import CouponInput from '@/components/loyalty/CouponInput'
 import RedeemPoints from '@/components/loyalty/RedeemPoints'
+import PaymentMethodSelector from '@/components/checkout/PaymentMethodSelector'
 
 export default function CheckoutPage() {
   const { isAuthenticated, isGuest } = useAuth()
-  const { items, subtotal } = useCart()
+  const { items, subtotal, clearCart } = useCart()
   const { addresses, activeId, selectActive, activeAddress } = useAddresses()
-  const { eligible: loyaltyEligible } = useLoyalty()
+  const { eligible: loyaltyEligible, earnAfterOrder, redeemPoints } = useLoyalty()
   const navigate = useNavigate()
 
   const [orderType, setOrderType] = useState('delivery') // 'delivery' | 'pickup'
@@ -43,6 +45,15 @@ export default function CheckoutPage() {
   // Loyalty state
   const [pointsToRedeem, setPointsToRedeem] = useState(0)
   const [appliedCoupon, setAppliedCoupon] = useState(null) // { coupon, discount }
+
+  // Payment state
+  const [paymentMethod, setPaymentMethod] = useState(null)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
+
+  const handlePaymentSelect = useCallback((method) => {
+    setPaymentMethod(method)
+  }, [])
 
   // Guest address fields
   const [guestAddress, setGuestAddress] = useState({
@@ -104,6 +115,69 @@ export default function CheckoutPage() {
     orderType === 'delivery' && deliveryInfo && !deliveryInfo.inCoverage
   const noAddress =
     orderType === 'delivery' && !isGuest && addresses.length === 0
+  const canSubmit =
+    !outOfCoverage && !noAddress && paymentMethod && !submitting
+
+  // ── Confirm order handler ──
+  async function handleConfirmOrder() {
+    if (!canSubmit) return
+    setSubmitError('')
+    setSubmitting(true)
+
+    try {
+      // 1. Redeem points if any
+      if (pointsToRedeem > 0 && loyaltyEligible) {
+        await redeemPoints(pointsToRedeem)
+      }
+
+      // 2. Create the order
+      const order = await createOrder({
+        items,
+        orderType,
+        subtotal,
+        deliveryCost,
+        pointsRedeemed: pointsToRedeem,
+        coupon: appliedCoupon?.coupon?.code ?? null,
+        couponDiscount,
+        total,
+        address:
+          orderType === 'delivery'
+            ? isGuest
+              ? guestAddress
+              : activeAddress
+            : null,
+        paymentMethodId: paymentMethod.id,
+      })
+
+      // 3. Process payment
+      const payment = await processPayment(
+        order.id,
+        paymentMethod.id,
+        total,
+      )
+
+      // 4. Earn points (registered users only, on subtotal excl. shipping)
+      let pointsEarned = 0
+      if (loyaltyEligible) {
+        const earnResult = await earnAfterOrder(
+          Math.max(0, subtotal - pointsToRedeem - couponDiscount),
+          order.id,
+        )
+        pointsEarned = earnResult.earned
+      }
+
+      // 5. Clear cart & navigate to confirmation
+      clearCart()
+      navigate('/order-confirmation', {
+        replace: true,
+        state: { order, payment, pointsEarned },
+      })
+    } catch (err) {
+      setSubmitError(err.message || 'Error al procesar el pedido')
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   // ── Empty cart ──
   if (items.length === 0) {
@@ -351,6 +425,13 @@ export default function CheckoutPage() {
         />
       </div>
 
+      {/* Payment method selection */}
+      <PaymentMethodSelector
+        orderType={orderType}
+        selectedId={paymentMethod?.id ?? null}
+        onSelect={handlePaymentSelect}
+      />
+
       {/* Order summary */}
       <Card>
         <CardHeader>
@@ -407,11 +488,24 @@ export default function CheckoutPage() {
           </div>
         </CardContent>
         <CardFooter className="flex flex-col gap-2">
+          {submitError && (
+            <div className="w-full rounded-md bg-red-50 px-4 py-2 text-center text-sm text-red-600 dark:bg-red-950 dark:text-red-400">
+              {submitError}
+            </div>
+          )}
           <Button
             className="w-full"
-            disabled={outOfCoverage || noAddress}
+            disabled={!canSubmit}
+            onClick={handleConfirmOrder}
           >
-            Confirmar y pagar (próximamente)
+            {submitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Procesando...
+              </>
+            ) : (
+              `Confirmar y pagar · $${total.toLocaleString('es-AR')}`
+            )}
           </Button>
           {isGuest && (
             <div className="w-full rounded-md border border-gray-200 px-4 py-3 text-center dark:border-gray-700">

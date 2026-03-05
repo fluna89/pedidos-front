@@ -2,6 +2,22 @@
 
 Registro de funcionalidades implementadas y planificadas.
 
+## [0.7.0] - 2026-03-05
+
+### Implementado
+
+- **Medios de pago** — selección de método de pago en el checkout
+- **Mercado Pago**: pago online simulado (mock)
+- **Transferencia bancaria**: muestra datos bancarios (CBU, alias, titular, CUIT) con botón de copiar
+- **Tarjeta crédito/débito**: pago online simulado (mock)
+- **Efectivo al delivery**: solo disponible para delivery, pedido queda como "pendiente de pago"
+- **PaymentMethodSelector**: selector visual con íconos, info contextual por método
+- **OrderConfirmationPage**: página de confirmación post-pago con resumen, estado, puntos ganados
+- **Flujo completo**: confirmar pedido → procesar pago → canjear puntos → acumular puntos → limpiar carrito → confirmación
+- **Mock handlers**: `getPaymentMethods` (filtra por tipo de pedido) y `processPayment` (simula procesamiento)
+
+---
+
 ## [0.6.1] - 2026-03-04
 
 ### Mejorado
@@ -162,13 +178,6 @@ Registro de funcionalidades implementadas y planificadas.
 ---
 
 ## Roadmap (funcionalidades futuras)
-
-### v0.7.0 - Medios de Pago
-
-- [ ] Mercado Pago (API oficial)
-- [ ] Transferencia bancaria
-- [ ] Tarjeta crédito/débito
-- [ ] Efectivo al delivery
 
 ### v0.8.0 - Panel del Usuario
 

@@ -17,6 +17,7 @@ import CatalogPage from '@/pages/CatalogPage'
 import ProductDetailPage from '@/pages/ProductDetailPage'
 import CartPage from '@/pages/CartPage'
 import CheckoutPage from '@/pages/CheckoutPage'
+import OrderConfirmationPage from '@/pages/OrderConfirmationPage'
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
                   <Route path="/menu/:id" element={<ProductDetailPage />} />
                   <Route path="/cart" element={<CartPage />} />
                   <Route path="/checkout" element={<CheckoutPage />} />
+                  <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
                   <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
                   <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
                   <Route path="/recover" element={<GuestRoute><RecoverPage /></GuestRoute>} />

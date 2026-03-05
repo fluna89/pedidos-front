@@ -250,6 +250,51 @@ export const mockDeliveryZones = [
   { id: 'zone-3', name: 'Lejana', maxKm: 5, cost: 1200 },
 ]
 
+// ── Medios de Pago ─────────────────────────────────────
+
+export const mockPaymentMethods = [
+  {
+    id: 'mercadopago',
+    name: 'Mercado Pago',
+    icon: '💳',
+    description: 'Pagá online con tu cuenta de Mercado Pago',
+    type: 'online',
+    available: true,
+  },
+  {
+    id: 'transfer',
+    name: 'Transferencia bancaria',
+    icon: '🏦',
+    description: 'Transferí al CBU/CVU del local',
+    type: 'manual',
+    available: true,
+    bankInfo: {
+      bank: 'Banco Nación',
+      cbu: '0110012340012345678901',
+      alias: 'AINARA.HELADOS',
+      holder: 'Ainara Helados S.R.L.',
+      cuit: '30-12345678-9',
+    },
+  },
+  {
+    id: 'card',
+    name: 'Tarjeta crédito/débito',
+    icon: '💳',
+    description: 'Visa, Mastercard, Amex',
+    type: 'online',
+    available: true,
+  },
+  {
+    id: 'cash',
+    name: 'Efectivo al delivery',
+    icon: '💵',
+    description: 'Pagás al recibir tu pedido',
+    type: 'cash',
+    available: true,
+    onlyDelivery: true,
+  },
+]
+
 // ── Programa de Fidelización ───────────────────────────
 
 /**

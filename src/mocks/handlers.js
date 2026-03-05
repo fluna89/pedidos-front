@@ -11,6 +11,7 @@ import {
   mockDeliveryZones,
   mockPointsHistory,
   mockCoupons,
+  mockPaymentMethods,
 } from './data'
 
 const MOCK_DELAY = 300 // ms
@@ -55,6 +56,44 @@ export async function createOrder(orderData) {
     ...orderData,
     status: 'pendiente',
     createdAt: new Date().toISOString(),
+  }
+}
+
+// ── Payment Methods ────────────────────────────────────
+
+/**
+ * Get available payment methods.
+ * Filters out cash-only if order type is pickup.
+ */
+export async function getPaymentMethods(orderType = 'delivery') {
+  await delay()
+  return mockPaymentMethods
+    .filter((m) => m.available)
+    .filter((m) => !(m.onlyDelivery && orderType !== 'delivery'))
+    .map((m) => ({ ...m }))
+}
+
+/**
+ * Process payment for an order.
+ * Mock: always succeeds after a short delay.
+ * Cash payments get status 'pendiente_pago', others get 'confirmado'.
+ */
+export async function processPayment(orderId, paymentMethodId, amount) {
+  await delay(800) // simulate payment processing
+  const method = mockPaymentMethods.find((m) => m.id === paymentMethodId)
+  if (!method) throw new Error('Método de pago no válido')
+
+  const isCash = method.type === 'cash'
+  return {
+    success: true,
+    orderId,
+    paymentId: 'pay-' + Date.now(),
+    method: method.name,
+    amount,
+    status: isCash ? 'pendiente_pago' : 'pagado',
+    message: isCash
+      ? 'Tené el monto exacto preparado para cuando llegue el delivery'
+      : 'Pago procesado correctamente',
   }
 }
 

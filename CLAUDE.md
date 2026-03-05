@@ -33,6 +33,7 @@ src/
 │   ├── auth/                # GuestRoute, ProtectedRoute
 │   ├── addresses/           # AddressForm, AddressList
 │   ├── catalog/             # ProductCard
+│   ├── checkout/            # PaymentMethodSelector
 │   └── loyalty/             # PointsBadge, CouponInput, RedeemPoints
 ├── context/                 # Each context uses 2 files:
 │   ├── auth-context.js      #   - *-context.js → createContext()
@@ -47,7 +48,7 @@ src/
 │   └── LoyaltyContext.jsx
 ├── hooks/                   # useAuth, useTheme, useAddresses, useCart, useLoyalty
 ├── mocks/
-│   ├── data.js              # Mock data: flavors, menu, categories, points, coupons, addresses, zones
+│   ├── data.js              # Mock data: flavors, menu, categories, points, coupons, addresses, zones, payment methods
 │   └── handlers.js          # Async functions with simulated delay (replace with real API)
 ├── pages/                   # One page per route
 ├── services/
@@ -107,7 +108,7 @@ All backend logic is simulated in `src/mocks/`. Each handler is an `async` funct
 - **Coverage zone**: 5 km from CABA center (-34.6037, -58.3816)
 - **Delivery zones**: Cercana ≤1.5km ($500), Media ≤3km ($800), Lejana ≤5km ($1,200)
 
-## Current State (v0.6.1)
+## Current State (v0.7.0)
 
 ### Implemented
 - Auth: login, registration, guest mode, Google mock, password recovery
@@ -118,9 +119,10 @@ All backend logic is simulated in `src/mocks/`. Each handler is an `async` funct
 - Checkout: delivery/pickup, address selector, delivery cost by zones
 - Loyalty program: points (1 peso = 1 point), redemption, discount coupons
 - Responsive header with MobileUserBar for small screens
+- Payment methods: Mercado Pago, bank transfer, card, cash on delivery
+- Order confirmation page with payment status and points earned
 
 ### Pending (roadmap)
-- **v0.7.0**: Payment methods (Mercado Pago, bank transfer, card, cash)
 - **v0.8.0**: User panel (order status, history, points balance, account management)
 - **Future**: Python backend, real-time notifications, testing, CI/CD
 
