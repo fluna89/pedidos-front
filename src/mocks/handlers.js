@@ -100,10 +100,23 @@ export async function createOrder(orderData) {
 
   const method = mockPaymentMethods.find((m) => m.id === orderData.paymentMethodId)
 
+  // Normalize cart items to the flat format used by the panel / history views
+  const normalizedItems = (orderData.items || []).map((item) => ({
+    name: item.name,
+    format: typeof item.format === 'object' ? item.format.name : item.format,
+    flavors:
+      Array.isArray(item.flavors)
+        ? item.flavors.map((f) => (typeof f === 'object' ? f.name : f)).join(', ')
+        : item.flavors || '',
+    quantity: item.quantity,
+    unitPrice: item.unitPrice,
+  }))
+
   const order = {
     id: Date.now(),
     userId: orderData.userId ?? 1, // default mock user
     ...orderData,
+    items: normalizedItems,
     status: 'pendiente',
     paymentMethod: method?.name ?? 'Desconocido',
     paymentStatus: 'pendiente_pago',

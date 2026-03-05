@@ -2,6 +2,14 @@
 
 Registro de funcionalidades implementadas y planificadas.
 
+## [0.8.5] - 2026-03-05
+
+### Corregido
+
+- **Crash al volver a Home tras confirmar pedido**: los items del carrito (format como objeto, flavors como array) se normalizan a strings en `createOrder` para que el panel los renderice sin error
+
+---
+
 ## [0.8.4] - 2026-03-05
 
 ### Implementado
