@@ -69,7 +69,7 @@ export default function Header() {
             </>
           ) : (
             <Link to="/login">
-              <Button variant="ghost" size="icon" className="sm:w-auto sm:px-3">
+              <Button variant="ghost" size="icon" className="text-green-600 hover:bg-green-50 hover:text-green-700 dark:text-green-400 dark:hover:bg-green-950 dark:hover:text-green-300 sm:w-auto sm:px-3">
                 <User className="h-4 w-4 sm:mr-1" />
                 <span className="hidden sm:inline">Ingresar</span>
               </Button>
