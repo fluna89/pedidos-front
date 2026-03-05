@@ -76,23 +76,28 @@ export async function getPaymentMethods(orderType = 'delivery') {
 /**
  * Process payment for an order.
  * Mock: always succeeds after a short delay.
- * Cash payments get status 'pendiente_pago', others get 'confirmado'.
+ * Cash and manual (transfer) payments get status 'pendiente_pago', online payments get 'pagado'.
  */
 export async function processPayment(orderId, paymentMethodId, amount) {
   await delay(800) // simulate payment processing
   const method = mockPaymentMethods.find((m) => m.id === paymentMethodId)
   if (!method) throw new Error('Método de pago no válido')
 
-  const isCash = method.type === 'cash'
+  const isPending = method.type === 'cash' || method.type === 'manual'
+  const messages = {
+    cash: 'Tené el monto exacto preparado para cuando llegue el delivery',
+    manual:
+      'Realizá la transferencia y enviá el comprobante para confirmar tu pedido',
+  }
   return {
     success: true,
     orderId,
     paymentId: 'pay-' + Date.now(),
     method: method.name,
     amount,
-    status: isCash ? 'pendiente_pago' : 'pagado',
-    message: isCash
-      ? 'Tené el monto exacto preparado para cuando llegue el delivery'
+    status: isPending ? 'pendiente_pago' : 'pagado',
+    message: isPending
+      ? messages[method.type]
       : 'Pago procesado correctamente',
   }
 }
