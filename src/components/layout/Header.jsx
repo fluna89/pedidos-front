@@ -62,9 +62,9 @@ export default function Header() {
             <>
               {!isGuest && (
                 <Link to="/panel" className="hidden sm:block">
-                  <Button variant="ghost" size="sm">
+                  <Button variant="outline" size="sm" className="border-gray-300 font-semibold dark:border-gray-600">
                     <ClipboardList className="mr-1 h-4 w-4" />
-                    Mi panel
+                    Mis pedidos
                   </Button>
                 </Link>
               )}

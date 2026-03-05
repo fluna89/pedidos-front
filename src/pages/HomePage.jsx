@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/button'
 import { UtensilsCrossed, User } from 'lucide-react'
+import ActiveOrderSection from '@/components/panel/ActiveOrderSection'
 
 export default function HomePage() {
   const { isAuthenticated, isGuest, user } = useAuth()
@@ -10,12 +11,20 @@ export default function HomePage() {
     <div className="flex flex-col items-center gap-6 py-12 text-center">
       {/* Guest status banner */}
       {isAuthenticated && isGuest && (
-        <div className="w-full max-w-md rounded-md bg-blue-50 px-4 py-3 text-sm text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+        <div className="w-full max-w-md rounded-md bg-blue-50 px-4 py-3 text-left text-sm text-blue-700 dark:bg-blue-950 dark:text-blue-300">
           <User className="mr-1 inline h-4 w-4" />
-          Estás navegando como <span className="font-semibold">{user?.name || 'invitado'}</span>. Para acumular puntos y guardar direcciones,{' '}
+          Estás navegando como <span className="font-semibold">{user?.name || 'invitado'}</span>.{' '}
           <Link to="/register" className="font-medium underline hover:text-blue-900 dark:hover:text-blue-100">
-            creá una cuenta
-          </Link>.
+            Creá una cuenta
+          </Link>{' '}
+          para ver el estado de tus pedidos, acumular puntos y guardar direcciones.
+        </div>
+      )}
+
+      {/* Active order (visible for registered users) */}
+      {isAuthenticated && !isGuest && (
+        <div className="w-full max-w-md text-left">
+          <ActiveOrderSection />
         </div>
       )}
 

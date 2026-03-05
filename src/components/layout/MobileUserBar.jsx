@@ -25,7 +25,7 @@ export default function MobileUserBar() {
           className="flex items-center gap-1.5 text-xs font-medium text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100"
         >
           <ClipboardList className="h-3 w-3" />
-          Mi panel
+          Mis pedidos
         </Link>
 
         {/* Right: points + addresses shortcut */}
