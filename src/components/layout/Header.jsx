@@ -3,11 +3,11 @@ import { useAuth } from '@/hooks/useAuth'
 import { useTheme } from '@/hooks/useTheme'
 import { useCart } from '@/hooks/useCart'
 import { Button } from '@/components/ui/button'
-import { CircleUserRound, IceCreamCone, LogOut, MapPin, Moon, ShoppingCart, Sun, UtensilsCrossed } from 'lucide-react'
+import { CircleUserRound, ClipboardList, IceCreamCone, LogOut, MapPin, Moon, ShoppingCart, Sun, UtensilsCrossed } from 'lucide-react'
 import PointsBadge from '@/components/loyalty/PointsBadge'
 
 export default function Header() {
-  const { user, isAuthenticated, isGuest, logout } = useAuth()
+  const { isAuthenticated, isGuest, logout } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const { itemCount } = useCart()
 
@@ -60,11 +60,14 @@ export default function Header() {
 
           {isAuthenticated ? (
             <>
-              <Link to="/panel" className="hidden md:inline">
-                <span className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200">
-                  {user.isGuest ? 'Invitado' : user.name}
-                </span>
-              </Link>
+              {!isGuest && (
+                <Link to="/panel" className="hidden sm:block">
+                  <Button variant="ghost" size="sm">
+                    <ClipboardList className="mr-1 h-4 w-4" />
+                    Mi panel
+                  </Button>
+                </Link>
+              )}
               <Button variant="ghost" size="icon" onClick={logout} aria-label="Cerrar sesión" className="text-red-500 hover:bg-red-50 hover:text-red-600 dark:text-red-400 dark:hover:bg-red-950 dark:hover:text-red-300">
                 <LogOut className="h-4 w-4" />
               </Button>
