@@ -99,6 +99,7 @@ export async function createOrder(orderData) {
   await delay(500)
 
   const method = mockPaymentMethods.find((m) => m.id === orderData.paymentMethodId)
+  const isPendingPayment = method && (method.type === 'cash' || method.type === 'manual')
 
   // Normalize cart items to the flat format used by the panel / history views
   const normalizedItems = (orderData.items || []).map((item) => ({
@@ -126,8 +127,10 @@ export async function createOrder(orderData) {
 
   orders.push(order)
 
-  // Start simulated status progression
-  simulateStatusProgression(order)
+  // Only start status progression if payment is already confirmed
+  if (!isPendingPayment) {
+    simulateStatusProgression(order)
+  }
 
   return { ...order }
 }
@@ -143,14 +146,16 @@ export async function getUserOrders(userId) {
     .map((o) => ({ ...o }))
 }
 
-/** Get the active (non-terminal) order for a user, if any. */
-export async function getActiveOrder(userId) {
+/** Get all active (non-terminal) orders for a user, newest first. */
+export async function getActiveOrders(userId) {
   await delay()
   const terminalStatuses = ['entregado', 'cancelado']
-  const active = orders.find(
-    (o) => o.userId === userId && !terminalStatuses.includes(o.status),
-  )
-  return active ? { ...active } : null
+  return orders
+    .filter(
+      (o) => o.userId === userId && !terminalStatuses.includes(o.status),
+    )
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .map((o) => ({ ...o }))
 }
 
 /** Update user account data (name, email). */
@@ -190,6 +195,10 @@ export async function processPayment(orderId, paymentMethodId, amount) {
   if (stored) {
     stored.paymentStatus = paymentStatus
     stored.updatedAt = new Date().toISOString()
+    // If payment just got confirmed, kick off status progression
+    if (paymentStatus === 'pagado') {
+      simulateStatusProgression(stored)
+    }
   }
 
   const messages = {

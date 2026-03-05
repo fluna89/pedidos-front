@@ -2,6 +2,20 @@
 
 Registro de funcionalidades implementadas y planificadas.
 
+## [0.8.6] - 2026-03-05
+
+### Implementado
+
+- **Múltiples pedidos activos**: el panel y la home ahora muestran todos los pedidos en curso, no solo uno
+- **Aviso de pago pendiente**: los pedidos con efectivo o transferencia muestran cartel "Pendiente de pago — el pedido avanzará cuando se confirme el pago"
+
+### Corregido
+
+- **Progresión detenida para pagos pendientes**: los pedidos con pago en efectivo o transferencia ya no avanzan de estado hasta que se confirma el pago
+- `processPayment` arranca la progresión automática cuando el pago se confirma
+
+---
+
 ## [0.8.5] - 2026-03-05
 
 ### Corregido

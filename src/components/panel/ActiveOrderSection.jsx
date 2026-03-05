@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getActiveOrder } from '@/mocks/handlers'
+import { getActiveOrders } from '@/mocks/handlers'
 import { useAuth } from '@/hooks/useAuth'
 import {
   Card,
@@ -8,7 +8,7 @@ import {
   CardDescription,
   CardContent,
 } from '@/components/ui/card'
-import { Loader2, Package, Truck, Store } from 'lucide-react'
+import { Loader2, Package, Truck, Store, Clock } from 'lucide-react'
 
 // Status progress steps for delivery / pickup
 const deliverySteps = [
@@ -72,27 +72,27 @@ function StatusProgress({ status, orderType }) {
 
 export default function ActiveOrderSection() {
   const { user } = useAuth()
-  const [order, setOrder] = useState(undefined) // undefined = loading
+  const [orders, setOrders] = useState(undefined) // undefined = loading
   const [error, setError] = useState('')
 
   useEffect(() => {
     if (!user?.id) return
     let cancelled = false
 
-    function fetchOrder() {
-      getActiveOrder(user.id)
+    function fetchOrders() {
+      getActiveOrders(user.id)
         .then((result) => {
-          if (!cancelled) setOrder(result)
+          if (!cancelled) setOrders(result)
         })
         .catch((err) => {
           if (!cancelled) setError(err.message)
         })
     }
 
-    fetchOrder()
+    fetchOrders()
 
     // Poll every 10 s so simulated status progression is visible
-    const interval = setInterval(fetchOrder, 10_000)
+    const interval = setInterval(fetchOrders, 10_000)
 
     return () => {
       cancelled = true
@@ -100,11 +100,11 @@ export default function ActiveOrderSection() {
     }
   }, [user?.id])
 
-  if (order === undefined) {
+  if (orders === undefined) {
     return (
       <div className="flex items-center gap-2 py-6 text-sm text-gray-400 dark:text-gray-500">
         <Loader2 className="h-4 w-4 animate-spin" />
-        Cargando pedido activo...
+        Cargando pedidos activos...
       </div>
     )
   }
@@ -117,7 +117,7 @@ export default function ActiveOrderSection() {
     )
   }
 
-  if (!order) {
+  if (!orders || orders.length === 0) {
     return (
       <div className="rounded-md bg-gray-50 px-4 py-6 text-center dark:bg-gray-800">
         <Package className="mx-auto mb-2 h-8 w-8 text-gray-300 dark:text-gray-600" />
@@ -128,7 +128,18 @@ export default function ActiveOrderSection() {
     )
   }
 
+  return (
+    <div className="space-y-4">
+      {orders.map((order) => (
+        <OrderCard key={order.id} order={order} />
+      ))}
+    </div>
+  )
+}
+
+function OrderCard({ order }) {
   const isDelivery = order.orderType === 'delivery'
+  const isPendingPayment = order.paymentStatus === 'pendiente_pago'
 
   return (
     <Card>
@@ -157,6 +168,14 @@ export default function ActiveOrderSection() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Pending payment notice */}
+        {isPendingPayment && (
+          <div className="flex items-center gap-2 rounded-md bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:bg-amber-950 dark:text-amber-300">
+            <Clock className="h-3.5 w-3.5 flex-shrink-0" />
+            Pendiente de pago — el pedido avanzará cuando se confirme el pago
+          </div>
+        )}
+
         {/* Status progress bar */}
         <StatusProgress status={order.status} orderType={order.orderType} />
 
