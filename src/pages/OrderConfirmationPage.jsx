@@ -137,7 +137,7 @@ export default function OrderConfirmationPage() {
                 <span className="font-bold">
                   {pendingPointsAmount.toLocaleString('es-AR')}
                 </span>{' '}
-                puntos pendientes de acreditación al confirmar el pago
+                puntos que se acreditarán luego de que se confirme el pago
               </span>
             </div>
           )}
