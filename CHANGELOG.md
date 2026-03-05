@@ -2,6 +2,14 @@
 
 Registro de funcionalidades implementadas y planificadas.
 
+## [0.8.7] - 2026-03-05
+
+### Corregido
+
+- **Tabs del panel no scrolleables**: eliminado scroll horizontal, las tabs se ajustan al ancho disponible
+
+---
+
 ## [0.8.6] - 2026-03-05
 
 ### Implementado

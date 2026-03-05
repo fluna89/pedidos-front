@@ -31,7 +31,7 @@ export default function UserPanelPage() {
       </div>
 
       {/* Tab navigation */}
-      <div className="flex gap-1 overflow-x-auto rounded-lg bg-gray-100 p-1 dark:bg-gray-800">
+      <div className="flex gap-1 rounded-lg bg-gray-100 p-1 dark:bg-gray-800">
         {tabs.map((tab) => {
           const Icon = tab.icon
           return (
@@ -39,7 +39,7 @@ export default function UserPanelPage() {
               key={tab.id}
               type="button"
               className={cn(
-                'flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-md px-3 py-2 text-xs font-medium transition-colors sm:text-sm',
+                'flex flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-2 text-xs font-medium transition-colors sm:px-3 sm:text-sm',
                 activeTab === tab.id
                   ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-900 dark:text-gray-100'
                   : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200',
