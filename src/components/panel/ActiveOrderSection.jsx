@@ -44,23 +44,22 @@ function StatusProgress({ status, orderType }) {
   return (
     <div className="flex items-start gap-1">
       {steps.map((step, i) => {
-        const done = i <= currentIdx
+        const isCurrent = i === currentIdx
+        const isPast = i < currentIdx
+        const barColor = isCurrent
+          ? 'bg-amber-400 dark:bg-amber-500'
+          : isPast
+            ? 'bg-green-500'
+            : 'bg-gray-200 dark:bg-gray-700'
+        const textColor = isCurrent
+          ? 'font-semibold text-amber-600 dark:text-amber-400'
+          : isPast
+            ? 'font-medium text-green-700 dark:text-green-400'
+            : 'text-gray-400 dark:text-gray-500'
         return (
           <div key={step} className="flex min-w-0 flex-1 flex-col items-center gap-1">
-            <div
-              className={
-                done
-                  ? 'h-2 w-full rounded-full bg-green-500'
-                  : 'h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700'
-              }
-            />
-            <span
-              className={`w-full text-center text-[10px] leading-tight ${
-                done
-                  ? 'font-medium text-green-700 dark:text-green-400'
-                  : 'text-gray-400 dark:text-gray-500'
-              }`}
-            >
+            <div className={`h-2 w-full rounded-full ${barColor}`} />
+            <span className={`w-full text-center text-[10px] leading-tight ${textColor}`}>
               {shortLabels[step] || step}
             </span>
           </div>

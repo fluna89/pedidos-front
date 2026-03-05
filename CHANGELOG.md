@@ -2,6 +2,14 @@
 
 Registro de funcionalidades implementadas y planificadas.
 
+## [0.8.10] - 2026-03-05
+
+### Mejorado
+
+- **Barra de progreso con paso actual en amarillo**: el estado actual se muestra en ámbar (barra y texto), los anteriores en verde, los pendientes en gris
+
+---
+
 ## [0.8.9] - 2026-03-05
 
 ### Corregido
