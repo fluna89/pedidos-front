@@ -27,11 +27,13 @@ export default function ProductDetailPage() {
   const [selectedFormat, setSelectedFormat] = useState(null)
   const [selectedFlavors, setSelectedFlavors] = useState([])
   const [flavorQuantities, setFlavorQuantities] = useState({})
+  const [selectedUnitCount, setSelectedUnitCount] = useState(1)
   const [selectedExtras, setSelectedExtras] = useState([])
   const [comment, setComment] = useState('')
   const [added, setAdded] = useState(false)
 
   const isQuantityMode = product?.flavorMode === 'quantity'
+  const isUnitPricing = product?.unitPricing === true
 
   useEffect(() => {
     let cancelled = false
@@ -59,7 +61,7 @@ export default function ProductDetailPage() {
   }, [id, navigate])
 
   const maxFlavors = selectedFormat?.maxFlavors ?? 0
-  const unitCount = selectedFormat?.unitCount ?? 0
+  const unitCount = isUnitPricing ? selectedUnitCount : (selectedFormat?.unitCount ?? 0)
   const totalQuantity = Object.values(flavorQuantities).reduce(
     (sum, q) => sum + q,
     0,
@@ -75,6 +77,28 @@ export default function ProductDetailPage() {
     if (product?.flavorMode === 'quantity') {
       setFlavorQuantities({})
     }
+  }
+
+  function handleUnitCountChange(delta) {
+    setSelectedUnitCount((prev) => {
+      const next = prev + delta
+      if (next < 1) return prev
+      return next
+    })
+    // Trim flavor quantities if total exceeds new count
+    setFlavorQuantities((prev) => {
+      const newMax = selectedUnitCount + delta
+      if (newMax < 1) return prev
+      let remaining = newMax
+      const trimmed = {}
+      for (const [key, val] of Object.entries(prev)) {
+        if (remaining <= 0) break
+        const take = Math.min(val, remaining)
+        trimmed[key] = take
+        remaining -= take
+      }
+      return trimmed
+    })
   }
 
   function toggleFlavor(flavor) {
@@ -113,26 +137,37 @@ export default function ProductDetailPage() {
   }
 
   const flavorsComplete = isQuantityMode
-    ? totalQuantity === unitCount
+    ? totalQuantity === unitCount && unitCount >= 1
     : !product?.hasFlavors || (maxFlavors > 0 && selectedFlavors.length >= 1)
 
   function handleAddToCart() {
     if (!selectedFormat || !flavorsComplete) return
 
     let flavorsForCart = selectedFlavors
+    let formatForCart = selectedFormat
+
     if (isQuantityMode) {
       flavorsForCart = allFlavors
         .filter((f) => flavorQuantities[f.id] > 0)
         .map((f) => ({ id: f.id, name: f.name, quantity: flavorQuantities[f.id] }))
     }
 
-    addItem(product, selectedFormat, selectedExtras, comment, flavorsForCart)
+    // For unit-priced products, build a virtual format with computed total
+    if (isUnitPricing) {
+      formatForCart = {
+        ...selectedFormat,
+        name: `${selectedUnitCount} ${selectedUnitCount === 1 ? 'unidad' : 'unidades'}`,
+        price: selectedUnitCount * selectedFormat.price,
+      }
+    }
+
+    addItem(product, formatForCart, selectedExtras, comment, flavorsForCart)
     setAdded(true)
     setTimeout(() => navigate('/menu'), 800)
   }
 
   const totalPrice = selectedFormat
-    ? selectedFormat.price +
+    ? (isUnitPricing ? selectedUnitCount * selectedFormat.price : selectedFormat.price) +
       selectedExtras.reduce((sum, e) => sum + e.price, 0)
     : 0
 
@@ -167,7 +202,8 @@ export default function ProductDetailPage() {
         </CardHeader>
 
         <CardContent className="space-y-5">
-          {/* Format selection */}
+          {/* Format selection (hidden for unitPricing products) */}
+          {!isUnitPricing && (
           <div className="space-y-2">
             <Label>Formato</Label>
             <div className="grid gap-2">
@@ -203,6 +239,42 @@ export default function ProductDetailPage() {
               ))}
             </div>
           </div>
+          )}
+
+          {/* Unit quantity picker (empanadas, etc.) */}
+          {isUnitPricing && selectedFormat && (
+            <div className="space-y-2">
+              <Label>Cantidad</Label>
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-9 w-9"
+                  disabled={selectedUnitCount <= 1}
+                  onClick={() => handleUnitCountChange(-1)}
+                >
+                  <Minus className="h-4 w-4" />
+                </Button>
+                <span className="min-w-[3rem] text-center text-lg font-semibold">
+                  {selectedUnitCount}
+                </span>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-9 w-9"
+                  onClick={() => handleUnitCountChange(1)}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  × ${selectedFormat.price.toLocaleString('es-AR')} c/u ={' '}
+                  <span className="font-medium text-gray-900 dark:text-gray-100">
+                    ${(selectedUnitCount * selectedFormat.price).toLocaleString('es-AR')}
+                  </span>
+                </span>
+              </div>
+            </div>
+          )}
 
           {/* Flavor selection — toggle mode (ice cream, etc.) */}
           {product.hasFlavors && !isQuantityMode && selectedFormat && (

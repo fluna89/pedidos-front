@@ -2,6 +2,15 @@
 
 Registro de funcionalidades implementadas y planificadas.
 
+## [0.10.1] - 2026-03-08
+
+### Mejorado
+
+- **Empanadas con cantidad libre**: reemplazados los 2 productos fijos (docena / media docena) por un único producto "Empanadas" con selector de cantidad libre — el usuario elige cuántas quiere con +/−, ve precio unitario × cantidad, y luego distribuye gustos
+- **`unitPricing`**: nuevo flag en producto; el precio se calcula por unidad y la sección de formato se oculta automáticamente
+
+---
+
 ## [0.10.0] - 2026-03-08
 
 ### Implementado
