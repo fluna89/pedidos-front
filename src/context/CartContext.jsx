@@ -24,7 +24,7 @@ export function CartProvider({ children }) {
   const [items, setItems] = useState([])
   const [orderComment, setOrderComment] = useState('')
 
-  const addItem = useCallback((product, format, extras = [], comment = '', flavors = []) => {
+  const addItem = useCallback((product, format, extras = [], comment = '', flavors = [], comboSelections = null) => {
     const unitPrice = calcUnitPrice(format, extras)
     const newItem = {
       cartId: 'cart-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
@@ -37,6 +37,7 @@ export function CartProvider({ children }) {
         ...(f.quantity && { quantity: f.quantity }),
         ...(f.price != null && { price: f.price }),
       })),
+      ...(comboSelections && { comboSelections }),
       extras: extras.map((e) => ({ id: e.id, name: e.name, price: e.price })),
       comment,
       quantity: 1,

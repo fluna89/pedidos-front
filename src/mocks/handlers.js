@@ -107,8 +107,14 @@ export async function createOrder(orderData) {
   const normalizedItems = (orderData.items || []).map((item) => ({
     name: item.name,
     format: typeof item.format === 'object' ? item.format.name : item.format,
-    flavors:
-      Array.isArray(item.flavors)
+    flavors: item.comboSelections
+      ? item.comboSelections
+          .map(
+            (cs) =>
+              `${cs.label}: ${cs.flavors.map((f) => (f.quantity > 1 ? `${f.quantity} ${f.name}` : f.name)).join(', ')}`,
+          )
+          .join(' | ')
+      : Array.isArray(item.flavors)
         ? item.flavors
             .map((f) => {
               if (typeof f === 'object')

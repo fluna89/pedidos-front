@@ -41,6 +41,7 @@ export const mockCategories = [
   { id: 'helados', name: 'Helados', icon: '🍦' },
   { id: 'postres', name: 'Postres', icon: '🍨' },
   { id: 'empanadas', name: 'Empanadas', icon: '🥟' },
+  { id: 'combos', name: 'Combos', icon: '🎁' },
   { id: 'bebidas', name: 'Bebidas', icon: '🥤' },
 ]
 
@@ -180,7 +181,38 @@ export const mockMenu = [
     formats: [{ id: 'f-emp', name: 'Empanadas', price: 0 }],
     extras: [],
   },
-
+  // ── Combos ──────────────────────
+  {
+    id: 20,
+    name: 'Combo 2× 1/4 kg',
+    description: '2 helados de 1/4 kg — más helado, mejor precio',
+    category: 'combos',
+    image: '🎁',
+    available: true,
+    isCombo: true,
+    hasFlavors: false,
+    formats: [{ id: 'f-combo-2x14', name: 'Combo 2× 1/4 kg', price: 6000 }],
+    comboItems: [
+      { label: 'Helado 1/4 kg (1°)', unitCount: 2 },
+      { label: 'Helado 1/4 kg (2°)', unitCount: 2 },
+    ],
+    extras: [],
+  },
+  {
+    id: 21,
+    name: 'Combo Docena de empanadas',
+    description: '12 empanadas caseras al mejor precio',
+    category: 'combos',
+    image: '🎁',
+    available: true,
+    isCombo: true,
+    hasFlavors: false,
+    formats: [{ id: 'f-combo-emp12', name: 'Combo docena', price: 8400 }],
+    comboItems: [
+      { label: 'Empanadas (12)', flavorsSource: 'empanadas', unitCount: 12 },
+    ],
+    extras: [],
+  },
   // ── Bebidas ──────────────────
   {
     id: 12,

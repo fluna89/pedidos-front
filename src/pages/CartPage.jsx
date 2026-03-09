@@ -61,6 +61,27 @@ export default function CartPage() {
                   {item.extras.length > 0 &&
                     ' + ' + item.extras.map((e) => e.name).join(', ')}
                 </p>
+                {item.comboSelections && (
+                  <div className="mt-1 space-y-0.5">
+                    {item.comboSelections.map((cs, i) => (
+                      <p
+                        key={i}
+                        className="text-sm text-gray-500 dark:text-gray-400"
+                      >
+                        <span className="font-medium text-gray-600 dark:text-gray-300">
+                          {cs.label}:
+                        </span>{' '}
+                        {cs.flavors
+                          .map((f) =>
+                            f.quantity > 1
+                              ? `${f.name} ×${f.quantity}`
+                              : f.name,
+                          )
+                          .join(', ')}
+                      </p>
+                    ))}
+                  </div>
+                )}
                 {item.comment && (
                   <p className="mt-1 text-xs text-gray-400 dark:text-gray-500 italic">
                     &ldquo;{item.comment}&rdquo;

@@ -2,6 +2,20 @@
 
 Registro de funcionalidades implementadas y planificadas.
 
+## [0.11.0] - 2026-03-08
+
+### Implementado
+
+- **Combos**: nuevo tipo de producto que combina ítems existentes a precio promocional
+- **Combo 2× 1/4 kg** ($6.000 vs $7.000 por separado): 2 helados de 1/4 kg, cada uno con su propia selección de sabores
+- **Combo Docena de empanadas** ($8.400): 12 empanadas con selección de gustos y emojis
+- **Categoría 🎁 Combos** en el filtro del catálogo
+- **Selección de sabores por ítem del combo**: cada componente tiene su propio selector con contador +/- (X de Y) e indicador verde al completar
+- **Carrito muestra detalle del combo**: cada ítem con sus sabores seleccionados
+- **Normalización de pedidos**: los combos se serializan como "Ítem1: sabores | Ítem2: sabores" en el historial
+
+---
+
 ## [0.10.3] - 2026-03-08
 
 ### Mejorado

@@ -27,12 +27,15 @@ export default function ProductDetailPage() {
   const [selectedFormat, setSelectedFormat] = useState(null)
   const [selectedFlavors, setSelectedFlavors] = useState([])
   const [flavorQuantities, setFlavorQuantities] = useState({})
+  const [comboSelections, setComboSelections] = useState([])
+  const [comboFlavorsMap, setComboFlavorsMap] = useState({})
   const [selectedExtras, setSelectedExtras] = useState([])
   const [comment, setComment] = useState('')
   const [added, setAdded] = useState(false)
 
   const isQuantityMode = product?.flavorMode === 'quantity'
   const isUnitPricing = product?.unitPricing === true
+  const isCombo = product?.isCombo === true
   const hasFlavorPrices = allFlavors.length > 0 && allFlavors[0].price != null
 
   useEffect(() => {
@@ -40,12 +43,30 @@ export default function ProductDetailPage() {
     async function load() {
       try {
         const data = await getMenuItem(Number(id))
-        const flavors = await getFlavors(data.flavorsSource)
-        if (!cancelled) {
-          setProduct(data)
-          setAllFlavors(flavors)
-          if (data.formats.length === 1) {
-            setSelectedFormat(data.formats[0])
+
+        if (data.isCombo && data.comboItems) {
+          // Load flavors for each unique source in combo items
+          const sources = [
+            ...new Set(data.comboItems.map((ci) => ci.flavorsSource ?? 'default')),
+          ]
+          const entries = await Promise.all(
+            sources.map(async (src) => [
+              src,
+              await getFlavors(src === 'default' ? undefined : src),
+            ]),
+          )
+          if (!cancelled) {
+            setProduct(data)
+            setComboFlavorsMap(Object.fromEntries(entries))
+            setComboSelections(data.comboItems.map(() => ({})))
+            if (data.formats.length === 1) setSelectedFormat(data.formats[0])
+          }
+        } else {
+          const flavors = await getFlavors(data.flavorsSource)
+          if (!cancelled) {
+            setProduct(data)
+            setAllFlavors(flavors)
+            if (data.formats.length === 1) setSelectedFormat(data.formats[0])
           }
         }
       } catch {
@@ -115,6 +136,31 @@ export default function ProductDetailPage() {
     })
   }
 
+  // ── Combo flavor helpers ────────────────────────────
+  function incrementComboFlavor(itemIndex, flavorId) {
+    setComboSelections((prev) => {
+      const item = { ...prev[itemIndex] }
+      const total = Object.values(item).reduce((s, q) => s + q, 0)
+      if (total >= product.comboItems[itemIndex].unitCount) return prev
+      item[flavorId] = (item[flavorId] || 0) + 1
+      const updated = [...prev]
+      updated[itemIndex] = item
+      return updated
+    })
+  }
+
+  function decrementComboFlavor(itemIndex, flavorId) {
+    setComboSelections((prev) => {
+      const item = { ...prev[itemIndex] }
+      if ((item[flavorId] || 0) <= 0) return prev
+      item[flavorId] = item[flavorId] - 1
+      if (item[flavorId] === 0) delete item[flavorId]
+      const updated = [...prev]
+      updated[itemIndex] = item
+      return updated
+    })
+  }
+
   function toggleExtra(extra) {
     setSelectedExtras((prev) =>
       prev.some((e) => e.id === extra.id)
@@ -129,8 +175,36 @@ export default function ProductDetailPage() {
       : unitCount > 0 && totalQuantity === unitCount
     : !product?.hasFlavors || (maxFlavors > 0 && selectedFlavors.length >= 1)
 
+  const comboComplete = isCombo
+    ? product.comboItems.every((ci, idx) => {
+        const sel = comboSelections[idx] || {}
+        return Object.values(sel).reduce((s, q) => s + q, 0) === ci.unitCount
+      })
+    : true
+
+  const canAdd = isCombo
+    ? selectedFormat && comboComplete
+    : selectedFormat && flavorsComplete
+
   function handleAddToCart() {
-    if (!selectedFormat || !flavorsComplete) return
+    if (!canAdd) return
+
+    if (isCombo) {
+      const comboForCart = product.comboItems.map((ci, idx) => {
+        const sel = comboSelections[idx] || {}
+        const flavors = comboFlavorsMap[ci.flavorsSource ?? 'default'] || []
+        return {
+          label: ci.label,
+          flavors: flavors
+            .filter((f) => sel[f.id] > 0)
+            .map((f) => ({ id: f.id, name: f.name, quantity: sel[f.id] })),
+        }
+      })
+      addItem(product, selectedFormat, selectedExtras, comment, [], comboForCart)
+      setAdded(true)
+      setTimeout(() => navigate('/menu'), 800)
+      return
+    }
 
     let flavorsForCart = selectedFlavors
     let formatForCart = selectedFormat
@@ -234,6 +308,90 @@ export default function ProductDetailPage() {
             </div>
           </div>
           )}
+
+          {/* Combo items selection */}
+          {isCombo && selectedFormat && product.comboItems.map((ci, idx) => {
+            const sel = comboSelections[idx] || {}
+            const currentTotal = Object.values(sel).reduce((s, q) => s + q, 0)
+            const flavors = comboFlavorsMap[ci.flavorsSource ?? 'default'] || []
+            const hasFlavImgs = flavors.length > 0 && flavors[0].image
+
+            return (
+              <div key={idx} className="space-y-2">
+                <Label>
+                  {ci.label}{' '}
+                  <span
+                    className={cn(
+                      'text-sm',
+                      currentTotal === ci.unitCount
+                        ? 'text-green-600 dark:text-green-400'
+                        : 'text-gray-400 dark:text-gray-500',
+                    )}
+                  >
+                    ({currentTotal} de {ci.unitCount})
+                  </span>
+                </Label>
+                <div className="grid gap-2">
+                  {flavors.map((flavor) => {
+                    const qty = sel[flavor.id] || 0
+                    const atLimit = currentTotal >= ci.unitCount
+
+                    return (
+                      <div
+                        key={flavor.id}
+                        className={cn(
+                          'flex items-center gap-3 rounded-md border px-4 py-3 text-sm transition-colors',
+                          qty > 0
+                            ? 'border-gray-900 bg-gray-50 dark:border-gray-100 dark:bg-gray-800'
+                            : 'border-gray-200 dark:border-gray-700',
+                        )}
+                      >
+                        {hasFlavImgs && (
+                          <span className="text-2xl leading-none">
+                            {flavor.image}
+                          </span>
+                        )}
+                        <span className="min-w-0 flex-1 font-medium">
+                          {flavor.name}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            disabled={qty <= 0}
+                            className={cn(
+                              'flex h-7 w-7 items-center justify-center rounded-full border transition-colors',
+                              qty > 0
+                                ? 'border-gray-300 hover:border-gray-500 dark:border-gray-600 dark:hover:border-gray-400'
+                                : 'cursor-not-allowed border-gray-100 text-gray-300 dark:border-gray-800 dark:text-gray-600',
+                            )}
+                            onClick={() => decrementComboFlavor(idx, flavor.id)}
+                          >
+                            <Minus className="h-3 w-3" />
+                          </button>
+                          <span className="w-5 text-center font-medium">
+                            {qty}
+                          </span>
+                          <button
+                            type="button"
+                            disabled={atLimit}
+                            className={cn(
+                              'flex h-7 w-7 items-center justify-center rounded-full border transition-colors',
+                              atLimit
+                                ? 'cursor-not-allowed border-gray-100 text-gray-300 dark:border-gray-800 dark:text-gray-600'
+                                : 'border-gray-300 hover:border-gray-500 dark:border-gray-600 dark:hover:border-gray-400',
+                            )}
+                            onClick={() => incrementComboFlavor(idx, flavor.id)}
+                          >
+                            <Plus className="h-3 w-3" />
+                          </button>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )
+          })}
 
           {/* Flavor selection — toggle mode (ice cream, etc.) */}
           {product.hasFlavors && !isQuantityMode && selectedFormat && (
@@ -482,7 +640,7 @@ export default function ProductDetailPage() {
         <CardFooter>
           <Button
             className="w-full"
-            disabled={!selectedFormat || !flavorsComplete || added}
+            disabled={!canAdd || added}
             onClick={handleAddToCart}
           >
             {added ? (
