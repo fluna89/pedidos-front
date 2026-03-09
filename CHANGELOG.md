@@ -2,6 +2,15 @@
 
 Registro de funcionalidades implementadas y planificadas.
 
+## [0.11.4] - 2026-03-09
+
+### Implementado
+
+- **Barra flotante de carrito**: barra fija en la parte inferior que aparece cuando hay ítems en el carrito, muestra cantidad de ítems + subtotal + botón "Ver carrito"
+- Se oculta automáticamente en `/cart`, `/checkout` y `/order-confirmation`
+- Padding inferior en el `<main>` para evitar que la barra tape contenido
+- Diseño responsive: funciona en mobile y desktop
+
 ## [0.11.3] - 2026-03-08
 
 ### Cambiado
