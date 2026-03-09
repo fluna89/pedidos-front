@@ -2,12 +2,6 @@
 
 Registro de funcionalidades implementadas y planificadas.
 
-## [0.11.5] - 2026-03-09
-
-### Cambiado
-
-- Texto de la barra flotante: "Ver carrito" → "Finalizar compra"
-
 ## [0.11.4] - 2026-03-09
 
 ### Implementado

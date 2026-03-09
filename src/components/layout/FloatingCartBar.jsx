@@ -27,7 +27,7 @@ export default function FloatingCartBar() {
                 {itemCount > 99 ? '99+' : itemCount}
               </span>
             </div>
-            <span className="text-sm font-semibold sm:text-base">Finalizar compra</span>
+            <span className="text-sm font-semibold sm:text-base">Ver carrito</span>
           </div>
           <span className="text-sm font-bold sm:text-base">
             ${subtotal.toLocaleString('es-AR')}
