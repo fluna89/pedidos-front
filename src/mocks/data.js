@@ -33,6 +33,25 @@ export const mockEmpanadaFlavors = [
   { id: 'emp-verdura', name: 'Verdura', price: 750, image: '🥬' },
 ]
 
+// ── Gustos de pizza ────────────────────────────────────
+
+export const mockPizzaFlavors = [
+  { id: 'pz-muzza', name: 'Muzzarella', image: '🧀' },
+  { id: 'pz-napo', name: 'Napolitana', image: '🍅' },
+  { id: 'pz-fuga', name: 'Fugazzeta', image: '🧅' },
+  { id: 'pz-jym', name: 'Jamón y morrones', image: '🫑' },
+  { id: 'pz-cala', name: 'Calabresa', image: '🌶️' },
+  { id: 'pz-roq', name: 'Roquefort', image: '🧈' },
+]
+
+// ── Opciones de gaseosa (para combos) ──────────────────
+
+export const mockGaseosaFlavors = [
+  { id: 'gas-coca', name: 'Coca-Cola', image: '🥤' },
+  { id: 'gas-sprite', name: 'Sprite', image: '🥤' },
+  { id: 'gas-fanta', name: 'Fanta', image: '🥤' },
+]
+
 // ── Catálogo ───────────────────────────────────────────
 // Flat product list — each item is a single SKU with one format.
 // The user sees everything at a glance without navigating categories.
@@ -41,6 +60,7 @@ export const mockCategories = [
   { id: 'helados', name: 'Helados', icon: '🍦' },
   { id: 'postres', name: 'Postres', icon: '🍨' },
   { id: 'empanadas', name: 'Empanadas', icon: '🥟' },
+  { id: 'pizzas', name: 'Pizzas', icon: '🍕' },
   { id: 'combos', name: 'Combos', icon: '🎁' },
   { id: 'bebidas', name: 'Bebidas', icon: '🥤' },
 ]
@@ -181,6 +201,20 @@ export const mockMenu = [
     formats: [{ id: 'f-emp', name: 'Empanadas', price: 0 }],
     extras: [],
   },
+  // ── Pizzas ───────────────────────
+  {
+    id: 22,
+    name: 'Pizza muzzarella',
+    description: 'Pizza casera recién salida del horno — elegí tu gusto',
+    category: 'pizzas',
+    image: '🍕',
+    available: true,
+    hasFlavors: true,
+    flavorMode: 'quantity',
+    flavorsSource: 'pizzas',
+    formats: [{ id: 'f-pizza', name: 'Pizza entera', price: 5500, unitCount: 1 }],
+    extras: [],
+  },
   // ── Combos ──────────────────────
   {
     id: 20,
@@ -210,6 +244,22 @@ export const mockMenu = [
     formats: [{ id: 'f-combo-emp12', name: 'Combo docena', price: 8400 }],
     comboItems: [
       { label: 'Empanadas (12)', flavorsSource: 'empanadas', unitCount: 12 },
+    ],
+    extras: [],
+  },
+  {
+    id: 23,
+    name: 'Combo Pizza + Gaseosa',
+    description: 'Pizza a elección + gaseosa — ¡el mejor precio!',
+    category: 'combos',
+    image: '🎁',
+    available: true,
+    isCombo: true,
+    hasFlavors: false,
+    formats: [{ id: 'f-combo-pizza-gas', name: 'Combo Pizza + Gaseosa', price: 5800 }],
+    comboItems: [
+      { label: 'Pizza', flavorsSource: 'pizzas', unitCount: 1 },
+      { label: 'Gaseosa', flavorsSource: 'gaseosas', unitCount: 1 },
     ],
     extras: [],
   },

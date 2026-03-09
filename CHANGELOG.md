@@ -2,6 +2,14 @@
 
 Registro de funcionalidades implementadas y planificadas.
 
+## [0.11.2] - 2026-03-08
+
+### Implementado
+
+- **Categoría Pizzas** (🍕) con producto Pizza casera (id 22) — selección de gusto (Muzzarella, Napolitana, Fugazzeta, Jamón y morrones, Calabresa, Roquefort)
+- **Combo Pizza + Gaseosa** ($5.800): pizza a elección + gaseosa a elección (Coca-Cola, Sprite, Fanta)
+- Nuevos flavor sources: `pizzas` y `gaseosas` en handlers
+
 ## [0.11.1] - 2026-03-08
 
 ### Mejorado
