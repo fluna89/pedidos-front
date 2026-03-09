@@ -233,7 +233,7 @@ export default function CheckoutPage() {
             </Link>
           </CardContent>
           <CardFooter className="justify-center">
-            <Button variant="ghost" size="sm" onClick={() => navigate('/cart')}>
+            <Button variant="outline" size="sm" onClick={() => navigate('/cart')}>
               <ArrowLeft className="mr-1 h-4 w-4" />
               Volver al carrito
             </Button>
@@ -534,7 +534,7 @@ export default function CheckoutPage() {
             </div>
           )}
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
             onClick={() => navigate('/cart')}
           >

@@ -2,6 +2,12 @@
 
 Registro de funcionalidades implementadas y planificadas.
 
+## [0.11.5] - 2026-03-09
+
+### Mejorado
+
+- **Botones de volver** más destacados: cambiados de `ghost` a `outline` en ProductDetailPage, CartPage y CheckoutPage
+
 ## [0.11.4] - 2026-03-09
 
 ### Implementado

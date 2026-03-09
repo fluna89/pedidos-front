@@ -254,7 +254,7 @@ export default function ProductDetailPage() {
       <Card className="w-full max-w-lg">
         <CardHeader>
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
             className="mb-2 w-fit"
             onClick={() => navigate('/menu')}

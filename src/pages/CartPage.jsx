@@ -35,7 +35,7 @@ export default function CartPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold">Mi pedido</h1>
         <Link to="/menu">
-          <Button variant="ghost" size="sm">
+          <Button variant="outline" size="sm">
             <ArrowLeft className="mr-1 h-4 w-4" />
             Seguir pidiendo
           </Button>
