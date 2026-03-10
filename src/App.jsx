@@ -1,12 +1,14 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from '@/context/AuthContext'
 import { ThemeProvider } from '@/context/ThemeContext'
 import { AddressProvider } from '@/context/AddressContext'
 import { CartProvider } from '@/context/CartContext'
 import { LoyaltyProvider } from '@/context/LoyaltyContext'
 import AppLayout from '@/components/layout/AppLayout'
+import AdminLayout from '@/components/layout/AdminLayout'
 import GuestRoute from '@/components/auth/GuestRoute'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
+import AdminRoute from '@/components/auth/AdminRoute'
 import HomePage from '@/pages/HomePage'
 import LoginPage from '@/pages/LoginPage'
 import RegisterPage from '@/pages/RegisterPage'
@@ -19,6 +21,7 @@ import CartPage from '@/pages/CartPage'
 import CheckoutPage from '@/pages/CheckoutPage'
 import OrderConfirmationPage from '@/pages/OrderConfirmationPage'
 import UserPanelPage from '@/pages/UserPanelPage'
+import AdminPedidosPage from '@/pages/admin/AdminPedidosPage'
 
 function App() {
   return (
@@ -42,6 +45,12 @@ function App() {
                   <Route path="/guest" element={<GuestRoute><GuestPage /></GuestRoute>} />
                   <Route path="/addresses" element={<ProtectedRoute><AddressesPage /></ProtectedRoute>} />
                   <Route path="/panel" element={<ProtectedRoute><UserPanelPage /></ProtectedRoute>} />
+                </Route>
+
+                {/* Admin routes */}
+                <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+                  <Route index element={<Navigate to="/admin/pedidos" replace />} />
+                  <Route path="pedidos" element={<AdminPedidosPage />} />
                 </Route>
               </Routes>
             </BrowserRouter>

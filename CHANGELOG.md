@@ -2,6 +2,22 @@
 
 Registro de funcionalidades implementadas y planificadas.
 
+## [0.12.0] - 2026-03-09
+
+### Implementado — Panel Admin (Fase 1a)
+
+- **Layout admin** con sidebar de navegación, tema claro/oscuro, botón de logout
+- **Autenticación admin**: nuevo rol `admin` en el sistema de auth. Mock user: `admin@ainara.com` / `admin`
+- **AdminRoute** guard: protege rutas `/admin/*`, redirige a login si no es admin
+- **Pedidos — Vista listado**: tabla con columnas ID, fecha, cliente/dirección, tipo de entrega, medio de pago, importe, estado, estado de pago, y acciones
+- **Pedidos — Vista Kanban**: 3 columnas (Entrantes / En proceso / Finalizados) con tarjetas de pedido
+- **Acciones por pedido**: avanzar estado, retroceder estado, cancelar
+- **Badges de estado** con colores diferenciados: pendiente (amarillo), en preparación (azul), listo (verde), en camino (violeta), entregado (gris), cancelado (rojo)
+- **Highlight visual** en filas de pedidos pendientes (fondo amarillo sutil)
+- **Mock data**: 4 pedidos activos adicionales para el admin (distintos estados y clientes)
+- **Redirect automático**: login con admin redirige a `/admin`, login normal a la ruta anterior
+- Rutas: `/admin` → redirige a `/admin/pedidos`
+
 ## [0.11.5] - 2026-03-09
 
 ### Mejorado
@@ -447,9 +463,52 @@ Registro de funcionalidades implementadas y planificadas.
 
 ---
 
-## Roadmap (funcionalidades futuras)
+## Roadmap — Panel de Administración
 
-### Futuro
+> Detalle completo en [`docs/admin-roadmap.md`](docs/admin-roadmap.md)
+
+### v1.0.0 — Fase 1: MVP Admin
+
+- [ ] Layout admin (sidebar + contenido) con autenticación de rol admin
+- [ ] **Pedidos — Listado**: tabla con ID, fecha, cliente, tipo entrega, medio de pago, importe, estado, repartidor, acciones
+- [ ] **Pedidos — Kanban**: 3 columnas (Entrantes / En proceso / Retirados)
+- [ ] **Pedidos — Alertas**: sonido y destaque visual al recibir pedido nuevo
+- [ ] **Pedidos — Acciones básicas**: avanzar/retroceder estado, cancelar
+- [ ] **Productos**: CRUD con los 3 arquetipos (Simple, Slots Fijos, Porciones y Sabores)
+- [ ] **Sabores**: lista maestra global con toggle ON/OFF
+- [ ] **Configuración**: horarios de apertura, apagado de emergencia, mensaje de ausencia
+
+### v1.1.0 — Fase 2: Operación completa
+
+- [ ] **Pedidos — Carga manual**: WhatsApp, mostrador, delivery
+- [ ] **Pedidos — Comanda**: impresión para pegar en bolsa
+- [ ] **Pedidos — Edición**: modificar sabores, dirección, extras
+- [ ] **Pedidos — Especiales**: pedido sin costo (reposición), forzar fuera de zona
+- [ ] **Pedidos — Delivery**: estados paralelos (buscando repartidor → retirado → entregado)
+- [ ] **Zonas**: configuración por radio y polígono, demora estimada, apagar zona
+- [ ] **Delivery**: lista de repartidores, asignación
+- [ ] **Configuración**: pagos (efectivo on/off, compra mínima, precios diferenciados)
+
+### v1.2.0 — Fase 3: Clientes y fidelización
+
+- [ ] **Clientes**: listado, clasificación VIP, notas privadas, historial de pedidos
+- [ ] **Puntos**: configuración de acumulación y canje desde admin
+- [ ] **Puntos Usados**: historial de canjes
+- [ ] **Promos**: CRUD de promos, vinculación a productos o al carrito
+
+### v1.3.0 — Fase 4: Facturación y analítica
+
+- [ ] **Facturación**: acumulados por fecha/medio de pago, caja chica, exportación CSV/Excel
+- [ ] **Informe**: origen de clientes (UTM), encuesta post-pedido
+- [ ] **Rentabilidad**: costos estimados, análisis TC y comisiones
+
+### v1.4.0 — Fase 5: Integraciones
+
+- [ ] Integración Rapiboy (GPS tracking de delivery)
+- [ ] Gift cards / vouchers
+- [ ] Cash flow y estado de resultados
+
+### Futuro (sin versión asignada)
 
 - [ ] Integración con backend real (Python)
 - [ ] Notificaciones en tiempo real

@@ -3,7 +3,8 @@ import { AuthContext } from '@/context/auth-context'
 
 // Mock: simula autenticación. Reemplazar con llamadas reales al backend.
 const MOCK_USERS = [
-  { id: 1, name: 'Juan Pérez', email: 'juan@test.com', password: '1234' },
+  { id: 1, name: 'Juan Pérez', email: 'juan@test.com', password: '1234', role: 'customer' },
+  { id: 2, name: 'Admin Ainara', email: 'admin@ainara.com', password: 'admin', role: 'admin' },
 ]
 
 function generateToken() {
@@ -43,6 +44,7 @@ export function AuthProvider({ children }) {
       id: found.id,
       name: found.name,
       email: found.email,
+      role: found.role || 'customer',
       token: generateToken(),
     }
     persistUser(userData)
@@ -127,6 +129,7 @@ export function AuthProvider({ children }) {
     user,
     isAuthenticated: !!user,
     isGuest: user?.isGuest || false,
+    isAdmin: user?.role === 'admin',
     login,
     loginWithGoogle,
     register,

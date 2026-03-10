@@ -15,6 +15,7 @@ import {
   mockCoupons,
   mockPaymentMethods,
   mockOrders,
+  orderStatusLabels,
 } from './data'
 
 const MOCK_DELAY = 300 // ms
@@ -459,4 +460,74 @@ export async function validateCoupon(code, subtotal = 0) {
     },
     discount,
   }
+}
+
+// ── Admin Handlers ────────────────────────────────────
+
+const adminOrderFlow = [
+  'pendiente',
+  'en_preparacion',
+  'listo',
+  'en_camino',
+  'entregado',
+]
+
+/** Get all orders, newest first (admin). */
+export async function adminGetAllOrders() {
+  await delay()
+  return orders
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .map((o) => ({ ...o }))
+}
+
+/** Advance an order to the next status (admin). */
+export async function adminAdvanceOrder(orderId) {
+  await delay()
+  const order = orders.find((o) => o.id === orderId)
+  if (!order) throw new Error('Pedido no encontrado')
+
+  const flow = order.orderType === 'pickup'
+    ? adminOrderFlow.filter((s) => s !== 'en_camino')
+    : adminOrderFlow
+  const idx = flow.indexOf(order.status)
+  if (idx === -1 || idx >= flow.length - 1) {
+    throw new Error('El pedido ya está en su estado final')
+  }
+  order.status = flow[idx + 1]
+  order.updatedAt = new Date().toISOString()
+  return { ...order }
+}
+
+/** Move an order back to the previous status (admin). */
+export async function adminRevertOrder(orderId) {
+  await delay()
+  const order = orders.find((o) => o.id === orderId)
+  if (!order) throw new Error('Pedido no encontrado')
+
+  const flow = order.orderType === 'pickup'
+    ? adminOrderFlow.filter((s) => s !== 'en_camino')
+    : adminOrderFlow
+  const idx = flow.indexOf(order.status)
+  if (idx <= 0) {
+    throw new Error('El pedido ya está en su primer estado')
+  }
+  order.status = flow[idx - 1]
+  order.updatedAt = new Date().toISOString()
+  return { ...order }
+}
+
+/** Cancel an order (admin). */
+export async function adminCancelOrder(orderId) {
+  await delay()
+  const order = orders.find((o) => o.id === orderId)
+  if (!order) throw new Error('Pedido no encontrado')
+  if (order.status === 'entregado') throw new Error('No se puede cancelar un pedido entregado')
+  order.status = 'cancelado'
+  order.updatedAt = new Date().toISOString()
+  return { ...order }
+}
+
+/** Get status labels for display. */
+export function getOrderStatusLabels() {
+  return { ...orderStatusLabels }
 }

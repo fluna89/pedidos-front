@@ -358,6 +358,7 @@ export const mockOrders = [
     userId: 1,
     status: 'entregado',
     orderType: 'delivery',
+    customerName: 'Juan Pérez',
     items: [
       {
         name: 'Helado por kilo',
@@ -384,6 +385,7 @@ export const mockOrders = [
     userId: 1,
     status: 'entregado',
     orderType: 'pickup',
+    customerName: 'Juan Pérez',
     items: [
       {
         name: 'Torta helada',
@@ -417,6 +419,7 @@ export const mockOrders = [
     userId: 1,
     status: 'entregado',
     orderType: 'delivery',
+    customerName: 'Juan Pérez',
     items: [
       {
         name: 'Helado por kilo',
@@ -437,6 +440,82 @@ export const mockOrders = [
     address: { alias: 'Casa', street: 'Av. Corrientes 1234' },
     createdAt: '2026-01-20T14:00:00Z',
     updatedAt: '2026-01-20T15:15:00Z',
+  },
+  // ── Pedidos activos para el admin ─────────────
+  {
+    id: 3001,
+    userId: 'guest-100',
+    status: 'pendiente',
+    orderType: 'delivery',
+    customerName: 'María López',
+    items: [
+      { name: 'Helado 1/4 kg', format: '1/4 kg', flavors: 'Dulce de leche, Chocolate', quantity: 2, unitPrice: 3500 },
+      { name: 'Coca-Cola', format: 'Lata 354ml', flavors: '', quantity: 1, unitPrice: 800 },
+    ],
+    subtotal: 7800,
+    deliveryCost: 800,
+    total: 8600,
+    paymentMethod: 'Mercado Pago',
+    paymentStatus: 'pagado',
+    address: { alias: 'Casa', street: 'Av. Santa Fe 2100' },
+    createdAt: '2026-03-09T14:30:00Z',
+    updatedAt: '2026-03-09T14:30:00Z',
+  },
+  {
+    id: 3002,
+    userId: 3,
+    status: 'en_preparacion',
+    orderType: 'delivery',
+    customerName: 'Carlos Ruiz',
+    items: [
+      { name: 'Pizza muzzarella', format: 'Pizza entera', flavors: '', quantity: 1, unitPrice: 5500 },
+      { name: 'Empanadas', format: 'Empanadas', flavors: '4 Carne, 2 Pollo', quantity: 1, unitPrice: 5300 },
+    ],
+    subtotal: 10800,
+    deliveryCost: 500,
+    total: 11300,
+    paymentMethod: 'Efectivo',
+    paymentStatus: 'pendiente_pago',
+    address: { alias: 'Oficina', street: 'Lavalle 800' },
+    createdAt: '2026-03-09T14:15:00Z',
+    updatedAt: '2026-03-09T14:20:00Z',
+  },
+  {
+    id: 3003,
+    userId: 4,
+    status: 'listo',
+    orderType: 'pickup',
+    customerName: 'Ana García',
+    items: [
+      { name: 'Combo 2× 1/4 kg', format: 'Combo 2× 1/4 kg', flavors: 'Helado 1/4 kg (1°): Frutilla, Limón | Helado 1/4 kg (2°): Chocolate, Pistacho', quantity: 1, unitPrice: 6000 },
+    ],
+    subtotal: 6000,
+    deliveryCost: 0,
+    total: 6000,
+    paymentMethod: 'Mercado Pago',
+    paymentStatus: 'pagado',
+    address: null,
+    createdAt: '2026-03-09T13:50:00Z',
+    updatedAt: '2026-03-09T14:10:00Z',
+  },
+  {
+    id: 3004,
+    userId: 5,
+    status: 'pendiente',
+    orderType: 'delivery',
+    customerName: 'Roberto Díaz',
+    items: [
+      { name: 'Combo Pizza + 2 Gaseosas', format: 'Combo Pizza + 2 Gaseosas', flavors: 'Gaseosa: Coca-Cola, Sprite', quantity: 1, unitPrice: 6500 },
+      { name: 'Helado 1 kg', format: '1 kg', flavors: 'Dulce de leche, Chocolate amargo, Sambayón, Tramontana, Pistacho', quantity: 1, unitPrice: 9000 },
+    ],
+    subtotal: 15500,
+    deliveryCost: 1200,
+    total: 16700,
+    paymentMethod: 'Transferencia bancaria',
+    paymentStatus: 'pendiente_pago',
+    address: { alias: 'Casa', street: 'Av. Callao 350' },
+    createdAt: '2026-03-09T14:45:00Z',
+    updatedAt: '2026-03-09T14:45:00Z',
   },
 ]
 
