@@ -34,6 +34,7 @@ import {
   Plus,
   ImagePlus,
   FileText,
+  Image,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -219,25 +220,44 @@ function KanbanColumn({ title, orders, onAdvance, onRevert, onCancel, newOrderId
   )
 }
 
+// ── Image Preview Dialog ───────────────────────────────
+
+function ImagePreviewDialog({ imageUrl, open, onOpenChange }) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Imagen adjunta</DialogTitle>
+          <DialogDescription>Imagen adjunta a la cancelación del pedido.</DialogDescription>
+        </DialogHeader>
+        {imageUrl && (
+          <img
+            src={imageUrl}
+            alt="Adjunto cancelación"
+            className="max-h-[70vh] w-full rounded-md object-contain"
+          />
+        )}
+      </DialogContent>
+    </Dialog>
+  )
+}
+
 // ── Cancel Order Dialog ────────────────────────────────
 
 function CancelOrderDialog({ orderId, open, onOpenChange, onConfirm }) {
   const [reason, setReason] = useState('')
-  const [imageFile, setImageFile] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
   const [submitting, setSubmitting] = useState(false)
 
   function handleImageChange(e) {
     const file = e.target.files?.[0]
     if (!file) return
-    setImageFile(file)
     const reader = new FileReader()
     reader.onloadend = () => setImagePreview(reader.result)
     reader.readAsDataURL(file)
   }
 
   function removeImage() {
-    setImageFile(null)
     setImagePreview(null)
   }
 
@@ -249,7 +269,6 @@ function CancelOrderDialog({ orderId, open, onOpenChange, onConfirm }) {
     await onConfirm(orderId, { reason: reason.trim(), imageUrl: imagePreview })
     setSubmitting(false)
     setReason('')
-    setImageFile(null)
     setImagePreview(null)
     onOpenChange(false)
   }
@@ -323,7 +342,7 @@ function CancelOrderDialog({ orderId, open, onOpenChange, onConfirm }) {
 
 // ── Cancelled Orders Section ───────────────────────────
 
-function CancelledSection({ orders, onRevert }) {
+function CancelledSection({ orders, onRevert, onPreviewImage }) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -370,11 +389,13 @@ function CancelledSection({ orders, onRevert }) {
                   </p>
                 )}
                 {order.cancelImageUrl && (
-                  <img
-                    src={order.cancelImageUrl}
-                    alt="Adjunto cancelación"
-                    className="mt-1 max-h-16 rounded border border-red-200 object-contain dark:border-red-900/30"
-                  />
+                  <button
+                    onClick={() => onPreviewImage(order.cancelImageUrl)}
+                    className="mt-1 flex cursor-pointer items-center gap-1 text-[10px] text-blue-600 hover:text-blue-700 dark:text-blue-400"
+                  >
+                    <Image className="h-2.5 w-2.5" />
+                    Ver imagen
+                  </button>
                 )}
                 <Button
                   variant="ghost"
@@ -404,6 +425,7 @@ export default function AdminPedidosPage() {
   const [newOrderIds, setNewOrderIds] = useState(new Set())
   const knownIdsRef = useRef(new Set())
   const [cancelDialogOrderId, setCancelDialogOrderId] = useState(null)
+  const [previewImageUrl, setPreviewImageUrl] = useState(null)
 
   const loadOrders = useCallback(async () => {
     setLoading(true)
@@ -601,7 +623,7 @@ export default function AdminPedidosPage() {
             ))}
           </div>
           {cancelledOrders.length > 0 && (
-            <CancelledSection orders={cancelledOrders} onRevert={handleRevert} />
+            <CancelledSection orders={cancelledOrders} onRevert={handleRevert} onPreviewImage={setPreviewImageUrl} />
           )}
         </>
       )}
@@ -664,6 +686,21 @@ export default function AdminPedidosPage() {
                   </td>
                   <td className="px-4 py-3">
                     <StatusBadge status={order.status} />
+                    {order.status === 'cancelado' && order.cancelReason && (
+                      <p className="mt-1 flex items-start gap-1 text-[10px] text-red-600 dark:text-red-400">
+                        <FileText className="mt-0.5 h-2.5 w-2.5 shrink-0" />
+                        <span className="line-clamp-2 max-w-[200px]">{order.cancelReason}</span>
+                      </p>
+                    )}
+                    {order.status === 'cancelado' && order.cancelImageUrl && (
+                      <button
+                        onClick={() => setPreviewImageUrl(order.cancelImageUrl)}
+                        className="mt-1 flex items-center gap-1 text-[10px] text-blue-600 hover:text-blue-700 dark:text-blue-400"
+                      >
+                        <Image className="h-2.5 w-2.5" />
+                        Ver imagen
+                      </button>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <span
@@ -738,6 +775,13 @@ export default function AdminPedidosPage() {
         open={cancelDialogOrderId !== null}
         onOpenChange={(open) => { if (!open) setCancelDialogOrderId(null) }}
         onConfirm={handleConfirmCancel}
+      />
+
+      {/* Image Preview Dialog */}
+      <ImagePreviewDialog
+        imageUrl={previewImageUrl}
+        open={previewImageUrl !== null}
+        onOpenChange={(open) => { if (!open) setPreviewImageUrl(null) }}
       />
     </div>
   )
