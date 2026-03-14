@@ -517,6 +517,26 @@ export const mockOrders = [
     createdAt: '2026-03-09T14:45:00Z',
     updatedAt: '2026-03-09T14:45:00Z',
   },
+  {
+    id: 3005,
+    userId: 6,
+    status: 'cancelado',
+    orderType: 'delivery',
+    customerName: 'Laura Méndez',
+    items: [
+      { name: 'Helado 1/2 kg', format: '1/2 kg', flavors: 'Frutilla, Limón, Chocolate', quantity: 1, unitPrice: 5500 },
+    ],
+    subtotal: 5500,
+    deliveryCost: 800,
+    total: 6300,
+    paymentMethod: 'Mercado Pago',
+    paymentStatus: 'pagado',
+    address: { alias: 'Casa', street: 'Av. Cabildo 1200' },
+    cancelReason: 'Cliente indicó dirección incorrecta y no pudo corregirla a tiempo',
+    cancelImageUrl: 'https://placehold.co/600x400/ef4444/ffffff?text=Captura+chat+cliente',
+    createdAt: '2026-03-09T13:20:00Z',
+    updatedAt: '2026-03-09T13:35:00Z',
+  },
 ]
 
 // Coverage zone — addresses within 5 km of the store are covered
