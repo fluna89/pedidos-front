@@ -2,6 +2,14 @@
 
 Registro de funcionalidades implementadas y planificadas.
 
+## [0.14.4] - 2026-03-16
+
+### Mejorado — Edición inline en detalle de listas
+
+- **Botón "Editar" en tabla navega al detalle**: en vez de abrir un dialog, el botón lleva a la página de detalle de la lista
+- **Edición inline de nombre y precio por item**: en el detalle, el nombre de la lista y el checkbox "Precio individual por item" se editan directamente sin dialog (auto-guardado al perder foco o al cambiar el checkbox)
+- **Dialog simplificado**: el dialog ahora se usa solo para crear nuevas listas
+
 ## [0.14.3] - 2026-03-16
 
 ### Mejorado — Columna productos en listas

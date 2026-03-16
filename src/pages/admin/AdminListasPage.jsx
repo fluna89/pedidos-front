@@ -33,10 +33,10 @@ export default function AdminListasPage() {
 
   // Source form
   const [showNewSource, setShowNewSource] = useState(false)
-  const [editingSource, setEditingSource] = useState(null)
   const [sourceLabel, setSourceLabel] = useState('')
   const [sourceHasItemPrices, setSourceHasItemPrices] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState(null)
+  const [savingMeta, setSavingMeta] = useState(false)
 
   // Flavor detail
   const [flavors, setFlavors] = useState([])
@@ -73,33 +73,17 @@ export default function AdminListasPage() {
   function openNewSource() {
     setSourceLabel('')
     setSourceHasItemPrices(false)
-    setEditingSource(null)
-    setShowNewSource(true)
-  }
-
-  function openEditSource(src) {
-    setSourceLabel(src.label)
-    setSourceHasItemPrices(src.hasItemPrices || false)
-    setEditingSource(src.id)
     setShowNewSource(true)
   }
 
   async function handleSaveSource() {
     const label = sourceLabel.trim()
     if (!label) return
-    if (editingSource) {
-      await adminUpdateFlavorSource(editingSource, {
-        label,
-        hasItemPrices: sourceHasItemPrices,
-      })
-    } else {
-      await adminCreateFlavorSource({
-        label,
-        hasItemPrices: sourceHasItemPrices,
-      })
-    }
+    await adminCreateFlavorSource({
+      label,
+      hasItemPrices: sourceHasItemPrices,
+    })
     setShowNewSource(false)
-    setEditingSource(null)
     await loadSources()
   }
 
@@ -113,8 +97,26 @@ export default function AdminListasPage() {
   // ── Flavor CRUD ──
   function openSourceDetail(src) {
     setSelectedSource(src)
+    setSourceLabel(src.label)
+    setSourceHasItemPrices(src.hasItemPrices || false)
     setView('detail')
     loadFlavors(src.id)
+  }
+
+  async function handleSaveSourceMeta() {
+    if (!selectedSource || !sourceLabel.trim()) return
+    setSavingMeta(true)
+    try {
+      await adminUpdateFlavorSource(selectedSource.id, {
+        label: sourceLabel.trim(),
+        hasItemPrices: sourceHasItemPrices,
+      })
+      const updated = { ...selectedSource, label: sourceLabel.trim(), hasItemPrices: sourceHasItemPrices }
+      setSelectedSource(updated)
+      await loadSources()
+    } finally {
+      setSavingMeta(false)
+    }
   }
 
   async function handleAddFlavor() {
@@ -161,26 +163,48 @@ export default function AdminListasPage() {
           </button>
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="space-y-3">
           <div>
-            <h1 className="text-xl font-bold">{selectedSource.label}</h1>
-            <div className="mt-1 flex items-center gap-2">
-              {selectedSource.hasItemPrices && (
-                <span className="inline-block rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
-                  Precio individual por item
-                </span>
-              )}
-              <span className="text-xs text-gray-400">{flavors.length} opciones</span>
-            </div>
+            <Label className="text-xs text-gray-500 dark:text-gray-400">Nombre de la lista</Label>
+            <Input
+              value={sourceLabel}
+              onChange={(e) => setSourceLabel(e.target.value)}
+              onBlur={handleSaveSourceMeta}
+              placeholder="Nombre de la lista"
+              className="mt-1 text-lg font-bold"
+            />
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => openEditSource(selectedSource)}
-          >
-            <Pencil className="mr-1.5 h-3.5 w-3.5" />
-            Editar lista
-          </Button>
+          <div className="flex items-center justify-between">
+            <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+              <input
+                type="checkbox"
+                checked={sourceHasItemPrices}
+                onChange={(e) => {
+                  setSourceHasItemPrices(e.target.checked)
+                  // Save after state update via setTimeout
+                  const newVal = e.target.checked
+                  setTimeout(async () => {
+                    if (!selectedSource) return
+                    setSavingMeta(true)
+                    try {
+                      await adminUpdateFlavorSource(selectedSource.id, {
+                        label: sourceLabel.trim(),
+                        hasItemPrices: newVal,
+                      })
+                      setSelectedSource((prev) => ({ ...prev, hasItemPrices: newVal }))
+                      await loadSources()
+                    } finally {
+                      setSavingMeta(false)
+                    }
+                  }, 0)
+                }}
+                className="rounded"
+              />
+              Precio individual por item
+            </label>
+            {savingMeta && <span className="text-xs text-gray-400">Guardando...</span>}
+            <span className="text-xs text-gray-400">{flavors.length} opciones</span>
+          </div>
         </div>
 
         {selectedSource.usedBy?.length > 0 && (
@@ -281,48 +305,6 @@ export default function AdminListasPage() {
             </>
           )}
         </div>
-
-        {/* Edit source dialog (reused) */}
-        <Dialog open={showNewSource} onOpenChange={(open) => !open && setShowNewSource(false)}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{editingSource ? 'Editar lista' : 'Nueva lista'}</DialogTitle>
-              <DialogDescription>
-                {editingSource
-                  ? 'Modificá los datos de esta lista de opciones.'
-                  : 'Creá una nueva lista de opciones para usar en tus productos.'}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-3">
-              <div>
-                <Label>Nombre</Label>
-                <Input
-                  value={sourceLabel}
-                  onChange={(e) => setSourceLabel(e.target.value)}
-                  placeholder="Ej: Sabores de helado"
-                  className="mt-1"
-                />
-              </div>
-              <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                <input
-                  type="checkbox"
-                  checked={sourceHasItemPrices}
-                  onChange={(e) => setSourceHasItemPrices(e.target.checked)}
-                  className="rounded"
-                />
-                Precio individual por item
-              </label>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowNewSource(false)}>
-                Cancelar
-              </Button>
-              <Button onClick={handleSaveSource} disabled={!sourceLabel.trim()}>
-                {editingSource ? 'Guardar' : 'Crear lista'}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </div>
     )
   }
@@ -390,7 +372,7 @@ export default function AdminListasPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => openEditSource(src)}
+                        onClick={() => openSourceDetail(src)}
                         title="Editar"
                       >
                         <Pencil className="h-3.5 w-3.5" />
@@ -414,15 +396,13 @@ export default function AdminListasPage() {
         </div>
       )}
 
-      {/* New / Edit source dialog */}
+      {/* New source dialog */}
       <Dialog open={showNewSource} onOpenChange={(open) => !open && setShowNewSource(false)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingSource ? 'Editar lista' : 'Nueva lista'}</DialogTitle>
+            <DialogTitle>Nueva lista</DialogTitle>
             <DialogDescription>
-              {editingSource
-                ? 'Modificá los datos de esta lista de opciones.'
-                : 'Creá una nueva lista de opciones para usar en tus productos.'}
+              Creá una nueva lista de opciones para usar en tus productos.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
@@ -450,7 +430,7 @@ export default function AdminListasPage() {
               Cancelar
             </Button>
             <Button onClick={handleSaveSource} disabled={!sourceLabel.trim()}>
-              {editingSource ? 'Guardar' : 'Crear lista'}
+              Crear lista
             </Button>
           </DialogFooter>
         </DialogContent>
