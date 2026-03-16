@@ -2,6 +2,12 @@
 
 Registro de funcionalidades implementadas y planificadas.
 
+## [0.14.3] - 2026-03-16
+
+### Mejorado — Columna productos en listas
+
+- **Pills por producto**: la columna "Productos" ahora muestra cada producto como un badge/pill individual en vez de texto plano separado por comas
+
 ## [0.14.2] - 2026-03-16
 
 ### Mejorado — Productos vinculados en listas de opciones

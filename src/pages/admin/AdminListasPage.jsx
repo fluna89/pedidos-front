@@ -364,9 +364,13 @@ export default function AdminListasPage() {
                   <td className="px-4 py-2.5 font-medium">{src.label}</td>
                   <td className="px-4 py-2.5">
                     {src.usedBy?.length > 0 ? (
-                      <span className="text-xs text-gray-500 dark:text-gray-400" title={src.usedBy.map((p) => p.name).join(', ')}>
-                        {src.usedBy.map((p) => p.name).join(', ')}
-                      </span>
+                      <div className="flex flex-wrap gap-1">
+                        {src.usedBy.map((p) => (
+                          <span key={p.id} className="inline-block rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5 text-[11px] text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                            {p.name}
+                          </span>
+                        ))}
+                      </div>
                     ) : (
                       <span className="text-xs text-gray-400">Sin usar</span>
                     )}
