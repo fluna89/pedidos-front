@@ -24,6 +24,27 @@ const MOCK_DELAY = 300 // ms
 // Starts with mockOrders from data.js, new orders are appended at runtime.
 const orders = [...mockOrders]
 
+// ── In-memory product store ───────────────────────────────────────
+const products = [...mockMenu]
+let nextProductId =
+  Math.max(...products.map((p) => p.id)) + 1
+
+// ── In-memory flavor stores ──────────────────────────────────────
+const flavorStores = {
+  default: mockFlavors.map((f) => ({ ...f })),
+  empanadas: mockEmpanadaFlavors.map((f) => ({ ...f })),
+  gaseosas: mockGaseosaFlavors.map((f) => ({ ...f })),
+}
+let nextFlavorId = 100
+
+// ── Flavor source metadata (label + description) ─────────────────
+const flavorSourcesMeta = {
+  default: { id: 'default', label: 'Sabores de helado', desc: 'Sabores artesanales', hasItemPrices: false },
+  empanadas: { id: 'empanadas', label: 'Gustos de empanadas', desc: 'Con precio individual por gusto', hasItemPrices: true },
+  gaseosas: { id: 'gaseosas', label: 'Opciones de gaseosa', desc: 'Bebidas disponibles', hasItemPrices: false },
+}
+let nextSourceId = 1
+
 // Status progression timers (configurable seconds per step)
 const STATUS_INTERVAL = 15_000 // 15 s per step
 
@@ -71,13 +92,15 @@ function delay(ms = MOCK_DELAY) {
 
 export async function getMenu() {
   await delay()
-  return mockMenu.filter((item) => item.available).map((item) => ({ ...item }))
+  return mockMenu
+    .filter((item) => !item.paused && !item.counterOnly)
+    .map((item) => ({ ...item }))
 }
 
 export async function getMenuByCategory(categoryId) {
   await delay()
   return mockMenu
-    .filter((item) => item.category === categoryId && item.available)
+    .filter((item) => item.category === categoryId && !item.paused && !item.counterOnly)
     .map((item) => ({ ...item }))
 }
 
@@ -88,9 +111,62 @@ export async function getCategories() {
 
 export async function getFlavors(source) {
   await delay()
-  if (source === 'empanadas') return [...mockEmpanadaFlavors]
-  if (source === 'gaseosas') return [...mockGaseosaFlavors]
-  return [...mockFlavors]
+  const key = source || 'default'
+  return (flavorStores[key] || flavorStores.default).map((f) => ({ ...f }))
+}
+
+export async function adminAddFlavor(source, data) {
+  await delay()
+  const key = source || 'default'
+  if (!flavorStores[key]) throw new Error('Unknown flavor source')
+  const flavor = { id: `fl-${nextFlavorId++}`, name: data.name, ...(data.price != null && { price: data.price }), ...(data.image && { image: data.image }) }
+  flavorStores[key].push(flavor)
+  return { ...flavor }
+}
+
+export async function adminDeleteFlavor(source, flavorId) {
+  await delay()
+  const key = source || 'default'
+  if (!flavorStores[key]) throw new Error('Unknown flavor source')
+  const idx = flavorStores[key].findIndex((f) => f.id === flavorId)
+  if (idx === -1) throw new Error('Flavor not found')
+  flavorStores[key].splice(idx, 1)
+  return { ok: true }
+}
+
+// ── Flavor source CRUD ───────────────────────────────────────────
+
+export async function adminGetFlavorSources() {
+  await delay()
+  return Object.keys(flavorStores).map((key) => ({
+    ...flavorSourcesMeta[key],
+    count: flavorStores[key].length,
+  }))
+}
+
+export async function adminUpdateFlavorSource(id, data) {
+  await delay()
+  if (!flavorSourcesMeta[id]) throw new Error('Unknown flavor source')
+  if (data.label != null) flavorSourcesMeta[id].label = data.label
+  if (data.desc != null) flavorSourcesMeta[id].desc = data.desc
+  if (data.hasItemPrices != null) flavorSourcesMeta[id].hasItemPrices = data.hasItemPrices
+  return { ...flavorSourcesMeta[id], count: flavorStores[id].length }
+}
+
+export async function adminCreateFlavorSource(data) {
+  await delay()
+  const id = `source-${nextSourceId++}`
+  flavorSourcesMeta[id] = { id, label: data.label || 'Nueva lista', desc: data.desc || '', hasItemPrices: data.hasItemPrices || false }
+  flavorStores[id] = []
+  return { ...flavorSourcesMeta[id], count: 0 }
+}
+
+export async function adminDeleteFlavorSource(id) {
+  await delay()
+  if (!flavorSourcesMeta[id]) throw new Error('Unknown flavor source')
+  delete flavorSourcesMeta[id]
+  delete flavorStores[id]
+  return { ok: true }
 }
 
 export async function getMenuItem(id) {
@@ -599,4 +675,53 @@ export async function adminSimulateNewOrder() {
   }
   orders.unshift(newOrder)
   return { ...newOrder }
+}
+
+// ── Admin Product Handlers ────────────────────────────
+
+/** Get all products (admin). */
+export async function adminGetAllProducts() {
+  await delay()
+  return products.map((p) => ({ ...p }))
+}
+
+/** Get all categories (admin). */
+export async function adminGetCategories() {
+  await delay()
+  return [...mockCategories]
+}
+
+/** Create a new product (admin). */
+export async function adminCreateProduct(data) {
+  await delay()
+  const product = { ...data, id: nextProductId++ }
+  products.push(product)
+  return { ...product }
+}
+
+/** Update an existing product (admin). */
+export async function adminUpdateProduct(id, data) {
+  await delay()
+  const idx = products.findIndex((p) => p.id === id)
+  if (idx === -1) throw new Error(`Producto #${id} no encontrado`)
+  products[idx] = { ...products[idx], ...data, id }
+  return { ...products[idx] }
+}
+
+/** Delete a product (admin). */
+export async function adminDeleteProduct(id) {
+  await delay()
+  const idx = products.findIndex((p) => p.id === id)
+  if (idx === -1) throw new Error(`Producto #${id} no encontrado`)
+  products.splice(idx, 1)
+  return { success: true }
+}
+
+/** Toggle product paused state (admin). */
+export async function adminToggleProduct(id) {
+  await delay()
+  const product = products.find((p) => p.id === id)
+  if (!product) throw new Error(`Producto #${id} no encontrado`)
+  product.paused = !product.paused
+  return { ...product }
 }

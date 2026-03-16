@@ -5,14 +5,18 @@ import { Button } from '@/components/ui/button'
 import {
   ClipboardList,
   IceCreamCone,
+  List,
   LogOut,
   Moon,
+  Package,
   Sun,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
   { to: '/admin/pedidos', label: 'Pedidos', icon: ClipboardList },
+  { to: '/admin/productos', label: 'Productos', icon: Package },
+  { to: '/admin/listas', label: 'Listas de opciones', icon: List },
 ]
 
 function SidebarLink({ to, label, icon: Icon }) { // eslint-disable-line no-unused-vars

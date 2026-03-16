@@ -2,6 +2,61 @@
 
 Registro de funcionalidades implementadas y planificadas.
 
+## [0.14.0] - 2026-03-16
+
+### Implementado — Gestión de listas de opciones (admin)
+
+- **AdminListasPage**: nueva página independiente para administrar listas de opciones (sabores, gustos, etc.)
+  - Vista de tabla con nombre, descripción, cantidad de opciones y flag de precio por item
+  - Crear y editar listas mediante dialog (nombre, descripción, checkbox "Precio individual por item")
+  - Eliminar listas vacías con confirmación
+  - Vista de detalle: listado completo de opciones con agregar/eliminar inline
+  - Soporte de precio opcional por opción cuando la lista tiene `hasItemPrices`
+- **Sidebar admin**: nuevo ítem "Listas de opciones" con ícono de lista
+- **Ruta**: `/admin/listas`
+- **Formulario de producto simplificado**: se removió el CRUD inline de listas; queda solo el selector + link a la página de Listas + gestión inline de opciones
+- **CLAUDE.md**: agregada regla de workflow (commit + push con cada cambio)
+
+## [0.13.1] - 2026-03-16
+
+### Mejorado — UX del listado y formulario de productos
+
+- **Indicadores en lista**: badges compactos debajo del nombre muestran cantidad de formatos (violeta) y extras (ámbar) de cada producto
+- **Detalle expandible**: botón chevron en cada fila despliega lista inline de formatos con precios y extras con recargos
+- **Precio por item en lista**: productos con `unitPricing` muestran "Precio por item" en vez de $0
+- **Precio según formato en lista**: productos con múltiples formatos muestran "Según formato" en vez del precio del primer formato
+- **Vista previa móvil**: en pantallas menores a `xl`, la tarjeta de preview aparece al final del formulario (antes solo se veía en desktop)
+- **Badge "Solo mostrador"**: renombrado de "Mostrador" a "Solo mostrador" para mayor claridad
+- **Datos mock enriquecidos**: productos con combinaciones de `paused`, `counterOnly` y múltiples formatos para cubrir todos los estados posibles
+  - Banana Split → pausado
+  - Sundae clásico → solo mostrador
+  - Milkshake grande → pausado + solo mostrador
+  - Pizza muzzarella → 2 formatos (Porción/Entera) + 2 extras
+
+## [0.13.0] - 2026-03-16
+
+### Implementado — CRUD de productos (admin) + componente compartido
+
+- **AdminProductosPage**: nueva página de gestión de productos para el panel admin
+  - Listado con nombre, categoría, precio, tipo, estado y acciones
+  - Formulario de creación/edición con 2 arquetipos: **simple** y **con opciones a elegir** (unifica el antiguo "slots" y "porciones")
+  - Productos pueden usar precio único o expandir a variantes con formatos (para cualquier arquetipo)
+  - Gestión inline de sabores/opciones (agregar con precio opcional, eliminar) por fuente
+  - CRUD de fuentes de opciones (crear, renombrar, eliminar) con flag **"Precio individual por item"**
+  - El flag `hasItemPrices` de la lista determina si el precio va en cada opción (ej: empanadas) o en el formato (ej: helado)
+  - Badge de estado: `● Activo` (verde) / `● Pausado` (gris) + botón de acción separado (⏸/▶)
+  - Checkboxes independientes: **Pausado** (no aparece en menú) y **Solo mostrador** (no aparece online)
+  - Vista previa de tarjeta (columna lateral, sticky) con "Desde $X" para multi-formato
+  - Vista previa de detalle (dialog) usando el componente compartido
+- **ProductDetailView**: nuevo componente compartido (`src/components/catalog/ProductDetailView.jsx`)
+  - Unifica vista de detalle entre página del cliente y preview del admin
+  - Toda la lógica interactiva (formatos, sabores en 3 modos, combos, extras, comentario, agregar al carrito)
+  - Prop `preview` para deshabilitar agregar al carrito
+- **ProductDetailPage refactorizado**: reducido de ~660 a ~95 líneas, delega toda la UI a `ProductDetailView`
+- **ProductCard mejorado**: productos simples muestran controles inline; multi-formato muestra "Desde $X" con precio mínimo
+- **Inputs numéricos**: eliminados spinners nativos (CSS), selección automática al enfocar
+- **Mock handlers**: `adminGetAllProducts`, `adminGetCategories`, `adminCreateProduct`, `adminUpdateProduct`, `adminDeleteProduct`, `adminToggleProduct`, `getFlavors` (por fuente), `adminAddFlavor`, `adminDeleteFlavor`, CRUD de fuentes de sabores con `hasItemPrices`
+
 ## [0.12.4] - 2026-03-14
 
 ### Implementado — Drag & drop en kanban

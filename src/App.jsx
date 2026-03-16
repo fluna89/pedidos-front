@@ -22,6 +22,8 @@ import CheckoutPage from '@/pages/CheckoutPage'
 import OrderConfirmationPage from '@/pages/OrderConfirmationPage'
 import UserPanelPage from '@/pages/UserPanelPage'
 import AdminPedidosPage from '@/pages/admin/AdminPedidosPage'
+import AdminProductosPage from '@/pages/admin/AdminProductosPage'
+import AdminListasPage from '@/pages/admin/AdminListasPage'
 
 function App() {
   return (
@@ -51,6 +53,8 @@ function App() {
                 <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
                   <Route index element={<Navigate to="/admin/pedidos" replace />} />
                   <Route path="pedidos" element={<AdminPedidosPage />} />
+                  <Route path="productos" element={<AdminProductosPage />} />
+                  <Route path="listas" element={<AdminListasPage />} />
                 </Route>
               </Routes>
             </BrowserRouter>
