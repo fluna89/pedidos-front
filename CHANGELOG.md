@@ -1,7 +1,11 @@
 # Changelog - Pedidos Project
 
 Registro de funcionalidades implementadas y planificadas.
+## [0.15.5] - 2026-03-16
 
+### Corregido — Precio dinámico en listado de productos
+
+- **`adminGetAllProducts` recalcula `unitPricing`**: al cambiar una lista de normal a "precio individual" (o viceversa), el listado de productos refleja el cambio inmediatamente sin necesidad de re-guardar cada producto
 ## [0.15.3] - 2026-03-16
 
 ### Corregido — Items pausados visibles en admin, ocultos en catálogo

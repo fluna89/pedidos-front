@@ -710,7 +710,15 @@ export async function adminSimulateNewOrder() {
 /** Get all products (admin). */
 export async function adminGetAllProducts() {
   await delay()
-  return products.map((p) => ({ ...p }))
+  return products.map((p) => {
+    const copy = { ...p }
+    if (p.hasFlavors) {
+      const srcKey = p.flavorsSource || 'default'
+      const meta = flavorSourcesMeta[srcKey]
+      if (meta) copy.unitPricing = meta.hasItemPrices || false
+    }
+    return copy
+  })
 }
 
 /** Get all categories (admin). */
