@@ -4,7 +4,7 @@ import {
   adminCreateFlavorSource,
   adminUpdateFlavorSource,
   adminDeleteFlavorSource,
-  getFlavors,
+  adminGetFlavors,
   adminAddFlavor,
   adminDeleteFlavor,
   adminUpdateFlavor,
@@ -60,7 +60,7 @@ export default function AdminListasPage() {
     setLoadingFlavors(true)
     try {
       const key = sourceId === 'default' ? undefined : sourceId
-      const data = await getFlavors(key)
+      const data = await adminGetFlavors(key)
       setFlavors(data)
     } finally {
       setLoadingFlavors(false)

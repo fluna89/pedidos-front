@@ -6,7 +6,7 @@ import {
   adminUpdateProduct,
   adminDeleteProduct,
   adminToggleProduct,
-  getFlavors,
+  adminGetFlavors,
   adminAddFlavor,
   adminDeleteFlavor,
   adminGetFlavorSources,
@@ -171,7 +171,7 @@ function ProductDetailPreview({ form, categories, flavorSources, open, onClose }
     if (!open || form.archetype === 'simple') return
     let cancelled = false
     const src = form.flavorsSource === 'default' ? undefined : form.flavorsSource
-    getFlavors(src).then((data) => {
+    adminGetFlavors(src).then((data) => {
       if (!cancelled) setFlavors(data)
     })
     return () => { cancelled = true }
@@ -232,7 +232,7 @@ function ProductForm({ product, categories, onSave, onCancel }) {
     setLoadingFlavors(true)
     try {
       const src = form.flavorsSource === 'default' ? undefined : form.flavorsSource
-      const data = await getFlavors(src)
+      const data = await adminGetFlavors(src)
       setFlavorList(data)
     } finally {
       setLoadingFlavors(false)
@@ -525,15 +525,18 @@ function ProductForm({ product, categories, onSave, onCancel }) {
                       {flavorList.map((fl) => (
                         <div
                           key={fl.id}
-                          className="flex items-center justify-between rounded-md bg-white px-2 py-1.5 text-sm dark:bg-gray-900"
+                          className={`flex items-center justify-between rounded-md bg-white px-2 py-1.5 text-sm dark:bg-gray-900 ${fl.paused ? 'opacity-50' : ''}`}
                         >
                           <span className="flex items-center gap-1.5">
                             {fl.image && <span className="text-sm">{fl.image}</span>}
-                            <span>{fl.name}</span>
+                            <span className={fl.paused ? 'line-through' : ''}>{fl.name}</span>
                             {fl.price != null && (
                               <span className="text-xs text-gray-400">
                                 ({formatPrice(fl.price)})
                               </span>
+                            )}
+                            {fl.paused && (
+                              <span className="inline-block rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">Pausado</span>
                             )}
                           </span>
                           <button

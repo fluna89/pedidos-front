@@ -2,6 +2,15 @@
 
 Registro de funcionalidades implementadas y planificadas.
 
+## [0.15.3] - 2026-03-16
+
+### Corregido — Items pausados visibles en admin, ocultos en catálogo
+
+- **`getFlavors` filtra pausados**: el catálogo público ya no muestra opciones pausadas
+- **Nuevo `adminGetFlavors`**: handler admin que devuelve todas las opciones (incluidas pausadas)
+- **Admin productos**: la lista de opciones en el formulario muestra items pausados atenuados con badge "Pausado"
+- **Admin listas**: usa `adminGetFlavors` para ver todas las opciones
+
 ## [0.15.2] - 2026-03-16
 
 ### Corregido — Label "Eliminado" sin tachado
