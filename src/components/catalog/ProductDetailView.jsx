@@ -25,7 +25,6 @@ export default function ProductDetailView({
   const [selectedFormat, setSelectedFormat] = useState(
     product.formats.length === 1 ? product.formats[0] : null,
   )
-  const [selectedFlavors, setSelectedFlavors] = useState([])
   const [flavorQuantities, setFlavorQuantities] = useState({})
   const [comboSelections, setComboSelections] = useState(
     product.comboItems ? product.comboItems.map(() => ({})) : [],
@@ -34,13 +33,11 @@ export default function ProductDetailView({
   const [comment, setComment] = useState('')
   const [added, setAdded] = useState(false)
 
-  const isQuantityMode = product.flavorMode === 'quantity'
   const isUnitPricing = product.unitPricing === true
   const isCombo = product.isCombo === true
   const hasFlavorPrices = allFlavors.length > 0 && allFlavors[0].price != null
   const showFormats = !isUnitPricing && product.formats.length > 1
 
-  const maxFlavors = selectedFormat?.maxFlavors ?? 0
   const unitCount = selectedFormat?.unitCount ?? 0
   const totalQuantity = Object.values(flavorQuantities).reduce(
     (sum, q) => sum + q,
@@ -56,21 +53,7 @@ export default function ProductDetailView({
 
   function handleFormatSelect(fmt) {
     setSelectedFormat(fmt)
-    setSelectedFlavors((prev) =>
-      prev.length > fmt.maxFlavors ? prev.slice(0, fmt.maxFlavors) : prev,
-    )
-    if (product.flavorMode === 'quantity') {
-      setFlavorQuantities({})
-    }
-  }
-
-  function toggleFlavor(flavor) {
-    setSelectedFlavors((prev) => {
-      const exists = prev.some((f) => f.id === flavor.id)
-      if (exists) return prev.filter((f) => f.id !== flavor.id)
-      if (prev.length >= maxFlavors) return prev
-      return [...prev, flavor]
-    })
+    setFlavorQuantities({})
   }
 
   function incrementFlavor(flavorId) {
@@ -123,11 +106,9 @@ export default function ProductDetailView({
     )
   }
 
-  const flavorsComplete = isQuantityMode
-    ? hasFlavorPrices
-      ? totalQuantity >= 1
-      : unitCount > 0 && totalQuantity === unitCount
-    : !product.hasFlavors || (maxFlavors > 0 && selectedFlavors.length >= 1)
+  const flavorsComplete = hasFlavorPrices
+    ? totalQuantity >= 1
+    : unitCount > 0 && totalQuantity === unitCount
 
   const comboComplete = isCombo
     ? product.comboItems.every((ci, idx) => {
@@ -159,19 +140,15 @@ export default function ProductDetailView({
       return
     }
 
-    let flavorsForCart = selectedFlavors
     let formatForCart = selectedFormat
-
-    if (isQuantityMode) {
-      flavorsForCart = allFlavors
-        .filter((f) => flavorQuantities[f.id] > 0)
-        .map((f) => ({
-          id: f.id,
-          name: f.name,
-          quantity: flavorQuantities[f.id],
-          ...(f.price != null && { price: f.price }),
-        }))
-    }
+    const flavorsForCart = allFlavors
+      .filter((f) => flavorQuantities[f.id] > 0)
+      .map((f) => ({
+        id: f.id,
+        name: f.name,
+        quantity: flavorQuantities[f.id],
+        ...(f.price != null && { price: f.price }),
+      }))
 
     if (isUnitPricing && hasFlavorPrices) {
       formatForCart = {
@@ -335,63 +312,8 @@ export default function ProductDetailView({
           )
         })}
 
-      {/* Flavor selection — toggle mode */}
-      {product.hasFlavors && !isQuantityMode && selectedFormat && (
-        <div className="space-y-2">
-          <Label>
-            Sabores{' '}
-            <span className="text-gray-400 dark:text-gray-500">
-              ({selectedFlavors.length} de {maxFlavors} máx.)
-            </span>
-          </Label>
-          <div className="flex flex-wrap gap-2">
-            {allFlavors.map((flavor) => {
-              const selected = selectedFlavors.some(
-                (f) => f.id === flavor.id,
-              )
-              const atLimit =
-                selectedFlavors.length >= maxFlavors && !selected
-
-              if (flavor.paused) {
-                return (
-                  <span
-                    key={flavor.id}
-                    className="cursor-not-allowed rounded-full border border-gray-100 px-3 py-1.5 text-sm text-gray-300 line-through dark:border-gray-800 dark:text-gray-600"
-                  >
-                    {flavor.name}
-                  </span>
-                )
-              }
-
-              return (
-                <button
-                  key={flavor.id}
-                  type="button"
-                  disabled={atLimit}
-                  className={cn(
-                    'rounded-full border px-3 py-1.5 text-sm transition-colors',
-                    selected
-                      ? 'border-gray-900 bg-gray-900 text-white dark:border-gray-100 dark:bg-gray-100 dark:text-gray-900'
-                      : atLimit
-                        ? 'cursor-not-allowed border-gray-100 text-gray-300 dark:border-gray-800 dark:text-gray-600'
-                        : 'border-gray-200 hover:border-gray-400 dark:border-gray-700 dark:hover:border-gray-500',
-                  )}
-                  onClick={() => toggleFlavor(flavor)}
-                >
-                  {selected && (
-                    <Check className="mr-1 inline h-3.5 w-3.5 align-text-bottom" />
-                  )}
-                  {flavor.name}
-                </button>
-              )
-            })}
-          </div>
-        </div>
-      )}
-
       {/* Flavor selection — quantity mode without per-flavor pricing */}
       {product.hasFlavors &&
-        isQuantityMode &&
         !hasFlavorPrices &&
         selectedFormat && (
           <div className="space-y-2">
@@ -476,7 +398,6 @@ export default function ProductDetailView({
 
       {/* Flavor selection — quantity mode with per-flavor pricing */}
       {product.hasFlavors &&
-        isQuantityMode &&
         hasFlavorPrices &&
         selectedFormat && (
           <div className="space-y-2">

@@ -1,6 +1,13 @@
 # Changelog - Pedidos Project
 
 Registro de funcionalidades implementadas y planificadas.
+## [0.15.7] - 2026-03-16
+
+### Removido — Modo toggle (chips) de selección de sabores
+
+- **Código muerto eliminado**: ningún producto usaba el modo toggle (todos usan `flavorMode: 'quantity'`), se eliminó el branch completo de UI, el estado `selectedFlavors`, la función `toggleFlavor` y la variable `maxFlavors`
+- **Simplificación**: `flavorsComplete` y `handleAdd` ya no contemplan el caso toggle, se evalúan directamente en modo cantidad
+
 ## [0.15.6] - 2026-03-16
 
 ### Mejorado — Items pausados visibles pero no seleccionables para el cliente
