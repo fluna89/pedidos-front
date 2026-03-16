@@ -2,6 +2,15 @@
 
 Registro de funcionalidades implementadas y planificadas.
 
+## [0.14.2] - 2026-03-16
+
+### Mejorado — Productos vinculados en listas de opciones
+
+- **Columna "Productos" en tabla**: muestra los nombres de los productos que usan cada lista
+- **Banner informativo en detalle**: al entrar a una lista usada por productos, se muestra un aviso azul con los nombres y la advertencia de que los cambios impactan a todos
+- **Handler `adminGetFlavorSources`**: ahora incluye `usedBy` con id y nombre de productos vinculados (directos y combo items)
+- **Protección de eliminación**: no se puede eliminar una lista que esté en uso por algún producto
+
 ## [0.14.1] - 2026-03-16
 
 ### Mejorado — Listas de opciones

@@ -183,6 +183,18 @@ export default function AdminListasPage() {
           </Button>
         </div>
 
+        {selectedSource.usedBy?.length > 0 && (
+          <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 dark:border-blue-800 dark:bg-blue-950/30">
+            <p className="text-sm text-blue-800 dark:text-blue-300">
+              <span className="font-medium">Usada por {selectedSource.usedBy.length} producto{selectedSource.usedBy.length !== 1 ? 's' : ''}:</span>{' '}
+              {selectedSource.usedBy.map((p) => p.name).join(', ')}
+            </p>
+            <p className="mt-0.5 text-xs text-blue-600 dark:text-blue-400">
+              Los cambios en esta lista se reflejan en todos los productos que la usan.
+            </p>
+          </div>
+        )}
+
         {/* Flavor list */}
         <div className="rounded-lg border border-gray-200 dark:border-gray-700">
           {loadingFlavors ? (
@@ -336,6 +348,7 @@ export default function AdminListasPage() {
             <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase tracking-wider text-gray-500 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-400">
               <tr>
                 <th className="px-4 py-2.5">Nombre</th>
+                <th className="px-4 py-2.5">Productos</th>
                 <th className="px-4 py-2.5 text-center">Opciones</th>
                 <th className="px-4 py-2.5 text-center">Precio por item</th>
                 <th className="px-4 py-2.5 text-right">Acciones</th>
@@ -349,6 +362,15 @@ export default function AdminListasPage() {
                   onClick={() => openSourceDetail(src)}
                 >
                   <td className="px-4 py-2.5 font-medium">{src.label}</td>
+                  <td className="px-4 py-2.5">
+                    {src.usedBy?.length > 0 ? (
+                      <span className="text-xs text-gray-500 dark:text-gray-400" title={src.usedBy.map((p) => p.name).join(', ')}>
+                        {src.usedBy.map((p) => p.name).join(', ')}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-gray-400">Sin usar</span>
+                    )}
+                  </td>
                   <td className="px-4 py-2.5 text-center font-mono">{src.count}</td>
                   <td className="px-4 py-2.5 text-center">
                     {src.hasItemPrices ? (
@@ -375,7 +397,7 @@ export default function AdminListasPage() {
                         onClick={() => setDeleteTarget(src)}
                         title="Eliminar"
                         className="text-red-500 hover:text-red-700"
-                        disabled={src.count > 0}
+                        disabled={src.count > 0 || src.usedBy?.length > 0}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>

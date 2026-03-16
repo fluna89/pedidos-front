@@ -138,10 +138,19 @@ export async function adminDeleteFlavor(source, flavorId) {
 
 export async function adminGetFlavorSources() {
   await delay()
-  return Object.keys(flavorStores).map((key) => ({
-    ...flavorSourcesMeta[key],
-    count: flavorStores[key].length,
-  }))
+  return Object.keys(flavorStores).map((key) => {
+    // Find products that reference this flavor source
+    const usedBy = products.filter((p) => {
+      const directMatch = p.hasFlavors && (p.flavorsSource || 'default') === key
+      const comboMatch = p.comboItems?.some((ci) => ci.flavorsSource === key)
+      return directMatch || comboMatch
+    }).map((p) => ({ id: p.id, name: p.name }))
+    return {
+      ...flavorSourcesMeta[key],
+      count: flavorStores[key].length,
+      usedBy,
+    }
+  })
 }
 
 export async function adminUpdateFlavorSource(id, data) {
