@@ -10,7 +10,7 @@ export const mockFlavors = [
   { id: 'fl-choc-am', name: 'Chocolate amargo' },
   { id: 'fl-fru', name: 'Frutilla' },
   { id: 'fl-cre', name: 'Crema americana' },
-  { id: 'fl-sam', name: 'Sambayón' },
+  { id: 'fl-sam', name: 'Sambayón', paused: true },
   { id: 'fl-lim', name: 'Limón' },
   { id: 'fl-men', name: 'Menta granizada' },
   { id: 'fl-tra', name: 'Tramontana' },
@@ -28,7 +28,7 @@ export const mockEmpanadaFlavors = [
   { id: 'emp-carne', name: 'Carne', price: 900, image: '🥩' },
   { id: 'emp-pollo', name: 'Pollo', price: 850, image: '🍗' },
   { id: 'emp-jyq', name: 'Jamón y queso', price: 800, image: '🧀' },
-  { id: 'emp-humita', name: 'Humita', price: 800, image: '🌽' },
+  { id: 'emp-humita', name: 'Humita', price: 800, image: '🌽', paused: true },
   { id: 'emp-caprese', name: 'Caprese', price: 850, image: '🍅' },
   { id: 'emp-verdura', name: 'Verdura', price: 750, image: '🥬' },
 ]
@@ -38,7 +38,7 @@ export const mockEmpanadaFlavors = [
 export const mockGaseosaFlavors = [
   { id: 'gas-coca', name: 'Coca-Cola', image: '🥤' },
   { id: 'gas-sprite', name: 'Sprite', image: '🥤' },
-  { id: 'gas-fanta', name: 'Fanta', image: '🥤' },
+  { id: 'gas-fanta', name: 'Fanta', image: '🥤', paused: true },
 ]
 
 // ── Catálogo ───────────────────────────────────────────
