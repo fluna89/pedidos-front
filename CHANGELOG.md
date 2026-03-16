@@ -2,6 +2,13 @@
 
 Registro de funcionalidades implementadas y planificadas.
 
+## [0.15.1] - 2026-03-16
+
+### Mejorado — Labels de estado en items de listas
+
+- **Label "Eliminado"**: badge rojo en items marcados para eliminación
+- **Label "Pausado"**: badge ámbar en items pausados
+
 ## [0.15.0] - 2026-03-16
 
 ### Mejorado — Eliminación local y validación de precios en listas

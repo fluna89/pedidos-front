@@ -320,6 +320,7 @@ export default function AdminListasPage() {
                           <span className="flex items-center gap-2 text-sm line-through">
                             {fl.image && <span>{fl.image}</span>}
                             <span className="font-medium">{fl.name}</span>
+                            <span className="inline-block rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-medium text-red-700 no-underline dark:bg-red-900/30 dark:text-red-300">Eliminado</span>
                           </span>
                           <button
                             onClick={() => setFlavorEdits((prev) => {
@@ -344,6 +345,9 @@ export default function AdminListasPage() {
                         <span className="flex items-center gap-2 text-sm">
                           {fl.image && <span>{fl.image}</span>}
                           <span className={`font-medium ${isPaused ? 'line-through' : ''}`}>{fl.name}</span>
+                          {isPaused && (
+                            <span className="inline-block rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">Pausado</span>
+                          )}
                         </span>
                         <div className="flex items-center gap-2">
                           {sourceHasItemPrices && (
