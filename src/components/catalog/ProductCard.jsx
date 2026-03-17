@@ -133,7 +133,7 @@ export default function ProductCard({ product }) {
             <span className="text-sm font-medium">
               {product.isCombo && product.comboPrice
                 ? product.comboPrice.type === 'fixed'
-                  ? `$${product.comboPrice.value.toLocaleString('es-AR')}`
+                  ? `Desde $${product.comboPrice.value.toLocaleString('es-AR')}`
                   : `${product.comboPrice.value}% OFF`
                 : product.unitPricing
                   ? 'Armá tu pedido'

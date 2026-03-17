@@ -21,20 +21,26 @@ export default function ProductDetailView({
   onAdd,
   preview = false,
   stepMode = false,
+  unitCountOverride,
+  initialState,
 }) {
   const [selectedFormat, setSelectedFormat] = useState(
-    product.formats.length === 1 ? product.formats[0] : null,
+    initialState?.format ?? (product.formats.length === 1 ? product.formats[0] : null),
   )
-  const [flavorQuantities, setFlavorQuantities] = useState({})
-  const [selectedExtras, setSelectedExtras] = useState([])
-  const [comment, setComment] = useState('')
+  const [flavorQuantities, setFlavorQuantities] = useState(
+    initialState?.flavorQuantities ?? {},
+  )
+  const [selectedExtras, setSelectedExtras] = useState(
+    initialState?.extras ?? [],
+  )
+  const [comment, setComment] = useState(initialState?.comment ?? '')
   const [added, setAdded] = useState(false)
 
   const isUnitPricing = product.unitPricing === true
   const hasFlavorPrices = allFlavors.length > 0 && allFlavors[0].price != null
   const showFormats = !isUnitPricing && product.formats.length > 1
 
-  const unitCount = selectedFormat?.unitCount ?? 0
+  const unitCount = unitCountOverride ?? selectedFormat?.unitCount ?? 0
   const totalQuantity = Object.values(flavorQuantities).reduce(
     (sum, q) => sum + q,
     0,
@@ -53,7 +59,7 @@ export default function ProductDetailView({
   }
 
   function incrementFlavor(flavorId) {
-    if (!hasFlavorPrices && unitCount > 0 && totalQuantity >= unitCount) return
+    if (unitCount > 0 && totalQuantity >= unitCount) return
     setFlavorQuantities((prev) => ({
       ...prev,
       [flavorId]: (prev[flavorId] || 0) + 1,
@@ -79,9 +85,11 @@ export default function ProductDetailView({
   }
 
   const flavorsComplete = product.hasFlavors
-    ? hasFlavorPrices
-      ? totalQuantity >= 1
-      : unitCount > 0 && totalQuantity === unitCount
+    ? unitCount > 0
+      ? totalQuantity === unitCount
+      : hasFlavorPrices
+        ? totalQuantity >= 1
+        : true
     : true
 
   const canAdd = selectedFormat && flavorsComplete

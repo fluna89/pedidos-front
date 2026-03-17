@@ -9,7 +9,6 @@ import {
   ShoppingCart,
   Pencil,
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import ProductDetailView from './ProductDetailView'
 
 /**
@@ -22,9 +21,6 @@ import ProductDetailView from './ProductDetailView'
 export default function ComboWizard({ combo, onAdd }) {
   // 'overview' | stepIndex (number) | 'summary'
   const [phase, setPhase] = useState('overview')
-  // For multi-product steps: which product the user picked
-  const [stepSubPhase, setStepSubPhase] = useState('pick') // 'pick' | 'configure'
-
   // Products available at each step: { [stepIdx]: Product[] }
   const [stepProducts, setStepProducts] = useState({})
   // The chosen product for each step
@@ -60,24 +56,19 @@ export default function ComboWizard({ combo, onAdd }) {
   const currentProducts =
     typeof phase === 'number' ? stepProducts[phase] || [] : []
 
-  // When entering a step, auto-advance to configure if only 1 product
-  useEffect(() => {
-    if (typeof phase === 'number') {
-      const products = stepProducts[phase] || []
-      if (products.length === 1) {
-        setStepSubPhase('configure')
-      } else {
-        setStepSubPhase(stepChoices[phase] ? 'configure' : 'pick')
-      }
-    }
-  }, [phase, stepProducts, stepChoices])
+  // Derive sub-phase from state — no useEffect needed
+  const stepSubPhase = (() => {
+    if (typeof phase !== 'number') return 'pick'
+    const products = stepProducts[phase] || []
+    if (products.length === 1) return 'configure'
+    return stepChoices[phase]?.productId ? 'configure' : 'pick'
+  })()
 
   function handlePickProduct(product) {
     setStepChoices((prev) => ({
       ...prev,
       [phase]: { productId: product.id, productName: product.name },
     }))
-    setStepSubPhase('configure')
   }
 
   // Called by ProductDetailView's onAdd — we capture the config instead of adding to cart
@@ -126,7 +117,12 @@ export default function ComboWizard({ combo, onAdd }) {
       setPhase(combo.steps.length - 1)
     } else if (typeof phase === 'number') {
       if (stepSubPhase === 'configure' && currentProducts.length > 1) {
-        setStepSubPhase('pick')
+        // Clear product pick so derived sub-phase returns to 'pick'
+        setStepChoices((prev) => {
+          const next = { ...prev }
+          delete next[phase]
+          return next
+        })
       } else if (phase > 0) {
         setPhase(phase - 1)
       } else {
@@ -136,21 +132,6 @@ export default function ComboWizard({ combo, onAdd }) {
   }
 
   function editStep(idx) {
-    // Clear the config for this step so user can redo it
-    setStepChoices((prev) => {
-      const next = { ...prev }
-      // Keep productId/productName if single product step
-      const products = stepProducts[idx] || []
-      if (products.length === 1) {
-        next[idx] = {
-          productId: products[0].id,
-          productName: products[0].name,
-        }
-      } else {
-        delete next[idx]
-      }
-      return next
-    })
     setPhase(idx)
   }
 
@@ -165,9 +146,14 @@ export default function ComboWizard({ combo, onAdd }) {
     return sum + formatPrice + extrasPrice
   }, 0)
 
+  const extrasTotal = Object.values(stepChoices).reduce((sum, choice) => {
+    if (!choice?.extras) return sum
+    return sum + choice.extras.reduce((s, e) => s + e.price, 0)
+  }, 0)
+
   const comboTotal =
     combo.comboPrice.type === 'fixed'
-      ? combo.comboPrice.value
+      ? combo.comboPrice.value + extrasTotal
       : Math.round(individualTotal * (1 - combo.comboPrice.value / 100))
 
   const allStepsComplete = combo.steps.every(
@@ -218,7 +204,7 @@ export default function ComboWizard({ combo, onAdd }) {
         <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-800 dark:bg-amber-950">
           {combo.comboPrice.type === 'fixed' ? (
             <p className="font-semibold text-amber-900 dark:text-amber-100">
-              Precio combo: ${combo.comboPrice.value.toLocaleString('es-AR')}
+              Desde ${combo.comboPrice.value.toLocaleString('es-AR')}
             </p>
           ) : (
             <p className="font-semibold text-amber-900 dark:text-amber-100">
@@ -425,6 +411,8 @@ export default function ComboWizard({ combo, onAdd }) {
       hasMultipleProducts={currentProducts.length > 1}
       onConfig={handleStepConfig}
       onBack={goBack}
+      unitCount={currentStep.unitCount}
+      existingChoice={stepChoices[stepIdx]}
     />
   )
 }
@@ -452,6 +440,8 @@ function StepConfigView({
   hasMultipleProducts,
   onConfig,
   onBack,
+  unitCount,
+  existingChoice,
 }) {
   const [allFlavors, setAllFlavors] = useState([])
   const [loadingFlavors, setLoadingFlavors] = useState(product.hasFlavors)
@@ -496,6 +486,22 @@ function StepConfigView({
         allFlavors={allFlavors}
         onAdd={onConfig}
         stepMode
+        unitCountOverride={unitCount}
+        initialState={
+          existingChoice?.format
+            ? {
+                format:
+                  product.formats.find((f) => f.id === existingChoice.format.id) ||
+                  existingChoice.format,
+                flavorQuantities: (existingChoice.flavors || []).reduce(
+                  (acc, f) => ({ ...acc, [f.id]: f.quantity || 1 }),
+                  {},
+                ),
+                extras: existingChoice.extras || [],
+                comment: existingChoice.comment || '',
+              }
+            : undefined
+        }
       />
 
       {!hasMultipleProducts && (

@@ -251,7 +251,7 @@ export const mockMenu = [
     comboPrice: { type: 'discount', value: 10 },
     formats: [{ id: 'f-combo-emp12', name: 'Combo docena', price: 0 }],
     steps: [
-      { label: 'Empanadas (12)', productIds: [17] },
+      { label: 'Empanadas (12)', productIds: [17], unitCount: 12 },
     ],
     extras: [],
   },

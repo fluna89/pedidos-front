@@ -1,6 +1,15 @@
 # Changelog - Pedidos Project
 
 Registro de funcionalidades implementadas y planificadas.
+## [0.16.1] - 2026-03-16
+
+### Corregido — Mejoras al wizard de combos
+
+- **Tope de unidades en pasos de combo**: los pasos con `unitCount` (ej. docena de empanadas) ahora limitan correctamente la cantidad máxima de items seleccionables
+- **Preservar configuración al volver atrás**: navegar hacia atrás o editar un paso desde el resumen conserva las selecciones previas (formato, sabores, extras, comentario)
+- **Extras suman al precio fijo**: en combos de precio fijo, los extras de cada paso se suman al precio base; la tarjeta y el overview muestran "Desde $X"
+- **stepSubPhase derivado**: reemplazado `useState` + `useEffect` por estado derivado para eliminar warning de ESLint (`set-state-in-effect`)
+
 ## [0.16.0] - 2026-03-16
 
 ### Nuevo — Combos rediseñados con wizard por pasos
