@@ -468,8 +468,7 @@ export default function AdminListasPage() {
               {sources.map((src) => (
                 <tr
                   key={src.id}
-                  className="cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/40"
-                  onClick={() => openSourceDetail(src)}
+                  className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/40"
                 >
                   <td className="px-4 py-2.5 font-medium">{src.label}</td>
                   <td className="px-4 py-2.5">
@@ -496,7 +495,7 @@ export default function AdminListasPage() {
                     )}
                   </td>
                   <td className="px-4 py-2.5 text-right">
-                    <div className="flex justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex justify-end gap-1">
                       <Button
                         variant="ghost"
                         size="sm"

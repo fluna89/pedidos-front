@@ -146,10 +146,10 @@ function KanbanColumn({ title, orders, onAdvance, onRevert, onCancel, newOrderId
                     {...dragProvided.draggableProps}
                     {...dragProvided.dragHandleProps}
                     className={cn(
-                      'rounded-md border border-gray-200 bg-white p-2 shadow-sm dark:border-gray-700 dark:bg-gray-800',
+                      'cursor-grab rounded-md border border-gray-200 bg-white p-2 shadow-sm dark:border-gray-700 dark:bg-gray-800',
                       newOrderIds?.has(order.id) &&
                         'animate-pulse border-green-400 bg-green-50 ring-2 ring-green-400/50 dark:border-green-500 dark:bg-green-950/30',
-                      dragSnapshot.isDragging && 'rotate-2 shadow-lg ring-2 ring-blue-400/50',
+                      dragSnapshot.isDragging && 'cursor-grabbing rotate-2 shadow-lg ring-2 ring-blue-400/50',
                     )}
                   >
             <div className="mb-1 flex items-center justify-between">
@@ -699,7 +699,7 @@ export default function AdminPedidosPage() {
                     order.status === 'pendiente' &&
                       'bg-yellow-50/50 dark:bg-yellow-900/10',
                     newOrderIds.has(order.id) &&
-                      'animate-pulse bg-green-50 dark:bg-green-950/30',
+                      'animate-pulse border-l-4 border-green-500 bg-green-50 dark:bg-green-950/30',
                   )}
                 >
                   <td className="px-4 py-3 font-mono font-bold">#{order.id}</td>
