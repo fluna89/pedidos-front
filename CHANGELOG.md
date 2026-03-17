@@ -1,6 +1,13 @@
 # Changelog - Pedidos Project
 
 Registro de funcionalidades implementadas y planificadas.
+## [0.17.3] - 2026-03-17
+
+### Corregido — Preview de combo flasheaba al tipear
+
+- Agregado debounce de 400ms al estado del preview (`previewForm`) para evitar que el `ComboWizard` se remonte en cada tecla al editar nombre o descripción
+- `previewForm` se sincroniza instantáneamente al crear o editar un combo (sin esperar el debounce)
+
 ## [0.17.2] - 2026-03-17
 
 ### Mejorado — Layout desktop-first para AdminCombosPage

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import {
   adminGetAllProducts,
   adminGetBaseProducts,
@@ -122,6 +122,14 @@ export default function AdminCombosPage() {
   const [saving, setSaving] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
 
+  // Debounced form for preview — avoids remounting ComboWizard on every keystroke
+  const [previewForm, setPreviewForm] = useState(form)
+  const debounceRef = useRef(null)
+  useEffect(() => {
+    debounceRef.current = setTimeout(() => setPreviewForm(form), 400)
+    return () => clearTimeout(debounceRef.current)
+  }, [form])
+
   // Delete confirmation
   const [deleteTarget, setDeleteTarget] = useState(null)
 
@@ -146,12 +154,16 @@ export default function AdminCombosPage() {
   // ── Actions ───────────────────────────────────────
 
   function startCreate() {
-    setForm(initForm(null))
+    const f = initForm(null)
+    setForm(f)
+    setPreviewForm(f)
     setEditing('new')
   }
 
   function startEdit(combo) {
-    setForm(initForm(combo))
+    const f = initForm(combo)
+    setForm(f)
+    setPreviewForm(f)
     setEditing(combo.id)
   }
 
@@ -414,8 +426,8 @@ export default function AdminCombosPage() {
               {canPreview ? (
                 <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
                   <ComboWizard
-                    key={JSON.stringify(form)}
-                    combo={buildComboFromForm(form)}
+                    key={JSON.stringify(previewForm)}
+                    combo={buildComboFromForm(previewForm)}
                     onAdd={() => {}}
                   />
                 </div>
@@ -453,8 +465,8 @@ export default function AdminCombosPage() {
             </DialogHeader>
             {showPreview && (
               <ComboWizard
-                key={JSON.stringify(form)}
-                combo={buildComboFromForm(form)}
+                key={JSON.stringify(previewForm)}
+                combo={buildComboFromForm(previewForm)}
                 onAdd={() => setShowPreview(false)}
               />
             )}

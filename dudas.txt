@@ -1,3 +1,0 @@
-1. Cuando no hay de un producto, se muestra igualmente el producto como "Sin Stock" o se oculta? Mas alla del caso Ainara, como crees que deberiamos mostrarlo?
-En mi opinion deberiamos mostrar como "Sin stock" o "No disponible" para evitar que el usuario interprete que ya no se ofrece ese producto, sino que es algo temporal.
-En caso de no querer mostrar mas el pedido, habria que borrarlo.
