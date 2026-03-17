@@ -29,6 +29,11 @@ export default function ProductCard({ product }) {
     : null
   const inCart = !!cartItem
 
+  // Count total quantity of this product in cart (for non-simple badge)
+  const cartQty = items
+    .filter((i) => i.productId === product.id)
+    .reduce((sum, i) => sum + i.quantity, 0)
+
   const [pendingQty, setPendingQty] = useState(1)
   const [comment, setComment] = useState('')
   const [showComment, setShowComment] = useState(false)
@@ -199,21 +204,29 @@ export default function ProductCard({ product }) {
             )}
           </div>
         ) : (
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">
-              {product.isCombo && product.comboPrice
-                ? product.comboPrice.type === 'fixed'
-                  ? `Desde $${product.comboPrice.value.toLocaleString('es-AR')}`
-                  : `${product.comboPrice.value}% OFF`
-                : product.unitPricing
-                  ? 'Armá tu pedido'
-                  : hasMultipleFormats
-                    ? `Desde $${minPrice.toLocaleString('es-AR')}`
-                    : `$${minPrice.toLocaleString('es-AR')}`}
-            </span>
-            <Link to={`/menu/${product.id}`}>
-              <Button size="sm">{product.isCombo ? 'Armar combo' : 'Elegir'}</Button>
-            </Link>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">
+                {product.isCombo && product.comboPrice
+                  ? product.comboPrice.type === 'fixed'
+                    ? `Desde $${product.comboPrice.value.toLocaleString('es-AR')}`
+                    : `${product.comboPrice.value}% OFF`
+                  : product.unitPricing
+                    ? 'Armá tu pedido'
+                    : hasMultipleFormats
+                      ? `Desde $${minPrice.toLocaleString('es-AR')}`
+                      : `$${minPrice.toLocaleString('es-AR')}`}
+              </span>
+              <Link to={`/menu/${product.id}`}>
+                <Button size="sm">{product.isCombo ? 'Armar combo' : 'Elegir'}</Button>
+              </Link>
+            </div>
+            {cartQty > 0 && (
+              <div className="flex items-center gap-1.5 rounded-md bg-green-50 px-3 py-1.5 text-xs font-medium text-green-700 dark:bg-green-950/40 dark:text-green-400">
+                <Check className="h-3 w-3" />
+                {cartQty} en el carrito
+              </div>
+            )}
           </div>
         )}
       </CardContent>
