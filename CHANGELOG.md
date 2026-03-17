@@ -7,7 +7,7 @@ Registro de funcionalidades implementadas y planificadas.
 
 - **Listas**: eliminado el click en fila para editar, consistente con Productos y Combos (se usa el botón de acción)
 - **Pedidos kanban**: cursor `grab` al pasar sobre las tarjetas, `grabbing` mientras se arrastra, indicando que son draggables
-- **Pedidos lista**: nuevos pedidos resaltados con borde izquierdo verde (`border-l-4 border-green-500`) además del fondo, más visible
+- **Pedidos lista**: nuevos pedidos resaltados con borde izquierdo verde vía `box-shadow inset` (funciona en `<tr>`), fondo `bg-green-100` en light y `bg-green-900/40` en dark para mayor contraste
 
 ## [0.17.3] - 2026-03-17
 

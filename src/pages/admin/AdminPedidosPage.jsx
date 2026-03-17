@@ -699,7 +699,7 @@ export default function AdminPedidosPage() {
                     order.status === 'pendiente' &&
                       'bg-yellow-50/50 dark:bg-yellow-900/10',
                     newOrderIds.has(order.id) &&
-                      'animate-pulse border-l-4 border-green-500 bg-green-50 dark:bg-green-950/30',
+                      'animate-pulse bg-green-100 shadow-[inset_4px_0_0_0_theme(--color-green-500)] dark:bg-green-900/40',
                   )}
                 >
                   <td className="px-4 py-3 font-mono font-bold">#{order.id}</td>
