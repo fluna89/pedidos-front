@@ -3,11 +3,12 @@
 Registro de funcionalidades implementadas y planificadas.
 ## [0.17.3] - 2026-03-17
 
-### Corregido — Preview de combo sin flash al tipear
+### Corregido — Preview de combo sin flash, sincronizada con la UX del cliente
 
-- Reemplazada la preview inline de `ComboWizard` (que se remontaba en cada cambio vía `key={}`) por un card estático ligero que lee directamente del form state, igual que la preview de productos
-- El card muestra imagen, nombre, descripción, precio, pasos y botón "Armar combo" deshabilitado
-- `ComboWizard` interactivo se mantiene solo en el dialog móvil, donde se monta una vez al abrir
+- Extraído `ComboOverview` como componente interno reutilizado tanto por la preview del admin como por la fase overview del wizard del cliente — **una sola fuente de verdad** para ambos
+- `ComboWizard` acepta prop `preview`: si es `true`, renderiza solo `ComboOverview` sin hooks, sin estado, sin carga async — React lo re-renderiza in-place sin desmontar
+- La lógica interactiva del wizard queda en `ComboWizardFull` (componente interno), totalmente aislada
+- Eliminado el card estático manual previo y el debounce, ya que el problema de raíz era el `key={JSON.stringify()}` que forzaba remontaje
 - Eliminado el debounce anterior que solo reducía la frecuencia del flash sin eliminarlo
 
 ## [0.17.2] - 2026-03-17

@@ -17,8 +17,14 @@ import ProductDetailView from './ProductDetailView'
  * Props:
  * - combo: the combo product object (with steps, comboPrice)
  * - onAdd(comboCartItem): called with the final cart-ready combo object
+ * - preview: if true, renders only the overview (no state, no async loads)
  */
-export default function ComboWizard({ combo, onAdd }) {
+export default function ComboWizard({ combo, onAdd, preview }) {
+  if (preview) return <ComboOverview combo={combo} />
+  return <ComboWizardFull combo={combo} onAdd={onAdd} />
+}
+
+function ComboWizardFull({ combo, onAdd }) {
   // 'overview' | stepIndex (number) | 'summary'
   const [phase, setPhase] = useState('overview')
   // Products available at each step: { [stepIdx]: Product[] }
@@ -185,57 +191,7 @@ export default function ComboWizard({ combo, onAdd }) {
 
   // ── Overview ──────────────────────────────────────────
   if (phase === 'overview') {
-    return (
-      <div className="space-y-5">
-        {/* Image */}
-        <div className="flex h-40 items-center justify-center rounded-md bg-gray-100 text-5xl dark:bg-gray-800">
-          {combo.image ?? '🎁'}
-        </div>
-
-        {/* Info */}
-        <div>
-          <h3 className="text-lg font-semibold">{combo.name}</h3>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            {combo.description}
-          </p>
-        </div>
-
-        {/* Price info */}
-        <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-800 dark:bg-amber-950">
-          {combo.comboPrice.type === 'fixed' ? (
-            <p className="font-semibold text-amber-900 dark:text-amber-100">
-              Desde ${combo.comboPrice.value.toLocaleString('es-AR')}
-            </p>
-          ) : (
-            <p className="font-semibold text-amber-900 dark:text-amber-100">
-              {combo.comboPrice.value}% de descuento sobre el total
-            </p>
-          )}
-        </div>
-
-        {/* Steps preview */}
-        <div className="space-y-2">
-          <Label>Incluye</Label>
-          <div className="space-y-1.5">
-            {combo.steps.map((step, idx) => (
-              <div
-                key={idx}
-                className="flex items-center gap-2 rounded-md border border-gray-200 px-4 py-2.5 text-sm dark:border-gray-700"
-              >
-                <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-400">
-                  {idx + 1}
-                </span>
-                <span>{step.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <Button className="w-full" onClick={() => setPhase(0)}>
-          Armar combo
-        </Button>
-      </div>
-    )
+    return <ComboOverview combo={combo} onStart={() => setPhase(0)} />
   }
 
   // ── Summary ───────────────────────────────────────────
@@ -414,6 +370,61 @@ export default function ComboWizard({ combo, onAdd }) {
       unitCount={currentStep.unitCount}
       existingChoice={stepChoices[stepIdx]}
     />
+  )
+}
+
+// ── Overview (shared between preview mode and wizard) ──
+function ComboOverview({ combo, onStart }) {
+  return (
+    <div className="space-y-5">
+      {/* Image */}
+      <div className="flex h-40 items-center justify-center rounded-md bg-gray-100 text-5xl dark:bg-gray-800">
+        {combo.image ?? '🎁'}
+      </div>
+
+      {/* Info */}
+      <div>
+        <h3 className="text-lg font-semibold">{combo.name}</h3>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          {combo.description}
+        </p>
+      </div>
+
+      {/* Price info */}
+      <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-800 dark:bg-amber-950">
+        {combo.comboPrice.type === 'fixed' ? (
+          <p className="font-semibold text-amber-900 dark:text-amber-100">
+            Desde ${combo.comboPrice.value.toLocaleString('es-AR')}
+          </p>
+        ) : (
+          <p className="font-semibold text-amber-900 dark:text-amber-100">
+            {combo.comboPrice.value}% de descuento sobre el total
+          </p>
+        )}
+      </div>
+
+      {/* Steps preview */}
+      <div className="space-y-2">
+        <Label>Incluye</Label>
+        <div className="space-y-1.5">
+          {combo.steps.map((step, idx) => (
+            <div
+              key={idx}
+              className="flex items-center gap-2 rounded-md border border-gray-200 px-4 py-2.5 text-sm dark:border-gray-700"
+            >
+              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-400">
+                {idx + 1}
+              </span>
+              <span>{step.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <Button className="w-full" onClick={onStart} disabled={!onStart}>
+        Armar combo
+      </Button>
+    </div>
   )
 }
 
