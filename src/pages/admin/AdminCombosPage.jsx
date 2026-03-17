@@ -30,7 +30,9 @@ import {
   Pause,
   Play,
   GripVertical,
+  Eye,
 } from 'lucide-react'
+import ComboWizard from '@/components/catalog/ComboWizard'
 
 // ── Helpers ───────────────────────────────────────────
 
@@ -119,6 +121,7 @@ export default function AdminCombosPage() {
   const [editing, setEditing] = useState(null)
   const [form, setForm] = useState(initForm(null))
   const [saving, setSaving] = useState(false)
+  const [showPreview, setShowPreview] = useState(false)
 
   // Delete confirmation
   const [deleteTarget, setDeleteTarget] = useState(null)
@@ -368,6 +371,37 @@ export default function AdminCombosPage() {
             Pausado (no visible en el catálogo)
           </span>
         </label>
+
+        {/* Preview button */}
+        {form.name.trim() && form.steps.some((s) => s.productIds.length > 0) && (
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => setShowPreview(true)}
+          >
+            <Eye className="mr-1 h-4 w-4" />
+            Vista previa del cliente
+          </Button>
+        )}
+
+        {/* Preview dialog */}
+        <Dialog open={showPreview} onOpenChange={(v) => !v && setShowPreview(false)}>
+          <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Vista previa — Combo</DialogTitle>
+              <DialogDescription>
+                Así verá el cliente al tocar &ldquo;Armar combo&rdquo;.
+              </DialogDescription>
+            </DialogHeader>
+            {showPreview && (
+              <ComboWizard
+                key={JSON.stringify(form)}
+                combo={buildComboFromForm(form)}
+                onAdd={() => setShowPreview(false)}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
 
         {/* Save / Cancel */}
         <div className="flex gap-3">

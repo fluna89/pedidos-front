@@ -1,6 +1,13 @@
 # Changelog - Pedidos Project
 
 Registro de funcionalidades implementadas y planificadas.
+## [0.17.1] - 2026-03-17
+
+### Mejorado — Vista previa de combo en admin
+
+- **Preview dialog**: botón "Vista previa del cliente" en el formulario de combo abre un dialog con el `ComboWizard` completo (overview → pasos → resumen), tal como lo vería el cliente
+- Se muestra solo cuando el combo tiene nombre y al menos un paso con producto
+
 ## [0.17.0] - 2026-03-17
 
 ### Nuevo — Panel de administración de combos
