@@ -3,10 +3,12 @@
 Registro de funcionalidades implementadas y planificadas.
 ## [0.17.3] - 2026-03-17
 
-### Corregido — Preview de combo flasheaba al tipear
+### Corregido — Preview de combo sin flash al tipear
 
-- Agregado debounce de 400ms al estado del preview (`previewForm`) para evitar que el `ComboWizard` se remonte en cada tecla al editar nombre o descripción
-- `previewForm` se sincroniza instantáneamente al crear o editar un combo (sin esperar el debounce)
+- Reemplazada la preview inline de `ComboWizard` (que se remontaba en cada cambio vía `key={}`) por un card estático ligero que lee directamente del form state, igual que la preview de productos
+- El card muestra imagen, nombre, descripción, precio, pasos y botón "Armar combo" deshabilitado
+- `ComboWizard` interactivo se mantiene solo en el dialog móvil, donde se monta una vez al abrir
+- Eliminado el debounce anterior que solo reducía la frecuencia del flash sin eliminarlo
 
 ## [0.17.2] - 2026-03-17
 

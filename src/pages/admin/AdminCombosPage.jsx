@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   adminGetAllProducts,
   adminGetBaseProducts,
@@ -122,14 +122,6 @@ export default function AdminCombosPage() {
   const [saving, setSaving] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
 
-  // Debounced form for preview — avoids remounting ComboWizard on every keystroke
-  const [previewForm, setPreviewForm] = useState(form)
-  const debounceRef = useRef(null)
-  useEffect(() => {
-    debounceRef.current = setTimeout(() => setPreviewForm(form), 400)
-    return () => clearTimeout(debounceRef.current)
-  }, [form])
-
   // Delete confirmation
   const [deleteTarget, setDeleteTarget] = useState(null)
 
@@ -154,16 +146,12 @@ export default function AdminCombosPage() {
   // ── Actions ───────────────────────────────────────
 
   function startCreate() {
-    const f = initForm(null)
-    setForm(f)
-    setPreviewForm(f)
+    setForm(initForm(null))
     setEditing('new')
   }
 
   function startEdit(combo) {
-    const f = initForm(combo)
-    setForm(f)
-    setPreviewForm(f)
+    setForm(initForm(combo))
     setEditing(combo.id)
   }
 
@@ -424,12 +412,56 @@ export default function AdminCombosPage() {
               </div>
 
               {canPreview ? (
-                <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
-                  <ComboWizard
-                    key={JSON.stringify(previewForm)}
-                    combo={buildComboFromForm(previewForm)}
-                    onAdd={() => {}}
-                  />
+                <div className="space-y-5 rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+                  {/* Image */}
+                  <div className="flex h-32 items-center justify-center rounded-md bg-gray-100 text-4xl dark:bg-gray-800">
+                    🎁
+                  </div>
+                  {/* Info */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                      {form.name || 'Nombre del combo'}
+                    </h3>
+                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                      {form.description || 'Descripción del combo'}
+                    </p>
+                  </div>
+                  {/* Price */}
+                  <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-800 dark:bg-amber-950">
+                    <p className="font-semibold text-amber-900 dark:text-amber-100">
+                      {form.priceType === 'fixed'
+                        ? `Desde ${formatPrice(Number(form.priceValue) || 0)}`
+                        : `${Number(form.priceValue) || 0}% de descuento sobre el total`}
+                    </p>
+                  </div>
+                  {/* Steps */}
+                  <div className="space-y-2">
+                    <span className="text-sm font-medium">Incluye</span>
+                    <div className="space-y-1.5">
+                      {form.steps
+                        .filter((s) => s.productIds.length > 0)
+                        .map((s, idx) => (
+                          <div
+                            key={s.id}
+                            className="flex items-center gap-2 rounded-md border border-gray-200 px-4 py-2.5 text-sm dark:border-gray-700"
+                          >
+                            <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-400">
+                              {idx + 1}
+                            </span>
+                            <span>{s.label || `Paso ${idx + 1}`}</span>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                  {/* CTA */}
+                  <Button className="w-full" disabled>
+                    Armar combo
+                  </Button>
+                  {form.paused && (
+                    <p className="text-center text-xs font-medium text-amber-600 dark:text-amber-400">
+                      ⚠ Pausado — no aparecerá en el menú
+                    </p>
+                  )}
                 </div>
               ) : (
                 <div className="flex h-48 items-center justify-center rounded-xl border border-dashed border-gray-300 text-sm text-gray-400 dark:border-gray-700">
@@ -465,8 +497,7 @@ export default function AdminCombosPage() {
             </DialogHeader>
             {showPreview && (
               <ComboWizard
-                key={JSON.stringify(previewForm)}
-                combo={buildComboFromForm(previewForm)}
+                combo={buildComboFromForm(form)}
                 onAdd={() => setShowPreview(false)}
               />
             )}
