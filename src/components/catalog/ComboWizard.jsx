@@ -20,7 +20,7 @@ import ProductDetailView from './ProductDetailView'
  * - preview: if true, renders only the overview (no state, no async loads)
  */
 export default function ComboWizard({ combo, onAdd, preview }) {
-  if (preview) return <ComboOverview combo={combo} />
+  if (preview) return <ComboOverview combo={combo} onStart={onAdd} />
   return <ComboWizardFull combo={combo} onAdd={onAdd} />
 }
 

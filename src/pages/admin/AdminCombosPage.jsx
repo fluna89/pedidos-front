@@ -416,6 +416,7 @@ export default function AdminCombosPage() {
                   <ComboWizard
                     preview
                     combo={buildComboFromForm(form)}
+                    onAdd={() => setShowPreview(true)}
                   />
                   {form.paused && (
                     <p className="mt-3 text-center text-xs font-medium text-amber-600 dark:text-amber-400">
