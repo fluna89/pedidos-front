@@ -1,6 +1,14 @@
 # Changelog - Pedidos Project
 
 Registro de funcionalidades implementadas y planificadas.
+## [0.18.1] - 2026-03-18
+
+### Mejorado — Eliminar listas de sabores: botón siempre habilitado con alerta de uso
+
+- El botón eliminar en listas de sabores ya no se deshabilita — siempre está clickeable
+- Si la lista está en uso por productos, se muestra un diálogo explicando que no se puede eliminar y listando los productos que la referencian
+- Si la lista no está en uso, se muestra la confirmación normal de eliminación
+
 ## [0.18.0] - 2026-03-17
 
 ### Nuevo — Productos "solo para combos" (comboOnly)

@@ -510,7 +510,6 @@ export default function AdminListasPage() {
                         onClick={() => setDeleteTarget(src)}
                         title="Eliminar"
                         className="text-red-500 hover:text-red-700"
-                        disabled={src.count > 0 || src.usedBy?.length > 0}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
@@ -568,17 +567,33 @@ export default function AdminListasPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Eliminar lista</DialogTitle>
-            <DialogDescription>
-              ¿Estás seguro de que querés eliminar <strong>{deleteTarget?.label}</strong>? Esta acción no se puede deshacer.
-            </DialogDescription>
+            {deleteTarget?.usedBy?.length > 0 ? (
+              <DialogDescription asChild>
+                <div className="space-y-2">
+                  <p>No se puede eliminar <strong>{deleteTarget.label}</strong> porque está en uso por:</p>
+                  <ul className="list-disc pl-5 space-y-0.5">
+                    {deleteTarget.usedBy.map((p) => (
+                      <li key={p.id} className="text-sm">{p.name}</li>
+                    ))}
+                  </ul>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Quitá esta lista de los productos antes de eliminarla.</p>
+                </div>
+              </DialogDescription>
+            ) : (
+              <DialogDescription>
+                ¿Estás seguro de que querés eliminar <strong>{deleteTarget?.label}</strong>? Esta acción no se puede deshacer.
+              </DialogDescription>
+            )}
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteTarget(null)}>
-              Cancelar
+              {deleteTarget?.usedBy?.length > 0 ? 'Cerrar' : 'Cancelar'}
             </Button>
-            <Button variant="destructive" onClick={handleConfirmDelete}>
-              Eliminar
-            </Button>
+            {!deleteTarget?.usedBy?.length && (
+              <Button variant="destructive" onClick={handleConfirmDelete}>
+                Eliminar
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
