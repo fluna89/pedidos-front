@@ -20,7 +20,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog'
-import { Plus, Pencil, Trash2, X, ChevronLeft, Pause, Play } from 'lucide-react'
+import { Plus, Pencil, Trash2, X, ChevronLeft, Pause, Play, AlertCircle } from 'lucide-react'
 
 export default function AdminListasPage() {
   const [sources, setSources] = useState([])
@@ -565,36 +565,59 @@ export default function AdminListasPage() {
       {/* Delete confirmation */}
       <Dialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Eliminar lista</DialogTitle>
-            {deleteTarget?.usedBy?.length > 0 ? (
-              <DialogDescription asChild>
-                <div className="space-y-2">
-                  <p>No se puede eliminar <strong>{deleteTarget.label}</strong> porque está en uso por:</p>
-                  <ul className="list-disc pl-5 space-y-0.5">
-                    {deleteTarget.usedBy.map((p) => (
-                      <li key={p.id} className="text-sm">{p.name}</li>
-                    ))}
-                  </ul>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Quitá esta lista de los productos antes de eliminarla.</p>
+          {deleteTarget?.usedBy?.length > 0 ? (
+            <>
+              <DialogHeader>
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
+                  <AlertCircle className="h-6 w-6 text-amber-600 dark:text-amber-400" />
                 </div>
-              </DialogDescription>
-            ) : (
-              <DialogDescription>
-                ¿Estás seguro de que querés eliminar <strong>{deleteTarget?.label}</strong>? Esta acción no se puede deshacer.
-              </DialogDescription>
-            )}
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
-              {deleteTarget?.usedBy?.length > 0 ? 'Cerrar' : 'Cancelar'}
-            </Button>
-            {!deleteTarget?.usedBy?.length && (
-              <Button variant="destructive" onClick={handleConfirmDelete}>
-                Eliminar
-              </Button>
-            )}
-          </DialogFooter>
+                <DialogTitle className="text-center">Lista en uso</DialogTitle>
+                <DialogDescription className="text-center">
+                  <strong>{deleteTarget.label}</strong> no se puede eliminar porque está siendo usada por:
+                </DialogDescription>
+              </DialogHeader>
+              <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-950/30">
+                <ul className="space-y-1">
+                  {deleteTarget.usedBy.map((p) => (
+                    <li key={p.id} className="flex items-center gap-2 text-sm text-amber-800 dark:text-amber-200">
+                      <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" />
+                      {p.name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <p className="text-center text-xs text-gray-500 dark:text-gray-400">
+                Quitá esta lista de los productos antes de poder eliminarla.
+              </p>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setDeleteTarget(null)} className="w-full sm:w-auto">
+                  Entendido
+                </Button>
+              </DialogFooter>
+            </>
+          ) : (
+            <>
+              <DialogHeader>
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
+                  <Trash2 className="h-6 w-6 text-red-600 dark:text-red-400" />
+                </div>
+                <DialogTitle className="text-center">Eliminar lista</DialogTitle>
+                <DialogDescription className="text-center">
+                  ¿Estás seguro de que querés eliminar <strong>{deleteTarget?.label}</strong>?
+                  {deleteTarget?.count > 0 && <> Se eliminarán sus {deleteTarget.count} items.</>}
+                  {' '}Esta acción no se puede deshacer.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter className="gap-2 sm:gap-0">
+                <Button variant="outline" onClick={() => setDeleteTarget(null)}>
+                  Cancelar
+                </Button>
+                <Button variant="destructive" onClick={handleConfirmDelete}>
+                  Eliminar
+                </Button>
+              </DialogFooter>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </div>
