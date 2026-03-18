@@ -784,5 +784,5 @@ export async function adminToggleProduct(id) {
 /** Get non-combo products for combo step picker (admin). */
 export async function adminGetBaseProducts() {
   await delay()
-  return products.filter((p) => !p.isCombo).map((p) => ({ id: p.id, name: p.name, category: p.category, paused: p.paused }))
+  return products.filter((p) => !p.isCombo).map((p) => ({ id: p.id, name: p.name, category: p.category, paused: p.paused, comboOnly: p.comboOnly }))
 }

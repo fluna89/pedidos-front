@@ -271,6 +271,29 @@ export const mockMenu = [
     ],
     extras: [],
   },
+  // ── Solo combo ──────────────────
+  {
+    id: 30,
+    name: 'Cookie chocolate',
+    description: 'Cookie artesanal de chocolate',
+    category: 'postres',
+    image: '🍪',
+    comboOnly: true,
+    hasFlavors: false,
+    formats: [{ id: 'f-cookie-choc', name: 'Unidad', price: 1200 }],
+    extras: [],
+  },
+  {
+    id: 31,
+    name: 'Cookie vainilla',
+    description: 'Cookie artesanal de vainilla',
+    category: 'postres',
+    image: '🍪',
+    comboOnly: true,
+    hasFlavors: false,
+    formats: [{ id: 'f-cookie-van', name: 'Unidad', price: 1200 }],
+    extras: [],
+  },
   // ── Bebidas ──────────────────
   {
     id: 12,

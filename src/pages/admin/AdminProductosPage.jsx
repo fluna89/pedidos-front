@@ -84,6 +84,7 @@ function buildProductFromForm(form, categories, flavorSources) {
     image: getCategoryIcon(categories, form.category),
     paused: form.paused,
     counterOnly: form.counterOnly,
+    comboOnly: form.comboOnly,
     formats: !form.hasVariants
       ? [{
           id: 'f-default',
@@ -127,6 +128,7 @@ function initForm(product) {
       category: '',
       paused: false,
       counterOnly: false,
+      comboOnly: false,
       archetype: 'simple',
       hasVariants: false,
       price: 0,
@@ -144,6 +146,7 @@ function initForm(product) {
     category: product.category,
     paused: product.paused || false,
     counterOnly: product.counterOnly || false,
+    comboOnly: product.comboOnly || false,
     archetype: arch,
     hasVariants: product.formats.length > 1,
     price: isSingleFormat ? product.formats[0].price : 0,
@@ -437,6 +440,24 @@ function ProductForm({ product, categories, onSave, onCancel }) {
                 <div>
                   <span className="text-sm font-medium">Solo venta en mostrador</span>
                   <p className="text-xs text-gray-500 dark:text-gray-400">No aparece en el menú online, solo se vende presencialmente.</p>
+                </div>
+              </label>
+              <label
+                className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors ${
+                  form.comboOnly
+                    ? 'border-purple-500 bg-purple-50 dark:border-purple-400 dark:bg-purple-950/30'
+                    : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600'
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={form.comboOnly}
+                  onChange={(e) => set('comboOnly', e.target.checked)}
+                  className="mt-0.5 h-4 w-4"
+                />
+                <div>
+                  <span className="text-sm font-medium">Solo para combos</span>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">No aparece en el menú, solo disponible como parte de un combo.</p>
                 </div>
               </label>
             </div>
@@ -920,7 +941,7 @@ function ProductForm({ product, categories, onSave, onCancel }) {
                 )}
               </div>
             </div>
-            {(form.paused || form.counterOnly) && (
+            {(form.paused || form.counterOnly || form.comboOnly) && (
               <div className="space-y-1 text-center">
                 {form.paused && (
                   <p className="text-xs font-medium text-amber-600 dark:text-amber-400">
@@ -930,6 +951,11 @@ function ProductForm({ product, categories, onSave, onCancel }) {
                 {form.counterOnly && (
                   <p className="text-xs font-medium text-blue-600 dark:text-blue-400">
                     ⚠ Solo venta en mostrador — no aparecerá en el menú online
+                  </p>
+                )}
+                {form.comboOnly && (
+                  <p className="text-xs font-medium text-purple-600 dark:text-purple-400">
+                    ⚠ Solo para combos — no aparecerá en el menú
                   </p>
                 )}
               </div>
@@ -1042,7 +1068,7 @@ function ProductForm({ product, categories, onSave, onCancel }) {
               )}
             </div>
           </div>
-          {(form.paused || form.counterOnly) && (
+          {(form.paused || form.counterOnly || form.comboOnly) && (
             <div className="space-y-1 text-center">
               {form.paused && (
                 <p className="text-xs font-medium text-amber-600 dark:text-amber-400">
@@ -1052,6 +1078,11 @@ function ProductForm({ product, categories, onSave, onCancel }) {
               {form.counterOnly && (
                 <p className="text-xs font-medium text-blue-600 dark:text-blue-400">
                   ⚠ Solo venta en mostrador — no aparecerá en el menú online
+                </p>
+              )}
+              {form.comboOnly && (
+                <p className="text-xs font-medium text-purple-600 dark:text-purple-400">
+                  ⚠ Solo para combos — no aparecerá en el menú
                 </p>
               )}
             </div>
@@ -1249,7 +1280,7 @@ export default function AdminProductosPage() {
                 <tr
                   key={p.id}
                   className={`transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/40 ${
-                    p.paused ? 'opacity-50' : ''
+                    (p.paused || p.comboOnly) ? 'opacity-50' : ''
                   }`}
                 >
                   <td className="px-3 py-2 font-mono text-xs text-gray-400">
@@ -1323,6 +1354,11 @@ export default function AdminProductosPage() {
                   </td>
                   <td className="px-3 py-2 text-center">
                     <div className="flex items-center justify-center gap-1.5">
+                      {p.comboOnly && (
+                        <span className="inline-block rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+                          Solo combo
+                        </span>
+                      )}
                       {p.counterOnly && (
                         <span className="inline-block rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
                           Solo mostrador

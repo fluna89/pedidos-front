@@ -1,6 +1,18 @@
 # Changelog - Pedidos Project
 
 Registro de funcionalidades implementadas y planificadas.
+## [0.18.0] - 2026-03-17
+
+### Nuevo — Productos "solo para combos" (comboOnly)
+
+- **Flag `comboOnly`**: productos marcados como "solo para combos" no aparecen en el menú público, pero están disponibles como opciones dentro de un combo
+- **Admin**: checkbox "Solo para combos" (purple) en la sección de disponibilidad del formulario de producto
+- **Tabla de productos**: badge "Solo combo" en purple, fila con opacidad reducida (como los pausados)
+- **Previews**: warning "⚠ Solo para combos — no aparecerá en el menú" en ambas zonas de preview
+- **Datos mock**: agregados Cookie chocolate y Cookie vainilla como productos de ejemplo comboOnly
+- El filtro en `getMenu()` y `getMenuByCategory()` ya excluía `comboOnly` — ahora hay productos reales que lo usan
+- `adminGetBaseProducts()` ahora retorna el campo `comboOnly` para que el picker de combos los incluya
+
 ## [0.17.5] - 2026-03-17
 
 ### Mejorado — Productos: cantidad persistente y visibilidad del carrito
