@@ -586,7 +586,6 @@ export default function AdminListasPage() {
                   ))}
                 </ul>
               </div>
-              <p className="text-center text-xs text-gray-500 dark:text-gray-400">
               <div className="flex items-start gap-2 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800/50">
                 <span className="mt-0.5 text-sm">💡</span>
                 <p className="text-xs text-gray-600 dark:text-gray-300">
