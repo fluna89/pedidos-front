@@ -371,6 +371,8 @@ export default function AdminCargarPedidoPage() {
   const searchTimeout = useRef(null)
 
   // ── Load initial data ──
+  // TODO: Add periodic polling (or WebSocket) to keep menu/prices in sync
+  //       when another admin edits products while this page is open.
   useEffect(() => {
     Promise.all([getCounterMenu(), getCategories(), getPaymentMethods()]).then(
       ([items, cats, methods]) => {
