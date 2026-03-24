@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
-import { updateUserProfile } from '@/mocks/handlers'
+import { updateUserProfile } from '@/services/handlers'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'

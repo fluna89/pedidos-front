@@ -6,7 +6,7 @@ import {
   createAddress as apiCreate,
   updateAddress as apiUpdate,
   deleteAddress as apiDelete,
-} from '@/mocks/handlers'
+} from '@/services/handlers'
 
 export function AddressProvider({ children }) {
   const { isAuthenticated, isGuest } = useAuth()

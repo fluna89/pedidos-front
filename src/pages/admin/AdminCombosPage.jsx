@@ -6,7 +6,7 @@ import {
   adminUpdateProduct,
   adminDeleteProduct,
   adminToggleProduct,
-} from '@/mocks/handlers'
+} from '@/services/handlers'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'

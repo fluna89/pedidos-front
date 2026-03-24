@@ -6,7 +6,7 @@ import {
   getPointsHistory,
   redeemPoints as redeemPointsApi,
   earnPoints as earnPointsApi,
-} from '@/mocks/handlers'
+} from '@/services/handlers'
 
 export function LoyaltyProvider({ children }) {
   const { user, isAuthenticated, isGuest } = useAuth()

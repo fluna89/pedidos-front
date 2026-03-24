@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import { getMenuItemsByIds, getFlavors } from '@/mocks/handlers'
+import { getMenuItemsByIds, getFlavors } from '@/services/handlers'
 import {
   ArrowLeft,
   ArrowRight,

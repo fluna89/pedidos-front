@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { validateCoupon } from '@/mocks/handlers'
+import { validateCoupon } from '@/services/handlers'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Tag, X, Loader2 } from 'lucide-react'

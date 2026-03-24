@@ -1,6 +1,17 @@
 # Changelog - Pedidos Project
 
 Registro de funcionalidades implementadas y planificadas.
+## [0.20.0] - 2026-03-24
+
+### Nuevo — Conexión con backend real
+
+- **API service** (`src/services/api.js`): agregado header `Authorization: Bearer {token}` automático desde localStorage y unwrapping de respuestas `{ data: ... }` del backend
+- **Handlers reales** (`src/services/handlers.js`): nuevo módulo que reemplaza `src/mocks/handlers.js` con llamadas HTTP al backend Python (pedidos-backend)
+- **AuthContext**: login, registro, invitado, Google y recuperación de contraseña ahora llaman a los endpoints reales `/api/auth/*`
+- **16 archivos migrados**: todos los imports de `@/mocks/handlers` → `@/services/handlers`; los imports de `orderStatusLabels` desde `@/mocks/data` → `@/services/handlers`
+- **Variable de entorno**: `VITE_API_URL` en `.env` (default: `http://localhost:8000/api`)
+- Los mocks (`src/mocks/`) se conservan como referencia pero ya no son importados por la aplicación
+
 ## [0.19.0] - 2026-03-18
 
 ### Nuevo — Cargar pedido (mostrador / WhatsApp)

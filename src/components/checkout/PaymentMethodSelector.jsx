@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getPaymentMethods } from '@/mocks/handlers'
+import { getPaymentMethods } from '@/services/handlers'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 import { Loader2, Copy, Check } from 'lucide-react'

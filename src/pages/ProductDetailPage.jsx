@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { getMenuItem, getFlavors } from '@/mocks/handlers'
+import { getMenuItem, getFlavors } from '@/services/handlers'
 import { useCart } from '@/hooks/useCart'
 import { Button } from '@/components/ui/button'
 import {

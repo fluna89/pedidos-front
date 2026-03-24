@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { getUserOrders } from '@/mocks/handlers'
-import { orderStatusLabels } from '@/mocks/data'
+import { getUserOrders } from '@/services/handlers'
+import { orderStatusLabels } from '@/services/handlers'
 import { useAuth } from '@/hooks/useAuth'
 import {
   Card,

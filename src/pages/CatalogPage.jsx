@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getMenu, getCategories } from '@/mocks/handlers'
+import { getMenu, getCategories } from '@/services/handlers'
 import { Button } from '@/components/ui/button'
 import ProductCard from '@/components/catalog/ProductCard'
 

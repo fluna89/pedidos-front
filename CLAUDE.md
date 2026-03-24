@@ -96,11 +96,13 @@ ThemeProvider → AuthProvider → AddressProvider → CartProvider → LoyaltyP
 
 `LoyaltyProvider` depends on `useAuth` to determine user eligibility.
 
-## Mock Layer
+## Backend Connection
 
-All backend logic is simulated in `src/mocks/`. Each handler is an `async` function with configurable delay (`MOCK_DELAY = 300ms`).
+The app connects to `pedidos-backend` (Python / AWS SAM) via `src/services/api.js`. All handlers live in `src/services/handlers.js` and call the REST API.
 
-**To connect to the real backend**: replace functions in `handlers.js` with calls to `services/api.js`. Components remain unchanged.
+**Configuration**: set `VITE_API_URL` in `.env` (default: `http://localhost:8000/api`). The backend runs with `sam local start-api --port 8000`.
+
+The old mock layer (`src/mocks/`) is kept as reference but is no longer imported.
 
 ### Test Data
 - **Mock user**: `juan@test.com` / `1234` (id: 1)
@@ -110,7 +112,7 @@ All backend logic is simulated in `src/mocks/`. Each handler is an `async` funct
 - **Coverage zone**: 5 km from CABA center (-34.6037, -58.3816)
 - **Delivery zones**: Cercana ≤1.5km ($500), Media ≤3km ($800), Lejana ≤5km ($1,200)
 
-## Current State (v0.8.0)
+## Current State (v0.20.0)
 
 ### Implemented
 - Auth: login, registration, guest mode, Google mock, password recovery
@@ -124,9 +126,11 @@ All backend logic is simulated in `src/mocks/`. Each handler is an `async` funct
 - Payment methods: Mercado Pago, bank transfer, card, cash on delivery
 - Order confirmation page with payment status and points earned
 - User panel: active order tracking, order history, points balance, account management
+- Admin panel: orders board, products CRUD, flavor lists CRUD, combos, counter orders
+- **Backend integration**: all API calls go to pedidos-backend via `src/services/handlers.js`
 
 ### Pending (roadmap)
-- **Future**: Python backend, real-time notifications, testing, CI/CD
+- **Future**: real-time notifications, testing, CI/CD
 
 ## Useful Commands
 
@@ -143,7 +147,7 @@ ngrok http 5173
 
 ## Important Notes
 
-1. There is no real backend yet — everything is mocked with delays in `src/mocks/handlers.js`
+1. Backend is in `pedidos-backend` repo — run with `sam local start-api --port 8000` + DynamoDB Local on port 8100
 2. Points are only earned by registered users (not guests)
 3. The `minOrder` field on coupons was left intentionally for future admin panel configuration
 4. Guest address geolocation is a placeholder — uses fixed coordinates for now

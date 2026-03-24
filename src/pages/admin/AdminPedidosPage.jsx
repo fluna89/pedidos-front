@@ -6,8 +6,8 @@ import {
   adminCancelOrder,
   adminSetOrderStatus,
   adminSimulateNewOrder,
-} from '@/mocks/handlers'
-import { orderStatusLabels } from '@/mocks/data'
+} from '@/services/handlers'
+import { orderStatusLabels } from '@/services/handlers'
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
 import { Button } from '@/components/ui/button'
 import {
