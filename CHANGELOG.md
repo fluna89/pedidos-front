@@ -67,7 +67,7 @@ Registro de funcionalidades implementadas y planificadas.
 ### Nuevo — Conexión con backend real
 
 - **API service** (`src/services/api.js`): agregado header `Authorization: Bearer {token}` automático desde localStorage y unwrapping de respuestas `{ data: ... }` del backend
-- **Handlers reales** (`src/services/handlers.js`): nuevo módulo que reemplaza `src/mocks/handlers.js` con llamadas HTTP al backend Python (pedidos-backend)
+- **Handlers reales** (`src/services/handlers.js`): nuevo módulo que reemplaza `src/mocks/handlers.js` con llamadas HTTP al backend Python (`pedidos-backend`)
 - **AuthContext**: login, registro, invitado, Google y recuperación de contraseña ahora llaman a los endpoints reales `/api/auth/*`
 - **16 archivos migrados**: todos los imports de `@/mocks/handlers` → `@/services/handlers`; los imports de `orderStatusLabels` desde `@/mocks/data` → `@/services/handlers`
 - **Variable de entorno**: `VITE_API_URL` en `.env` (default: `http://localhost:8000/api`)

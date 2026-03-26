@@ -34,7 +34,7 @@ fnm necesita activarse en cada sesión de terminal. Seguí las instrucciones seg
 No se necesita configuración global. Al abrir CMD, navegá al proyecto y ejecutá:
 
 ```cmd
-cd C:\repos\pedidos-project
+cd C:\repos\pedidos\pedidos-front
 init.cmd
 ```
 
