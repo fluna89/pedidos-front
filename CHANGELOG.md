@@ -1,6 +1,14 @@
 # Changelog - Pedidos Project
 
 Registro de funcionalidades implementadas y planificadas.
+## [0.21.1] - 2026-03-26
+
+### Mejorado — Legibilidad de items en detalle de pedido
+
+- **Items más claros**: cantidad en badge, nombre en negrita, sabores y extras con tamaño legible para cocina/delivery
+- **Comentarios destacados**: los comentarios por item se muestran en fondo ámbar para que no pasen desapercibidos
+- **Nota general del pedido**: si existe `order.comment`, se muestra en un bloque destacado debajo de los items
+
 ## [0.21.0] - 2026-03-26
 
 ### Nuevo — Detalle de pedido en admin

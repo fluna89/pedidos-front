@@ -285,31 +285,46 @@ function OrderDetailDialog({ order, open, onOpenChange }) {
           {/* Items */}
           <div>
             <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Productos</h4>
-            <div className="divide-y divide-gray-100 rounded-lg border border-gray-200 dark:divide-gray-700 dark:border-gray-700">
+            <div className="divide-y divide-gray-200 rounded-lg border border-gray-200 dark:divide-gray-700 dark:border-gray-700">
               {order.items?.map((item, i) => (
-                <div key={i} className="flex items-start justify-between gap-2 px-3 py-2">
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium">{item.quantity > 1 ? `${item.quantity}× ` : ''}{item.name}</p>
-                    {item.flavors && (
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {item.flavors}
-                      </p>
-                    )}
-                    {item.extras && item.extras.length > 0 && (
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        + {Array.isArray(item.extras) ? item.extras.join(', ') : item.extras}
-                      </p>
-                    )}
-                    {item.comment && (
-                      <p className="text-xs italic text-gray-400">{item.comment}</p>
-                    )}
+                <div key={i} className="px-3 py-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-sm font-semibold">
+                      {item.quantity > 1 && (
+                        <span className="mr-1 inline-flex h-5 w-5 items-center justify-center rounded bg-gray-200 text-xs font-bold dark:bg-gray-700">
+                          {item.quantity}
+                        </span>
+                      )}
+                      {item.name}
+                    </p>
+                    <span className="shrink-0 text-sm font-semibold">
+                      ${(item.unitPrice * (item.quantity || 1)).toLocaleString('es-AR')}
+                    </span>
                   </div>
-                  <span className="shrink-0 font-medium">
-                    ${(item.unitPrice * (item.quantity || 1)).toLocaleString('es-AR')}
-                  </span>
+                  {item.flavors && (
+                    <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
+                      🍦 {item.flavors}
+                    </p>
+                  )}
+                  {item.extras && item.extras.length > 0 && (
+                    <p className="mt-0.5 text-sm text-gray-600 dark:text-gray-400">
+                      + {Array.isArray(item.extras) ? item.extras.join(', ') : item.extras}
+                    </p>
+                  )}
+                  {item.comment && (
+                    <p className="mt-1 rounded bg-amber-50 px-2 py-1 text-sm font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                      💬 {item.comment}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
+            {order.comment && (
+              <div className="mt-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 dark:border-amber-700 dark:bg-amber-900/30">
+                <p className="text-xs font-semibold uppercase text-amber-700 dark:text-amber-400">Nota del pedido</p>
+                <p className="mt-0.5 text-sm font-medium text-amber-800 dark:text-amber-300">{order.comment}</p>
+              </div>
+            )}
           </div>
 
           {/* Totals */}
