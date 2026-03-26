@@ -1,6 +1,13 @@
 # Changelog - Pedidos Project
 
 Registro de funcionalidades implementadas y planificadas.
+## [0.21.0] - 2026-03-26
+
+### Nuevo — Detalle de pedido en admin
+
+- **Dialog de detalle**: click en una tarjeta kanban o botón ojo en la lista abre un modal con toda la información del pedido
+- **Contenido del detalle**: cliente, tipo de entrega, dirección completa, lista de productos con sabores/extras/comentarios, subtotal, envío, cupón, puntos canjeados, total, método y estado de pago, motivo de cancelación con imagen si aplica
+
 ## [0.20.3] - 2026-03-26
 
 ### Mejorado — Ajustes UI admin pedidos

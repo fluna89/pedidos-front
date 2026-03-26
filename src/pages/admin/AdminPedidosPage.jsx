@@ -37,6 +37,13 @@ import {
   ImagePlus,
   FileText,
   Image,
+  Eye,
+  MapPin,
+  CreditCard,
+  Truck,
+  Store,
+  Tag,
+  Star,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -111,7 +118,7 @@ function formatDate(isoString) {
 
 const KANBAN_MAX_VISIBLE = 4
 
-function KanbanColumn({ title, orders, onCancel, newOrderIds, droppableId }) {
+function KanbanColumn({ title, orders, onCancel, onViewDetail, newOrderIds, droppableId }) {
   const [expanded, setExpanded] = useState(false)
   const visibleOrders = expanded ? orders : orders.slice(0, KANBAN_MAX_VISIBLE)
   const hasMore = orders.length > KANBAN_MAX_VISIBLE
@@ -153,6 +160,7 @@ function KanbanColumn({ title, orders, onCancel, newOrderIds, droppableId }) {
                       dragSnapshot.isDragging && 'cursor-grabbing rotate-2 shadow-lg ring-2 ring-blue-400/50',
                     )}
                   >
+            <div className="cursor-pointer" onClick={() => onViewDetail(order)}>
             <div className="mb-1 flex items-center justify-between">
               <span className="text-xs font-bold">#{order.id}</span>
               <StatusBadge status={order.status} />
@@ -164,6 +172,7 @@ function KanbanColumn({ title, orders, onCancel, newOrderIds, droppableId }) {
             <div className="mt-1 flex items-center justify-between">
               <span className="text-[10px] text-gray-500">{formatDate(order.createdAt)}</span>
               <span className="text-xs font-semibold">${order.total?.toLocaleString('es-AR')}</span>
+            </div>
             </div>
             {order.status !== 'entregado' && order.status !== 'cancelado' && (
               <div className="mt-1 flex justify-end">
@@ -230,7 +239,149 @@ function ImagePreviewDialog({ imageUrl, open, onOpenChange }) {
     </Dialog>
   )
 }
+// ── Order Detail Dialog ────────────────────────────────
 
+function OrderDetailDialog({ order, open, onOpenChange }) {
+  if (!order) return null
+
+  const isDelivery = order.orderType === 'delivery'
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            Pedido #{order.id}
+            <StatusBadge status={order.status} />
+          </DialogTitle>
+          <DialogDescription>
+            {formatDate(order.createdAt)}
+            {order.updatedAt && order.updatedAt !== order.createdAt && (
+              <> · Actualizado: {formatDate(order.updatedAt)}</>
+            )}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4 text-sm">
+          {/* Customer & delivery */}
+          <div className="space-y-2">
+            <p className="font-semibold">{order.customerName || 'Invitado'}</p>
+            <div className="flex items-center gap-1.5 text-gray-600 dark:text-gray-400">
+              {isDelivery ? <Truck className="h-3.5 w-3.5" /> : <Store className="h-3.5 w-3.5" />}
+              <span>{isDelivery ? 'Delivery' : 'Retiro en local'}</span>
+            </div>
+            {isDelivery && order.address && (
+              <div className="flex items-start gap-1.5 text-gray-600 dark:text-gray-400">
+                <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                <div>
+                  <p>{order.address.street}</p>
+                  {order.address.floor && <p>Piso {order.address.floor}{order.address.apartment ? `, Depto ${order.address.apartment}` : ''}</p>}
+                  {order.address.comment && <p className="text-xs italic">{order.address.comment}</p>}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Items */}
+          <div>
+            <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Productos</h4>
+            <div className="divide-y divide-gray-100 rounded-lg border border-gray-200 dark:divide-gray-700 dark:border-gray-700">
+              {order.items?.map((item, i) => (
+                <div key={i} className="flex items-start justify-between gap-2 px-3 py-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium">{item.quantity > 1 ? `${item.quantity}× ` : ''}{item.name}</p>
+                    {item.flavors && (
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {item.flavors}
+                      </p>
+                    )}
+                    {item.extras && item.extras.length > 0 && (
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        + {Array.isArray(item.extras) ? item.extras.join(', ') : item.extras}
+                      </p>
+                    )}
+                    {item.comment && (
+                      <p className="text-xs italic text-gray-400">{item.comment}</p>
+                    )}
+                  </div>
+                  <span className="shrink-0 font-medium">
+                    ${(item.unitPrice * (item.quantity || 1)).toLocaleString('es-AR')}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Totals */}
+          <div className="space-y-1 text-sm">
+            <div className="flex justify-between text-gray-600 dark:text-gray-400">
+              <span>Subtotal</span>
+              <span>${order.subtotal?.toLocaleString('es-AR')}</span>
+            </div>
+            {isDelivery && order.deliveryCost > 0 && (
+              <div className="flex justify-between text-gray-600 dark:text-gray-400">
+                <span>Envío</span>
+                <span>${order.deliveryCost?.toLocaleString('es-AR')}</span>
+              </div>
+            )}
+            {order.coupon && (
+              <div className="flex items-center justify-between text-green-600 dark:text-green-400">
+                <span className="flex items-center gap-1">
+                  <Tag className="h-3 w-3" />
+                  Cupón {order.coupon}
+                </span>
+                <span>-${order.couponDiscount?.toLocaleString('es-AR')}</span>
+              </div>
+            )}
+            {order.pointsRedeemed > 0 && (
+              <div className="flex items-center justify-between text-amber-600 dark:text-amber-400">
+                <span className="flex items-center gap-1">
+                  <Star className="h-3 w-3" />
+                  Puntos canjeados
+                </span>
+                <span>-${order.pointsRedeemed?.toLocaleString('es-AR')}</span>
+              </div>
+            )}
+            <div className="flex justify-between border-t border-gray-200 pt-1 text-base font-bold dark:border-gray-700">
+              <span>Total</span>
+              <span>${order.total?.toLocaleString('es-AR')}</span>
+            </div>
+          </div>
+
+          {/* Payment */}
+          <div className="flex items-center gap-1.5 text-gray-600 dark:text-gray-400">
+            <CreditCard className="h-3.5 w-3.5" />
+            <span>{order.paymentMethod}</span>
+            <span className="mx-1">·</span>
+            <span
+              className={cn(
+                'text-xs font-medium',
+                paymentStatusColors[order.paymentStatus] || 'text-gray-500',
+              )}
+            >
+              {order.paymentStatus === 'pagado' ? 'Pagado' : 'Pendiente'}
+            </span>
+          </div>
+
+          {/* Cancellation info */}
+          {order.status === 'cancelado' && order.cancelReason && (
+            <div className="rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-900/50 dark:bg-red-950/20">
+              <p className="mb-1 text-xs font-semibold text-red-700 dark:text-red-400">Motivo de cancelación</p>
+              <p className="text-xs text-red-600 dark:text-red-400">{order.cancelReason}</p>
+              {order.cancelImageUrl && (
+                <img
+                  src={order.cancelImageUrl}
+                  alt="Adjunto cancelación"
+                  className="mt-2 max-h-40 rounded-md object-contain"
+                />
+              )}
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
 // ── Cancel Order Dialog ────────────────────────────────
 
 function CancelOrderDialog({ orderId, open, onOpenChange, onConfirm }) {
@@ -415,6 +566,7 @@ export default function AdminPedidosPage() {
   const knownIdsRef = useRef(new Set())
   const [cancelDialogOrderId, setCancelDialogOrderId] = useState(null)
   const [previewImageUrl, setPreviewImageUrl] = useState(null)
+  const [detailOrder, setDetailOrder] = useState(null)
 
   const loadOrders = useCallback(async () => {
     setLoading(true)
@@ -631,6 +783,7 @@ export default function AdminPedidosPage() {
                       : orders.filter((o) => o.status === status)
                   }
                   onCancel={handleCancel}
+                  onViewDetail={setDetailOrder}
                   newOrderIds={newOrderIds}
                 />
               ))}
@@ -728,6 +881,15 @@ export default function AdminPedidosPage() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => setDetailOrder(order)}
+                        title="Ver detalle"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
                       {order.status !== 'pendiente' &&
                         order.status !== 'cancelado' && (
                           <Button
@@ -796,6 +958,13 @@ export default function AdminPedidosPage() {
         imageUrl={previewImageUrl}
         open={previewImageUrl !== null}
         onOpenChange={(open) => { if (!open) setPreviewImageUrl(null) }}
+      />
+
+      {/* Order Detail Dialog */}
+      <OrderDetailDialog
+        order={detailOrder}
+        open={detailOrder !== null}
+        onOpenChange={(open) => { if (!open) setDetailOrder(null) }}
       />
     </div>
   )
