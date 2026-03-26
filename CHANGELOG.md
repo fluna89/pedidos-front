@@ -1,6 +1,14 @@
 # Changelog - Pedidos Project
 
 Registro de funcionalidades implementadas y planificadas.
+## [0.22.1] - 2026-03-26
+
+### Mejorado — Visualización de combos en detalle de pedido
+
+- Los pasos del combo ahora se muestran **por separado** con label, sabores y extras
+- Borde lateral indigo para distinguir visualmente los pasos del combo
+- Los **comentarios por paso** se muestran en caja ámbar debajo de cada step (requiere backend v0.3.1+)
+
 ## [0.22.0] - 2026-03-26
 
 ### Nuevo — Comentarios de pedido al backend

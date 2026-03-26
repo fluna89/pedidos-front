@@ -286,7 +286,23 @@ function OrderDetailDialog({ order, open, onOpenChange }) {
           <div>
             <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Productos</h4>
             <div className="divide-y divide-gray-200 rounded-lg border border-gray-200 dark:divide-gray-700 dark:border-gray-700">
-              {order.items?.map((item, i) => (
+              {order.items?.map((item, i) => {
+                // Detect combo: flavors has " | " with step labels like "Step (N):"
+                const isCombo = item.flavors && item.flavors.includes(' | ')
+                const comboSteps = isCombo
+                  ? item.flavors.split(' | ').map((step) => {
+                      const colonIdx = step.indexOf(': ')
+                      const label = colonIdx > -1 ? step.slice(0, colonIdx).trim() : ''
+                      const rest = colonIdx > -1 ? step.slice(colonIdx + 2) : step
+                      // Extract [comment] from the end if present
+                      const commentMatch = rest.match(/\s*—\s*\[(.+?)\]\s*$/)
+                      const comment = commentMatch ? commentMatch[1] : ''
+                      const details = comment ? rest.replace(/\s*—\s*\[.+?\]\s*$/, '') : rest
+                      return { label, details, comment }
+                    })
+                  : null
+
+                return (
                 <div key={i} className="px-3 py-3">
                   <div className="flex items-start justify-between gap-2">
                     <p className="text-sm font-semibold">
@@ -301,15 +317,35 @@ function OrderDetailDialog({ order, open, onOpenChange }) {
                       ${(item.unitPrice * (item.quantity || 1)).toLocaleString('es-AR')}
                     </span>
                   </div>
-                  {item.flavors && (
-                    <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
-                      🍦 {item.flavors}
-                    </p>
-                  )}
-                  {item.extras && item.extras.length > 0 && (
-                    <p className="mt-0.5 text-sm text-gray-600 dark:text-gray-400">
-                      + {Array.isArray(item.extras) ? item.extras.join(', ') : item.extras}
-                    </p>
+                  {comboSteps ? (
+                    <div className="mt-1.5 space-y-1.5 border-l-2 border-indigo-300 pl-2.5 dark:border-indigo-600">
+                      {comboSteps.map((step, j) => (
+                        <div key={j}>
+                          {step.label && (
+                            <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600 dark:text-indigo-400">{step.label}</p>
+                          )}
+                          <p className="text-sm text-gray-700 dark:text-gray-300">🍦 {step.details}</p>
+                          {step.comment && (
+                            <p className="mt-0.5 rounded bg-amber-50 px-2 py-0.5 text-sm font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                              💬 {step.comment}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <>
+                      {item.flavors && (
+                        <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
+                          🍦 {item.flavors}
+                        </p>
+                      )}
+                      {item.extras && item.extras.length > 0 && (
+                        <p className="mt-0.5 text-sm text-gray-600 dark:text-gray-400">
+                          + {Array.isArray(item.extras) ? item.extras.join(', ') : item.extras}
+                        </p>
+                      )}
+                    </>
                   )}
                   {item.comment && (
                     <p className="mt-1 rounded bg-amber-50 px-2 py-1 text-sm font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
@@ -317,7 +353,8 @@ function OrderDetailDialog({ order, open, onOpenChange }) {
                     </p>
                   )}
                 </div>
-              ))}
+                )
+              })}
             </div>
             {order.comment && (
               <div className="mt-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 dark:border-amber-700 dark:bg-amber-900/30">
