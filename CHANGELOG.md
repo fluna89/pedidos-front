@@ -1,6 +1,16 @@
 # Changelog - Pedidos Project
 
 Registro de funcionalidades implementadas y planificadas.
+## [0.20.1] - 2026-03-25
+
+### Mejorado — Mapeo visual de estados de pedido
+
+- **Vista cliente**: la barra de progreso ya no muestra "Pendiente"; el primer paso es "Conf." (amarillo = esperando confirmación, verde = confirmado). `confirmado` y `en_preparacion` del backend se unifican visualmente como "Prep."
+- **Vista cliente historial**: `pendiente` se muestra como "Confirmado", `confirmado` como "En preparación"
+- **Admin kanban**: la columna "En preparación" agrupa `confirmado` + `en_preparacion` (diferenciados por badge de color). El admin puede retroceder `confirmado` → `pendiente`
+- **Nuevo color de estado** `confirmado` (esmeralda) para diferenciarlo de `pendiente` (amarillo) en las badges del admin
+- **StrictMode configurable**: nueva variable `VITE_STRICT_MODE` en `.env` para activar/desactivar React StrictMode sin tocar código
+
 ## [0.20.0] - 2026-03-24
 
 ### Nuevo — Conexión con backend real

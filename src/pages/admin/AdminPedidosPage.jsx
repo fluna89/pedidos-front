@@ -69,6 +69,7 @@ const POLL_INTERVAL = 10_000 // 10 seconds
 
 const statusColors = {
   pendiente: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
+  confirmado: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
   en_preparacion: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
   listo: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
   en_camino: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
@@ -588,6 +589,7 @@ export default function AdminPedidosPage() {
   }
 
   // Kanban columns — one per active status (cancelados shown separately)
+  // 'pendiente' column groups both pendiente and confirmado orders
   const kanbanStatuses = [
     'pendiente',
     'en_preparacion',
@@ -658,7 +660,11 @@ export default function AdminPedidosPage() {
                   key={status}
                   droppableId={status}
                   title={orderStatusLabels[status] || status}
-                  orders={orders.filter((o) => o.status === status)}
+                  orders={
+                    status === 'en_preparacion'
+                      ? orders.filter((o) => o.status === 'confirmado' || o.status === 'en_preparacion')
+                      : orders.filter((o) => o.status === status)
+                  }
                   onAdvance={handleAdvance}
                   onRevert={handleRevert}
                   onCancel={handleCancel}

@@ -11,25 +11,11 @@ import {
 import { Loader2, Package, Truck, Store, Clock } from 'lucide-react'
 
 // Status progress steps for delivery / pickup
-const deliverySteps = [
-  'pendiente',
-  'confirmado',
-  'en_preparacion',
-  'listo',
-  'en_camino',
-  'entregado',
-]
-const pickupSteps = [
-  'pendiente',
-  'confirmado',
-  'en_preparacion',
-  'listo',
-  'entregado',
-]
+const deliverySteps = ['confirmado', 'en_preparacion', 'listo', 'en_camino', 'entregado']
+const pickupSteps = ['confirmado', 'en_preparacion', 'listo', 'entregado']
 
 // Short labels for the compact progress bar (avoid layout overflow)
 const shortLabels = {
-  pendiente: 'Pend.',
   confirmado: 'Conf.',
   en_preparacion: 'Prep.',
   listo: 'Listo',
@@ -37,9 +23,28 @@ const shortLabels = {
   entregado: 'Entreg.',
 }
 
+// Maps backend status → customer progress step index.
+// For delivery, "listo" skips to "Envío" (Listo auto-greens).
+const deliveryStepIndex = {
+  pendiente: 0,
+  confirmado: 1,
+  en_preparacion: 1,
+  listo: 3,
+  en_camino: 4,
+  entregado: 5,
+}
+const pickupStepIndex = {
+  pendiente: 0,
+  confirmado: 1,
+  en_preparacion: 1,
+  listo: 2,
+  entregado: 4,
+}
+
 function StatusProgress({ status, orderType }) {
   const steps = orderType === 'pickup' ? pickupSteps : deliverySteps
-  const currentIdx = steps.indexOf(status)
+  const indexMap = orderType === 'pickup' ? pickupStepIndex : deliveryStepIndex
+  const currentIdx = indexMap[status] ?? -1
 
   return (
     <div className="flex items-start gap-1">

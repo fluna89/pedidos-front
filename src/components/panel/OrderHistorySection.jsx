@@ -11,7 +11,9 @@ import { Loader2, ClipboardList, Truck, Store, ChevronDown, ChevronUp } from 'lu
 function OrderCard({ order }) {
   const [expanded, setExpanded] = useState(false)
   const isDelivery = order.orderType === 'delivery'
-  const statusLabel = orderStatusLabels[order.status] || order.status
+  // Customer label mapping: pendiente → "Confirmado", confirmado → "En preparación"
+  const customerLabels = { pendiente: 'Confirmado', confirmado: 'En preparación' }
+  const statusLabel = customerLabels[order.status] || orderStatusLabels[order.status] || order.status
 
   return (
     <Card className="overflow-hidden">
