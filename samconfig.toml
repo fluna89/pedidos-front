@@ -1,0 +1,29 @@
+version = 0.1
+
+[default.deploy.parameters]
+stack_name = "pedidos-frontend-dev"
+region = "us-east-1"
+profile = "pedidos-dev"
+resolve_s3 = true
+s3_prefix = "pedidos-frontend"
+confirm_changeset = false
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "Environment=\"dev\""
+
+[staging.deploy.parameters]
+stack_name = "pedidos-frontend-staging"
+region = "us-east-1"
+resolve_s3 = true
+s3_prefix = "pedidos-frontend-staging"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "Environment=\"staging\""
+
+[prod.deploy.parameters]
+stack_name = "pedidos-frontend-prod"
+region = "us-east-1"
+resolve_s3 = true
+s3_prefix = "pedidos-frontend-prod"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "Environment=\"prod\""
