@@ -1,9 +1,122 @@
 import { useState } from 'react'
+import { useAuth } from '@/hooks/useAuth'
 import { useAddresses } from '@/hooks/useAddresses'
+import { updateUserProfile } from '@/services/handlers'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+} from '@/components/ui/card'
 import AddressForm from '@/components/addresses/AddressForm'
 import AddressCard from '@/components/addresses/AddressCard'
-import { Plus } from 'lucide-react'
+import { Plus, Loader2, Check } from 'lucide-react'
+import { Link } from 'react-router-dom'
+
+function PersonalDataSection() {
+  const { user, updateUser } = useAuth()
+
+  const [name, setName] = useState(user?.name || '')
+  const [email, setEmail] = useState(user?.email || '')
+  const [phone, setPhone] = useState(user?.phone || '')
+  const [saving, setSaving] = useState(false)
+  const [success, setSuccess] = useState(false)
+  const [error, setError] = useState('')
+
+  const hasChanges =
+    name !== (user?.name || '') ||
+    email !== (user?.email || '') ||
+    phone !== (user?.phone || '')
+
+  async function handleSave(e) {
+    e.preventDefault()
+    if (!hasChanges || saving) return
+    setSaving(true)
+    setError('')
+    setSuccess(false)
+
+    try {
+      const updated = await updateUserProfile(user.id, { name, email, phone })
+      updateUser(updated)
+      setSuccess(true)
+      setTimeout(() => setSuccess(false), 3000)
+    } catch (err) {
+      setError(err.message || 'Error al guardar')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <Card>
+      <form onSubmit={handleSave}>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Datos personales</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="space-y-1">
+            <Label htmlFor="account-name">Nombre</Label>
+            <Input
+              id="account-name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="account-email">Email</Label>
+            <Input
+              id="account-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="account-phone">Teléfono</Label>
+            <Input
+              id="account-phone"
+              type="tel"
+              placeholder="11-2345-6789"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+          </div>
+          {error && (
+            <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+          )}
+          {success && (
+            <p className="flex items-center gap-1 text-sm text-green-600 dark:text-green-400">
+              <Check className="h-4 w-4" />
+              Guardado correctamente
+            </p>
+          )}
+        </CardContent>
+        <CardFooter className="flex items-center justify-between">
+          <Button type="submit" disabled={!hasChanges || saving} size="sm">
+            {saving ? (
+              <>
+                <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                Guardando...
+              </>
+            ) : (
+              'Guardar cambios'
+            )}
+          </Button>
+          <Link
+            to="/recover"
+            className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          >
+            Cambiar contraseña
+          </Link>
+        </CardFooter>
+      </form>
+    </Card>
+  )
+}
 
 export default function AddressesPage() {
   const {
@@ -17,7 +130,7 @@ export default function AddressesPage() {
   } = useAddresses()
 
   const [showForm, setShowForm] = useState(false)
-  const [editing, setEditing] = useState(null) // address object or null
+  const [editing, setEditing] = useState(null)
   const [saving, setSaving] = useState(false)
 
   async function handleAdd(data) {
@@ -48,7 +161,7 @@ export default function AddressesPage() {
   if (loading) {
     return (
       <div className="py-12 text-center text-gray-500 dark:text-gray-400">
-        Cargando direcciones...
+        Cargando...
       </div>
     )
   }
@@ -80,33 +193,39 @@ export default function AddressesPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">Mis direcciones</h1>
-        <Button size="sm" onClick={() => setShowForm(true)}>
-          <Plus className="mr-1 h-4 w-4" />
-          Agregar
-        </Button>
-      </div>
+    <div className="space-y-6">
+      <h1 className="text-xl font-bold">Mis datos</h1>
 
-      {addresses.length === 0 ? (
-        <p className="py-8 text-center text-gray-500 dark:text-gray-400">
-          No tenés direcciones guardadas. ¡Agregá una!
-        </p>
-      ) : (
-        <div className="space-y-3">
-          {addresses.map((addr) => (
-            <AddressCard
-              key={addr.id}
-              address={addr}
-              isActive={addr.id === activeId}
-              onSelect={selectActive}
-              onEdit={setEditing}
-              onDelete={handleDelete}
-            />
-          ))}
+      <PersonalDataSection />
+
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Mis direcciones</h2>
+          <Button size="sm" onClick={() => setShowForm(true)}>
+            <Plus className="mr-1 h-4 w-4" />
+            Agregar
+          </Button>
         </div>
-      )}
+
+        {addresses.length === 0 ? (
+          <p className="py-8 text-center text-gray-500 dark:text-gray-400">
+            No tenés direcciones guardadas. ¡Agregá una!
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {addresses.map((addr) => (
+              <AddressCard
+                key={addr.id}
+                address={addr}
+                isActive={addr.id === activeId}
+                onSelect={selectActive}
+                onEdit={setEditing}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
