@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { useCart } from '@/hooks/useCart'
+import useStoreStatus from '@/hooks/useStoreStatus'
 import { Minus, Plus, ShoppingCart, Check, MessageSquare, Trash2 } from 'lucide-react'
 
 function isSimpleProduct(product) {
@@ -22,6 +23,7 @@ export default function ProductCard({ product }) {
   const hasMultipleFormats = product.formats.length > 1
   const simple = isSimpleProduct(product)
   const { items, addItem, updateQuantity, removeItem } = useCart()
+  const { isOpen: storeIsOpen } = useStoreStatus()
 
   // Find existing cart item for this simple product
   const cartItem = simple
@@ -109,6 +111,7 @@ export default function ProductCard({ product }) {
                       type="button"
                       onClick={handleCartDecrement}
                       className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 transition-colors hover:border-gray-400 dark:border-gray-700 dark:hover:border-gray-500"
+                      disabled={!storeIsOpen}
                     >
                       <Minus className="h-3 w-3" />
                     </button>
@@ -117,6 +120,7 @@ export default function ProductCard({ product }) {
                       type="button"
                       onClick={handleCartIncrement}
                       className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 transition-colors hover:border-gray-400 dark:border-gray-700 dark:hover:border-gray-500"
+                      disabled={!storeIsOpen}
                     >
                       <Plus className="h-3 w-3" />
                     </button>
@@ -185,7 +189,7 @@ export default function ProductCard({ product }) {
                 <Button
                   size="sm"
                   className="w-full"
-                  disabled={added}
+                  disabled={added || !storeIsOpen}
                   onClick={handleAdd}
                 >
                   {added ? (
@@ -217,8 +221,8 @@ export default function ProductCard({ product }) {
                       ? `Desde $${minPrice.toLocaleString('es-AR')}`
                       : `$${minPrice.toLocaleString('es-AR')}`}
               </span>
-              <Link to={`/menu/${product.id}`}>
-                <Button size="sm">{product.isCombo ? 'Armar combo' : 'Elegir'}</Button>
+              <Link to={`/menu/${product.id}`} className={!storeIsOpen ? 'pointer-events-none' : ''}>
+                <Button size="sm" disabled={!storeIsOpen}>{product.isCombo ? 'Armar combo' : 'Elegir'}</Button>
               </Link>
             </div>
             {cartQty > 0 && (

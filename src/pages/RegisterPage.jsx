@@ -20,6 +20,7 @@ export default function RegisterPage() {
   const returnTo = location.state?.from || '/'
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
@@ -42,7 +43,7 @@ export default function RegisterPage() {
     setLoading(true)
 
     try {
-      await register(name, email, password)
+      await register(name, email, password, phone)
       navigate(returnTo)
     } catch (err) {
       setError(err.message)
@@ -84,6 +85,17 @@ export default function RegisterPage() {
                 placeholder="tu@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone">Teléfono</Label>
+              <Input
+                id="phone"
+                type="tel"
+                placeholder="11-2345-6789"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
                 required
               />
             </div>

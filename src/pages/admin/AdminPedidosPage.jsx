@@ -44,6 +44,7 @@ import {
   Store,
   Tag,
   Star,
+  Phone,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -270,6 +271,12 @@ function OrderDetailDialog({ order, open, onOpenChange }) {
               {isDelivery ? <Truck className="h-3.5 w-3.5" /> : <Store className="h-3.5 w-3.5" />}
               <span>{isDelivery ? 'Delivery' : 'Retiro en local'}</span>
             </div>
+            {order.contactPhone && (
+              <div className="flex items-center gap-1.5 text-gray-600 dark:text-gray-400">
+                <Phone className="h-3.5 w-3.5" />
+                <a href={`tel:${order.contactPhone}`} className="hover:underline">{order.contactPhone}</a>
+              </div>
+            )}
             {isDelivery && order.address && (
               <div className="flex items-start gap-1.5 text-gray-600 dark:text-gray-400">
                 <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />

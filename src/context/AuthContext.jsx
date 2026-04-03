@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { AuthContext } from '@/context/auth-context'
 import { api } from '@/services/api'
 
@@ -14,10 +14,30 @@ function loadSavedUser() {
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(loadSavedUser)
+  const [sessionExpired, setSessionExpired] = useState(false)
 
   function persistUser(userData) {
     setUser(userData)
     localStorage.setItem('auth_user', JSON.stringify(userData))
+  }
+
+  const logout = useCallback(() => {
+    setUser(null)
+    localStorage.removeItem('auth_user')
+  }, [])
+
+  // Auto-logout on expired token (401 from API)
+  useEffect(() => {
+    function handleExpired() {
+      logout()
+      setSessionExpired(true)
+    }
+    window.addEventListener('auth:expired', handleExpired)
+    return () => window.removeEventListener('auth:expired', handleExpired)
+  }, [logout])
+
+  function clearSessionExpired() {
+    setSessionExpired(false)
   }
 
   async function login(email, password) {
@@ -27,8 +47,8 @@ export function AuthProvider({ children }) {
     return userData
   }
 
-  async function register(name, email, password) {
-    const res = await api.post('/auth/register', { name, email, password })
+  async function register(name, email, password, phone) {
+    const res = await api.post('/auth/register', { name, email, password, phone })
     const userData = { ...res.user, token: res.token }
     persistUser(userData)
     return userData
@@ -59,11 +79,6 @@ export function AuthProvider({ children }) {
     return res
   }
 
-  function logout() {
-    setUser(null)
-    localStorage.removeItem('auth_user')
-  }
-
   const value = {
     user,
     isAuthenticated: !!user,
@@ -75,6 +90,9 @@ export function AuthProvider({ children }) {
     loginAsGuest,
     recoverPassword,
     logout,
+    updateUser: (data) => persistUser({ ...user, ...data }),
+    sessionExpired,
+    clearSessionExpired,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

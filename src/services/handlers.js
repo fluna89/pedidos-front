@@ -117,6 +117,26 @@ export async function validateCoupon(code, subtotal = 0) {
   return api.post('/coupons/validate', { code, subtotal })
 }
 
+// ── Store Status ──────────────────────────────────────────────
+
+export async function getStoreStatus() {
+  return api.get('/store/status')
+}
+
+// ── Admin: Store Config ───────────────────────────────────────
+
+export async function adminGetStoreHours() {
+  return api.get('/admin/store/hours')
+}
+
+export async function adminUpdateStoreHours(data) {
+  return api.put('/admin/store/hours', data)
+}
+
+export async function adminToggleEmergency(emergencyShutdown, emergencyMessage = '') {
+  return api.put('/admin/store/emergency', { emergencyShutdown, emergencyMessage })
+}
+
 // ── Admin: User Search ────────────────────────────────────────
 
 export async function adminSearchUsers(query) {

@@ -15,15 +15,16 @@ import { Loader2, Check, Link as LinkIcon } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 export default function AccountSection() {
-  const { user } = useAuth()
+  const { user, updateUser } = useAuth()
 
   const [name, setName] = useState(user?.name || '')
   const [email, setEmail] = useState(user?.email || '')
+  const [phone, setPhone] = useState(user?.phone || '')
   const [saving, setSaving] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
 
-  const hasChanges = name !== (user?.name || '') || email !== (user?.email || '')
+  const hasChanges = name !== (user?.name || '') || email !== (user?.email || '') || phone !== (user?.phone || '')
 
   async function handleSave(e) {
     e.preventDefault()
@@ -33,7 +34,8 @@ export default function AccountSection() {
     setSuccess(false)
 
     try {
-      await updateUserProfile(user.id, { name, email })
+      const updated = await updateUserProfile(user.id, { name, email, phone })
+      updateUser(updated)
       setSuccess(true)
       setTimeout(() => setSuccess(false), 3000)
     } catch (err) {
@@ -67,6 +69,16 @@ export default function AccountSection() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="account-phone">Teléfono</Label>
+              <Input
+                id="account-phone"
+                type="tel"
+                placeholder="11-2345-6789"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
               />
             </div>
             {error && (

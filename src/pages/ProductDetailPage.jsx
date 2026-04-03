@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getMenuItem, getFlavors } from '@/services/handlers'
 import { useCart } from '@/hooks/useCart'
+import useStoreStatus from '@/hooks/useStoreStatus'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -10,7 +11,7 @@ import {
   CardDescription,
   CardContent,
 } from '@/components/ui/card'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, AlertTriangle } from 'lucide-react'
 import ProductDetailView from '@/components/catalog/ProductDetailView'
 import ComboWizard from '@/components/catalog/ComboWizard'
 
@@ -18,6 +19,7 @@ export default function ProductDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { addItem } = useCart()
+  const { isOpen: storeIsOpen, message: storeClosedMessage } = useStoreStatus()
 
   const [product, setProduct] = useState(null)
   const [allFlavors, setAllFlavors] = useState([])
@@ -101,13 +103,19 @@ export default function ProductDetailPage() {
           )}
         </CardHeader>
         <CardContent>
+          {!storeIsOpen && (
+            <div className="mb-4 flex items-center gap-2 rounded-md bg-amber-50 p-3 text-sm text-amber-700 dark:bg-amber-950/40 dark:text-amber-400">
+              <AlertTriangle className="h-4 w-4 shrink-0" />
+              {storeClosedMessage || 'El local está cerrado. No se pueden agregar productos.'}
+            </div>
+          )}
           {product.isCombo ? (
-            <ComboWizard combo={product} onAdd={handleComboAdd} />
+            <ComboWizard combo={product} onAdd={storeIsOpen ? handleComboAdd : null} />
           ) : (
             <ProductDetailView
               product={product}
               allFlavors={allFlavors}
-              onAdd={handleAdd}
+              onAdd={storeIsOpen ? handleAdd : null}
             />
           )}
         </CardContent>

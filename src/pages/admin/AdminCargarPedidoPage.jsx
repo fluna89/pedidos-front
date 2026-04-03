@@ -300,8 +300,19 @@ function ProductPickerDialog({ product, onAdd, onClose }) {
 // Combo picker dialog — wraps existing ComboWizard
 // ═══════════════════════════════════════════════════════
 function ComboPickerDialog({ combo, onAdd, onClose }) {
-  function handleComboAdd(cartItem) {
-    onAdd(cartItem)
+  function handleComboAdd({ comboSteps, unitPrice }) {
+    onAdd({
+      cartId: 'cart-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+      productId: combo.id,
+      name: combo.name,
+      format: { id: combo.formats?.[0]?.id || combo.id, name: combo.name, price: unitPrice },
+      flavors: [],
+      extras: [],
+      comboSteps,
+      comment: '',
+      quantity: 1,
+      unitPrice,
+    })
     onClose()
   }
 

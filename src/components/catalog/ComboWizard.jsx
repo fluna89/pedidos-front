@@ -282,7 +282,7 @@ function ComboWizardFull({ combo, onAdd, previewMode }) {
           </Button>
           <Button
             className="flex-1"
-            disabled={!allStepsComplete || added || previewMode}
+            disabled={!allStepsComplete || added || previewMode || !onAdd}
             onClick={handleAddToCart}
           >
             {added ? (

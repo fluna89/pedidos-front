@@ -4,6 +4,7 @@ import { useTheme } from '@/hooks/useTheme'
 import { Button } from '@/components/ui/button'
 import {
   ClipboardList,
+  Clock,
   Gift,
   IceCreamCone,
   List,
@@ -11,6 +12,7 @@ import {
   Moon,
   Package,
   PlusCircle,
+  Settings,
   Sun,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -21,6 +23,8 @@ const navItems = [
   { to: '/admin/combos', label: 'Combos', icon: Gift },
   { to: '/admin/listas', label: 'Listas de opciones', icon: List },
   { to: '/admin/cargar-pedido', label: 'Cargar pedido', icon: PlusCircle },
+  { to: '/admin/horarios', label: 'Horarios', icon: Clock },
+  { to: '/admin/config', label: 'Configuración', icon: Settings },
 ]
 
 function SidebarLink({ to, label, icon: Icon }) { // eslint-disable-line no-unused-vars

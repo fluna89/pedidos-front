@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { CartContext } from '@/context/cart-context'
 
 /**
@@ -63,6 +63,12 @@ export function CartProvider({ children }) {
     setItems([])
     setOrderComment('')
   }, [])
+
+  // Clear cart when session expires
+  useEffect(() => {
+    window.addEventListener('auth:expired', clearCart)
+    return () => window.removeEventListener('auth:expired', clearCart)
+  }, [clearCart])
 
   const itemCount = items.reduce((sum, i) => sum + i.quantity, 0)
   const subtotal = items.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0)

@@ -28,6 +28,12 @@ async function request(endpoint, options = {}) {
 
   if (!response.ok) {
     const body = await response.json().catch(() => ({}))
+
+    // Session expired — notify AuthContext to auto-logout
+    if (response.status === 401 && token) {
+      window.dispatchEvent(new CustomEvent('auth:expired'))
+    }
+
     throw new Error(body.error || body.message || `Error ${response.status}`)
   }
 

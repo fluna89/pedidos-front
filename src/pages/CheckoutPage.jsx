@@ -5,6 +5,7 @@ import { useCart } from '@/hooks/useCart'
 import { useAddresses } from '@/hooks/useAddresses'
 import { useLoyalty } from '@/hooks/useLoyalty'
 import { calcDeliveryCost, createOrder, processPayment } from '@/services/handlers'
+import useStoreStatus from '@/hooks/useStoreStatus'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -26,6 +27,7 @@ import {
   Store,
   AlertTriangle,
   Loader2,
+  Phone,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import CouponInput from '@/components/loyalty/CouponInput'
@@ -37,10 +39,16 @@ export default function CheckoutPage() {
   const { items, subtotal, clearCart, orderComment } = useCart()
   const { addresses, activeId, selectActive, activeAddress } = useAddresses()
   const { eligible: loyaltyEligible, earnAfterOrder, redeemPoints } = useLoyalty()
+  const { isOpen: storeIsOpen, message: storeClosedMessage } = useStoreStatus()
   const navigate = useNavigate()
 
   const [orderType, setOrderType] = useState('delivery') // 'delivery' | 'pickup'
   const [deliveryResult, setDeliveryResult] = useState(null)
+  const [useProfilePhone, setUseProfilePhone] = useState(true)
+  const [altPhone, setAltPhone] = useState('')
+
+  const profilePhone = user?.phone || ''
+  const contactPhone = useProfilePhone ? profilePhone : altPhone
 
   // Loyalty state
   const [pointsToRedeem, setPointsToRedeem] = useState(0)
@@ -116,7 +124,7 @@ export default function CheckoutPage() {
   const noAddress =
     orderType === 'delivery' && !isGuest && addresses.length === 0
   const canSubmit =
-    !outOfCoverage && !noAddress && paymentMethod && !submitting
+    storeIsOpen && !outOfCoverage && !noAddress && paymentMethod && contactPhone.trim() && !submitting
 
   // ── Confirm order handler ──
   async function handleConfirmOrder() {
@@ -150,6 +158,7 @@ export default function CheckoutPage() {
               : activeAddress
             : null,
         paymentMethodId: paymentMethod.id,
+        contactPhone: contactPhone.trim(),
       })
 
       // 3. Process payment
@@ -248,6 +257,19 @@ export default function CheckoutPage() {
   // ── Authenticated checkout ──
   return (
     <div className="mx-auto max-w-md space-y-6 pt-4">
+      {/* Store closed warning */}
+      {!storeIsOpen && (
+        <div className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-center dark:border-amber-700 dark:bg-amber-950/30">
+          <AlertTriangle className="mx-auto mb-2 h-6 w-6 text-amber-500" />
+          <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
+            {storeClosedMessage || 'El local se encuentra cerrado en este momento.'}
+          </p>
+          <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
+            No es posible confirmar pedidos fuera del horario de atención.
+          </p>
+        </div>
+      )}
+
       {/* Order type toggle */}
       <div className="space-y-2">
         <Label>Tipo de pedido</Label>
@@ -279,6 +301,59 @@ export default function CheckoutPage() {
             Retiro en local
           </button>
         </div>
+      </div>
+
+      {/* Contact phone */}
+      <div className="space-y-2">
+        <Label className="flex items-center gap-1.5">
+          <Phone className="h-4 w-4" />
+          Teléfono de contacto
+        </Label>
+        {profilePhone && !isGuest ? (
+          <div className="space-y-2">
+            <button
+              type="button"
+              className={cn(
+                'w-full rounded-md border px-4 py-3 text-left text-sm transition-colors',
+                useProfilePhone
+                  ? 'border-gray-900 bg-gray-50 dark:border-gray-100 dark:bg-gray-800'
+                  : 'border-gray-200 hover:border-gray-400 dark:border-gray-700 dark:hover:border-gray-500',
+              )}
+              onClick={() => setUseProfilePhone(true)}
+            >
+              <span className="font-medium">{profilePhone}</span>
+              <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">Mi teléfono</span>
+            </button>
+            <button
+              type="button"
+              className={cn(
+                'w-full rounded-md border px-4 py-3 text-left text-sm transition-colors',
+                !useProfilePhone
+                  ? 'border-gray-900 bg-gray-50 dark:border-gray-100 dark:bg-gray-800'
+                  : 'border-gray-200 hover:border-gray-400 dark:border-gray-700 dark:hover:border-gray-500',
+              )}
+              onClick={() => setUseProfilePhone(false)}
+            >
+              Usar otro teléfono
+            </button>
+            {!useProfilePhone && (
+              <Input
+                type="tel"
+                placeholder="Ej: 11-2345-6789"
+                value={altPhone}
+                onChange={(e) => setAltPhone(e.target.value)}
+                autoFocus
+              />
+            )}
+          </div>
+        ) : (
+          <Input
+            type="tel"
+            placeholder="Ej: 11-2345-6789"
+            value={altPhone}
+            onChange={(e) => setAltPhone(e.target.value)}
+          />
+        )}
       </div>
 
       {/* Address selection (delivery only) */}

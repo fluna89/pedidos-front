@@ -410,7 +410,7 @@ export default function ProductDetailView({
       {/* Action button */}
       <Button
         className="w-full"
-        disabled={preview ? false : !canAdd || added}
+        disabled={preview ? false : !canAdd || added || !onAdd}
         onClick={preview ? undefined : handleAdd}
       >
         {added ? (

@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/card'
 
 export default function LoginPage() {
-  const { login, loginWithGoogle } = useAuth()
+  const { login, loginWithGoogle, sessionExpired, clearSessionExpired } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const returnTo = location.state?.from || '/'
@@ -26,6 +26,7 @@ export default function LoginPage() {
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
+    clearSessionExpired()
     setLoading(true)
 
     try {
@@ -47,6 +48,11 @@ export default function LoginPage() {
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
+            {sessionExpired && (
+              <p className="rounded-md bg-yellow-50 p-3 text-sm text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300">
+                Tu sesión expiró. Por favor, ingresá de nuevo.
+              </p>
+            )}
             {error && (
               <p className="rounded-md bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/30 dark:text-red-400">
                 {error}
