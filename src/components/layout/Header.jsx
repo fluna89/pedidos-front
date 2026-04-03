@@ -34,7 +34,7 @@ export default function Header() {
             <Link to="/addresses" className="hidden sm:block">
               <Button variant="ghost" size="sm">
                 <MapPin className="mr-1 h-4 w-4" />
-                Direcciones
+                Mis datos
               </Button>
             </Link>
           )}

@@ -41,7 +41,7 @@ export default function MobileUserBar() {
             className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
           >
             <MapPin className="h-3 w-3" />
-            Direcciones
+            Mis datos
           </Link>
         </div>
       </div>
