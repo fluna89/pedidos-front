@@ -5,19 +5,11 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
 function getToken() {
   try {
     const saved = localStorage.getItem('auth_user')
-    if (!saved) return null
-    const token = JSON.parse(saved).token
-    if (!token) return null
-    // Check expiry before using
-    const payload = JSON.parse(atob(token.split('.')[1]))
-    if (payload.exp && payload.exp * 1000 < Date.now()) {
-      window.dispatchEvent(new CustomEvent('auth:expired'))
-      return null
-    }
-    return token
+    if (saved) return JSON.parse(saved).token
   } catch {
-    return null
+    /* ignore */
   }
+  return null
 }
 
 async function request(endpoint, options = {}) {

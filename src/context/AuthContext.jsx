@@ -2,6 +2,15 @@ import { useState, useEffect, useCallback } from 'react'
 import { AuthContext } from '@/context/auth-context'
 import { api } from '@/services/api'
 
+function decodeJwtPayload(token) {
+  try {
+    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
+    return JSON.parse(atob(base64))
+  } catch {
+    return null
+  }
+}
+
 function loadSavedUser() {
   try {
     const saved = localStorage.getItem('auth_user')
@@ -9,8 +18,8 @@ function loadSavedUser() {
     const parsed = JSON.parse(saved)
     // Check JWT expiry before loading stale sessions
     if (parsed?.token) {
-      const payload = JSON.parse(atob(parsed.token.split('.')[1]))
-      if (payload.exp && payload.exp * 1000 < Date.now()) {
+      const payload = decodeJwtPayload(parsed.token)
+      if (payload?.exp && payload.exp * 1000 < Date.now()) {
         localStorage.removeItem('auth_user')
         return null
       }
