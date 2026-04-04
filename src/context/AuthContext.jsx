@@ -43,6 +43,7 @@ export function AuthProvider({ children }) {
   const logout = useCallback(() => {
     setUser(null)
     localStorage.removeItem('auth_user')
+    window.dispatchEvent(new Event('auth:logout'))
   }, [])
 
   // Auto-logout on expired token (401 from API)

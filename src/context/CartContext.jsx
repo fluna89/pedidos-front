@@ -64,10 +64,14 @@ export function CartProvider({ children }) {
     setOrderComment('')
   }, [])
 
-  // Clear cart when session expires
+  // Clear cart on logout or session expiry
   useEffect(() => {
     window.addEventListener('auth:expired', clearCart)
-    return () => window.removeEventListener('auth:expired', clearCart)
+    window.addEventListener('auth:logout', clearCart)
+    return () => {
+      window.removeEventListener('auth:expired', clearCart)
+      window.removeEventListener('auth:logout', clearCart)
+    }
   }, [clearCart])
 
   const itemCount = items.reduce((sum, i) => sum + i.quantity, 0)

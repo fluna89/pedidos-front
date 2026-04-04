@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { useTheme } from '@/hooks/useTheme'
 import { useCart } from '@/hooks/useCart'
@@ -10,6 +10,12 @@ export default function Header() {
   const { isAuthenticated, isGuest, user, logout } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const { itemCount } = useCart()
+  const navigate = useNavigate()
+
+  function handleLogout() {
+    logout()
+    navigate('/login')
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
@@ -68,7 +74,7 @@ export default function Header() {
                   </Button>
                 </Link>
               )}
-              <Button variant="ghost" size="icon" onClick={logout} aria-label="Cerrar sesión" className="text-red-500 hover:bg-red-50 hover:text-red-600 dark:text-red-400 dark:hover:bg-red-950 dark:hover:text-red-300">
+              <Button variant="ghost" size="icon" onClick={handleLogout} aria-label="Cerrar sesión" className="text-red-500 hover:bg-red-50 hover:text-red-600 dark:text-red-400 dark:hover:bg-red-950 dark:hover:text-red-300">
                 <LogOut className="h-4 w-4" />
               </Button>
             </>
