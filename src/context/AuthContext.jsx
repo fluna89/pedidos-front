@@ -5,7 +5,17 @@ import { api } from '@/services/api'
 function loadSavedUser() {
   try {
     const saved = localStorage.getItem('auth_user')
-    return saved ? JSON.parse(saved) : null
+    if (!saved) return null
+    const parsed = JSON.parse(saved)
+    // Check JWT expiry before loading stale sessions
+    if (parsed?.token) {
+      const payload = JSON.parse(atob(parsed.token.split('.')[1]))
+      if (payload.exp && payload.exp * 1000 < Date.now()) {
+        localStorage.removeItem('auth_user')
+        return null
+      }
+    }
+    return parsed
   } catch {
     localStorage.removeItem('auth_user')
     return null

@@ -121,7 +121,7 @@ function formatDate(isoString) {
 
 const KANBAN_MAX_VISIBLE = 4
 
-function KanbanColumn({ title, orders, onCancel, onViewDetail, newOrderIds, droppableId }) {
+function KanbanColumn({ title, orders, onCancel, onViewDetail, onPrint, newOrderIds, droppableId }) {
   const [expanded, setExpanded] = useState(false)
   const visibleOrders = expanded ? orders : orders.slice(0, KANBAN_MAX_VISIBLE)
   const hasMore = orders.length > KANBAN_MAX_VISIBLE
@@ -178,7 +178,16 @@ function KanbanColumn({ title, orders, onCancel, onViewDetail, newOrderIds, drop
             </div>
             </div>
             {order.status !== 'entregado' && order.status !== 'cancelado' && (
-              <div className="mt-1 flex justify-end">
+              <div className="mt-1 flex justify-end gap-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  onClick={(e) => { e.stopPropagation(); onPrint(order) }}
+                  title="Imprimir comanda"
+                >
+                  <Printer className="h-3 w-3" />
+                </Button>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -187,6 +196,19 @@ function KanbanColumn({ title, orders, onCancel, onViewDetail, newOrderIds, drop
                   title="Cancelar pedido"
                 >
                   <X className="h-3 w-3" />
+                </Button>
+              </div>
+            )}
+            {(order.status === 'entregado' || order.status === 'cancelado') && (
+              <div className="mt-1 flex justify-end">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  onClick={(e) => { e.stopPropagation(); onPrint(order) }}
+                  title="Imprimir comanda"
+                >
+                  <Printer className="h-3 w-3" />
                 </Button>
               </div>
             )}
@@ -342,21 +364,6 @@ function ComandaPrint({ order, comandaMessage }) {
 // ── Order Detail Dialog ────────────────────────────────
 
 function OrderDetailDialog({ order, open, onOpenChange }) {
-  const [comandaMessage, setComandaMessage] = useState('')
-  const printTriggered = useRef(false)
-
-  useEffect(() => {
-    if (open && order) {
-      adminGetStoreHours().then((cfg) => setComandaMessage(cfg.comandaMessage || '')).catch(() => {})
-    }
-  }, [open, order])
-
-  function handlePrint() {
-    printTriggered.current = true
-    // Small delay to ensure DOM is ready
-    setTimeout(() => window.print(), 100)
-  }
-
   if (!order) return null
 
   const isDelivery = order.orderType === 'delivery'
@@ -369,21 +376,13 @@ function OrderDetailDialog({ order, open, onOpenChange }) {
             Pedido #{order.id}
             <StatusBadge status={order.status} />
           </DialogTitle>
-          <DialogDescription className="flex items-center justify-between">
-            <span>
-              {formatDate(order.createdAt)}
-              {order.updatedAt && order.updatedAt !== order.createdAt && (
-                <> · Actualizado: {formatDate(order.updatedAt)}</>
-              )}
-            </span>
-            <Button variant="outline" size="sm" className="ml-2 gap-1.5" onClick={handlePrint}>
-              <Printer className="h-3.5 w-3.5" />
-              Imprimir
-            </Button>
+          <DialogDescription>
+            {formatDate(order.createdAt)}
+            {order.updatedAt && order.updatedAt !== order.createdAt && (
+              <> · Actualizado: {formatDate(order.updatedAt)}</>
+            )}
           </DialogDescription>
         </DialogHeader>
-
-        <ComandaPrint order={order} comandaMessage={comandaMessage} />
 
         <div className="space-y-4 text-sm">
           {/* Customer & delivery */}
@@ -748,6 +747,18 @@ export default function AdminPedidosPage() {
   const [cancelDialogOrderId, setCancelDialogOrderId] = useState(null)
   const [previewImageUrl, setPreviewImageUrl] = useState(null)
   const [detailOrder, setDetailOrder] = useState(null)
+  const [printOrder, setPrintOrder] = useState(null)
+  const [comandaMessage, setComandaMessage] = useState('')
+
+  // Load comanda message once
+  useEffect(() => {
+    adminGetStoreHours().then((cfg) => setComandaMessage(cfg.comandaMessage || '')).catch(() => {})
+  }, [])
+
+  function handlePrint(order) {
+    setPrintOrder(order)
+    setTimeout(() => window.print(), 100)
+  }
 
   const loadOrders = useCallback(async () => {
     setLoading(true)
@@ -965,6 +976,7 @@ export default function AdminPedidosPage() {
                   }
                   onCancel={handleCancel}
                   onViewDetail={setDetailOrder}
+                  onPrint={handlePrint}
                   newOrderIds={newOrderIds}
                 />
               ))}
@@ -1067,9 +1079,18 @@ export default function AdminPedidosPage() {
                         size="icon"
                         className="h-8 w-8"
                         onClick={() => setDetailOrder(order)}
-                        title="Ver detalle / imprimir"
+                        title="Ver detalle"
                       >
                         <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                        onClick={() => handlePrint(order)}
+                        title="Imprimir comanda"
+                      >
+                        <Printer className="h-4 w-4" />
                       </Button>
                       {order.status !== 'pendiente' &&
                         order.status !== 'cancelado' && (
@@ -1147,6 +1168,9 @@ export default function AdminPedidosPage() {
         open={detailOrder !== null}
         onOpenChange={(open) => { if (!open) setDetailOrder(null) }}
       />
+
+      {/* Comanda Print (hidden, visible only via @media print) */}
+      <ComandaPrint order={printOrder} comandaMessage={comandaMessage} />
     </div>
   )
 }
