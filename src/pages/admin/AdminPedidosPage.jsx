@@ -6,6 +6,7 @@ import {
   adminCancelOrder,
   adminSetOrderStatus,
   adminSimulateNewOrder,
+  adminGetStoreHours,
 } from '@/services/handlers'
 import { orderStatusLabels } from '@/services/handlers'
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
@@ -45,6 +46,7 @@ import {
   Tag,
   Star,
   Phone,
+  Printer,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -240,9 +242,121 @@ function ImagePreviewDialog({ imageUrl, open, onOpenChange }) {
     </Dialog>
   )
 }
+// ── Comanda Print ──────────────────────────────────────
+
+function ComandaPrint({ order, comandaMessage }) {
+  if (!order) return null
+  const isDelivery = order.orderType === 'delivery'
+  return (
+    <div id="comanda-print" className="hidden">
+      <div style={{ width: '80mm', fontFamily: 'monospace', fontSize: '12px', padding: '4mm' }}>
+        <div style={{ textAlign: 'center', borderBottom: '2px dashed #000', paddingBottom: '4px', marginBottom: '6px' }}>
+          <div style={{ fontSize: '22px', fontWeight: 'bold' }}>PEDIDO #{order.id}</div>
+          <div style={{ fontSize: '11px' }}>{formatDate(order.createdAt)}</div>
+          <div style={{ fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase' }}>
+            {isDelivery ? 'DELIVERY' : 'RETIRO EN LOCAL'}
+          </div>
+        </div>
+
+        <div style={{ borderBottom: '1px dashed #000', paddingBottom: '4px', marginBottom: '6px' }}>
+          <div style={{ fontWeight: 'bold' }}>{order.customerName || 'Invitado'}</div>
+          {order.contactPhone && <div>Tel: {order.contactPhone}</div>}
+          {isDelivery && order.address && (
+            <div>
+              <div>{order.address.street}</div>
+              {order.address.floor && <div>Piso {order.address.floor}{order.address.apartment ? `, Depto ${order.address.apartment}` : ''}</div>}
+              {order.address.comment && <div style={{ fontStyle: 'italic' }}>{order.address.comment}</div>}
+            </div>
+          )}
+        </div>
+
+        <div style={{ borderBottom: '1px dashed #000', paddingBottom: '4px', marginBottom: '6px' }}>
+          {order.items?.map((item, i) => {
+            const isCombo = item.flavors && item.flavors.includes(' | ')
+            const comboSteps = isCombo
+              ? item.flavors.split(' | ').map((step) => {
+                  const colonIdx = step.indexOf(': ')
+                  const label = colonIdx > -1 ? step.slice(0, colonIdx).trim() : ''
+                  const rest = colonIdx > -1 ? step.slice(colonIdx + 2) : step
+                  const commentMatch = rest.match(/\s*—\s*\[(.+?)\]\s*$/)
+                  const comment = commentMatch ? commentMatch[1] : ''
+                  const details = comment ? rest.replace(/\s*—\s*\[.+?\]\s*$/, '') : rest
+                  return { label, details, comment }
+                })
+              : null
+            return (
+              <div key={i} style={{ marginBottom: '6px' }}>
+                <div style={{ fontWeight: 'bold' }}>
+                  {item.quantity > 1 ? `${item.quantity}x ` : ''}{item.name}
+                </div>
+                {comboSteps ? (
+                  comboSteps.map((step, j) => (
+                    <div key={j} style={{ paddingLeft: '8px' }}>
+                      {step.label && <div style={{ fontWeight: 'bold', fontSize: '10px', textTransform: 'uppercase' }}>{step.label}</div>}
+                      <div>{step.details}</div>
+                      {step.comment && <div style={{ fontStyle: 'italic' }}>» {step.comment}</div>}
+                    </div>
+                  ))
+                ) : (
+                  <>
+                    {item.flavors && <div style={{ paddingLeft: '8px' }}>{item.flavors}</div>}
+                    {item.extras && item.extras.length > 0 && (
+                      <div style={{ paddingLeft: '8px' }}>+ {Array.isArray(item.extras) ? item.extras.join(', ') : item.extras}</div>
+                    )}
+                  </>
+                )}
+                {item.comment && <div style={{ paddingLeft: '8px', fontStyle: 'italic' }}>» {item.comment}</div>}
+              </div>
+            )
+          })}
+        </div>
+
+        {order.comment && (
+          <div style={{ borderBottom: '1px dashed #000', paddingBottom: '4px', marginBottom: '6px', fontWeight: 'bold' }}>
+            NOTA: {order.comment}
+          </div>
+        )}
+
+        <div style={{ borderBottom: '1px dashed #000', paddingBottom: '4px', marginBottom: '6px' }}>
+          {order.coupon && <div>Cupón: {order.coupon} (-${order.couponDiscount?.toLocaleString('es-AR')})</div>}
+          {order.pointsRedeemed > 0 && <div>Puntos: -${order.pointsRedeemed?.toLocaleString('es-AR')}</div>}
+          {isDelivery && order.deliveryCost > 0 && <div>Envío: ${order.deliveryCost?.toLocaleString('es-AR')}</div>}
+          <div style={{ fontSize: '16px', fontWeight: 'bold', textAlign: 'center', marginTop: '4px' }}>
+            TOTAL: ${order.total?.toLocaleString('es-AR')}
+          </div>
+          <div style={{ textAlign: 'center', fontSize: '11px' }}>
+            {order.paymentMethod} — {order.paymentStatus === 'pagado' ? 'PAGADO' : 'PENDIENTE'}
+          </div>
+        </div>
+
+        {comandaMessage && (
+          <div style={{ textAlign: 'center', marginTop: '6px', fontSize: '13px', fontWeight: 'bold' }}>
+            {comandaMessage}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ── Order Detail Dialog ────────────────────────────────
 
 function OrderDetailDialog({ order, open, onOpenChange }) {
+  const [comandaMessage, setComandaMessage] = useState('')
+  const printTriggered = useRef(false)
+
+  useEffect(() => {
+    if (open && order) {
+      adminGetStoreHours().then((cfg) => setComandaMessage(cfg.comandaMessage || '')).catch(() => {})
+    }
+  }, [open, order])
+
+  function handlePrint() {
+    printTriggered.current = true
+    // Small delay to ensure DOM is ready
+    setTimeout(() => window.print(), 100)
+  }
+
   if (!order) return null
 
   const isDelivery = order.orderType === 'delivery'
@@ -255,13 +369,21 @@ function OrderDetailDialog({ order, open, onOpenChange }) {
             Pedido #{order.id}
             <StatusBadge status={order.status} />
           </DialogTitle>
-          <DialogDescription>
-            {formatDate(order.createdAt)}
-            {order.updatedAt && order.updatedAt !== order.createdAt && (
-              <> · Actualizado: {formatDate(order.updatedAt)}</>
-            )}
+          <DialogDescription className="flex items-center justify-between">
+            <span>
+              {formatDate(order.createdAt)}
+              {order.updatedAt && order.updatedAt !== order.createdAt && (
+                <> · Actualizado: {formatDate(order.updatedAt)}</>
+              )}
+            </span>
+            <Button variant="outline" size="sm" className="ml-2 gap-1.5" onClick={handlePrint}>
+              <Printer className="h-3.5 w-3.5" />
+              Imprimir
+            </Button>
           </DialogDescription>
         </DialogHeader>
+
+        <ComandaPrint order={order} comandaMessage={comandaMessage} />
 
         <div className="space-y-4 text-sm">
           {/* Customer & delivery */}
@@ -945,7 +1067,7 @@ export default function AdminPedidosPage() {
                         size="icon"
                         className="h-8 w-8"
                         onClick={() => setDetailOrder(order)}
-                        title="Ver detalle"
+                        title="Ver detalle / imprimir"
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
