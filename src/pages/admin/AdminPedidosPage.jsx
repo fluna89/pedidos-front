@@ -750,14 +750,13 @@ export default function AdminPedidosPage() {
   const [printOrder, setPrintOrder] = useState(null)
   const [comandaMessage, setComandaMessage] = useState('')
 
-  // Load comanda message once
-  useEffect(() => {
-    adminGetStoreHours().then((cfg) => setComandaMessage(cfg.comandaMessage || '')).catch(() => {})
-  }, [])
-
-  function handlePrint(order) {
+  async function handlePrint(order) {
+    try {
+      const cfg = await adminGetStoreHours()
+      setComandaMessage(cfg.comandaMessage || '')
+    } catch { /* ignore */ }
     setPrintOrder(order)
-    setTimeout(() => window.print(), 100)
+    setTimeout(() => window.print(), 150)
   }
 
   const loadOrders = useCallback(async () => {
