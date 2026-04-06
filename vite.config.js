@@ -12,6 +12,12 @@ export default defineConfig({
   server: {
     host: true,
     allowedHosts: ['.ngrok-free.app'],
+    proxy: {
+      '/products': {
+        target: 'https://d1rjfebhaffmeo.cloudfront.net',
+        changeOrigin: true,
+      },
+    },
   },
   resolve: {
     alias: {

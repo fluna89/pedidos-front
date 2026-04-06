@@ -6,6 +6,9 @@ Parameters:
     Type: String
     Default: dev
     AllowedValues: [dev, staging, prod]
+  ImagesBucketDomainName:
+    Type: String
+    Description: Regional domain name of the images S3 bucket (from backend stack)
 
 Resources:
 
@@ -44,6 +47,33 @@ Resources:
         SigningBehavior: always
         SigningProtocol: sigv4
 
+  # CloudFront Function to return clean 404 for missing images
+  # (prevents CustomErrorResponses from serving index.html for broken images)
+  ImageNotFoundFunction:
+    Type: AWS::CloudFront::Function
+    Properties:
+      Name: !Sub 'pedidos-image-404-${Environment}'
+      AutoPublish: true
+      FunctionConfig:
+        Comment: Return 404 for missing images instead of SPA fallback
+        Runtime: cloudfront-js-2.0
+      FunctionCode: |
+        function handler(event) {
+          var response = event.response;
+          if (response.statusCode >= 400) {
+            return {
+              statusCode: 404,
+              statusDescription: 'Not Found',
+              headers: {
+                'content-type': { value: 'text/plain' },
+                'cache-control': { value: 'no-cache' }
+              },
+              body: { encoding: 'text', data: 'Not Found' }
+            };
+          }
+          return response;
+        }
+
   CloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
@@ -57,11 +87,25 @@ Resources:
             OriginAccessControlId: !Ref CloudFrontOAC
             S3OriginConfig:
               OriginAccessIdentity: ''
+          - Id: ImagesOrigin
+            DomainName: !Ref ImagesBucketDomainName
+            OriginAccessControlId: !Ref CloudFrontOAC
+            S3OriginConfig:
+              OriginAccessIdentity: ''
         DefaultCacheBehavior:
           TargetOriginId: S3Origin
           ViewerProtocolPolicy: redirect-to-https
           CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6  # CachingOptimized
           Compress: true
+        CacheBehaviors:
+          - PathPattern: /products/*
+            TargetOriginId: ImagesOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6  # CachingOptimized
+            Compress: true
+            FunctionAssociations:
+              - EventType: viewer-response
+                FunctionARN: !GetAtt ImageNotFoundFunction.FunctionARN
         CustomErrorResponses:
           - ErrorCode: 403
             ResponseCode: 200

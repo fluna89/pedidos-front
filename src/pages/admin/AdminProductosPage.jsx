@@ -11,6 +11,8 @@ import {
   adminDeleteFlavor,
   adminGetFlavorSources,
   adminGetProductUsage,
+  adminGetUploadUrl,
+  uploadImageToS3,
 } from '@/services/handlers'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -39,8 +41,10 @@ import {
   Pause,
   Play,
   AlertCircle,
+  ImagePlus,
 } from 'lucide-react'
 import ProductDetailView from '@/components/catalog/ProductDetailView'
+import ProductCardShell from '@/components/catalog/ProductCardShell'
 
 // ── Archetype labels ──────────────────────────────────
 const ARCHETYPES = [
@@ -77,13 +81,32 @@ function getCategoryIcon(categories, categoryId) {
   return categories.find((c) => c.id === categoryId)?.icon || '🍽️'
 }
 
-function buildProductFromForm(form, categories, flavorSources) {
+function isImageKey(image) {
+  return image && image.startsWith('products/')
+}
+
+function ProductImage({ image, fallback = '🍽️' }) {
+  const [broken, setBroken] = useState(false)
+  if (isImageKey(image) && !broken) {
+    return (
+      <img
+        src={`/${image}`}
+        alt=""
+        className="h-full w-full object-cover"
+        onError={() => setBroken(true)}
+      />
+    )
+  }
+  return <span className="text-4xl">{broken ? fallback : (image || fallback)}</span>
+}
+
+function buildProductFromForm(form, categories, flavorSources, imageKey) {
   const itemPricing = form.archetype === 'flavors' && flavorSources.find((fs) => fs.id === form.flavorsSource)?.hasItemPrices
   const base = {
     name: form.name,
     description: form.description,
     category: form.category,
-    image: getCategoryIcon(categories, form.category),
+    image: imageKey || getCategoryIcon(categories, form.category),
     paused: form.paused,
     counterOnly: form.counterOnly,
     comboOnly: form.comboOnly,
@@ -169,7 +192,7 @@ function formatPrice(n) {
 // ═══════════════════════════════════════════════════════
 // ProductDetailPreview — customer detail view in a dialog
 // ═══════════════════════════════════════════════════════
-function ProductDetailPreview({ form, categories, flavorSources, open, onClose }) {
+function ProductDetailPreview({ form, categories, flavorSources, imagePreview, open, onClose }) {
   const [flavors, setFlavors] = useState([])
 
   useEffect(() => {
@@ -182,7 +205,7 @@ function ProductDetailPreview({ form, categories, flavorSources, open, onClose }
     return () => { cancelled = true }
   }, [open, form.archetype, form.flavorsSource])
 
-  const virtualProduct = open ? buildProductFromForm(form, categories, flavorSources) : null
+  const virtualProduct = open ? buildProductFromForm(form, categories, flavorSources, imagePreview || undefined) : null
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
@@ -209,16 +232,20 @@ function ProductDetailPreview({ form, categories, flavorSources, open, onClose }
 // ═══════════════════════════════════════════════════════
 // ProductForm — create / edit
 // ═══════════════════════════════════════════════════════
-function ProductForm({ product, categories, onSave, onCancel }) {
+function ProductForm({ product, categories, onSave, onDone, onCancel }) {
   const [form, setForm] = useState(() => initForm(product))
   const [saving, setSaving] = useState(false)
+  const [formError, setFormError] = useState('')
   const [showDetail, setShowDetail] = useState(false)
   const [flavorList, setFlavorList] = useState([])
   const [loadingFlavors, setLoadingFlavors] = useState(false)
   const [newFlavorName, setNewFlavorName] = useState('')
   const [newFlavorPrice, setNewFlavorPrice] = useState('')
   const [flavorSources, setFlavorSources] = useState([])
-
+  const [imageFile, setImageFile] = useState(null)
+  const [imagePreview, setImagePreview] = useState(
+    product?.image && isImageKey(product.image) ? `/${product.image}` : null,
+  )
   const isNew = !product
 
   // Load flavor sources metadata
@@ -250,6 +277,21 @@ function ProductForm({ product, categories, onSave, onCancel }) {
 
   function set(field, value) {
     setForm((f) => ({ ...f, [field]: value }))
+  }
+
+  // ── Image handlers ──
+  function handleImageChange(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const allowed = ['image/jpeg', 'image/png', 'image/webp']
+    if (!allowed.includes(file.type)) return
+    setImageFile(file)
+    setImagePreview(URL.createObjectURL(file))
+  }
+
+  function handleRemoveImage() {
+    setImageFile(null)
+    setImagePreview(null)
   }
 
   // ── Flavor inline management ──
@@ -318,14 +360,52 @@ function ProductForm({ product, categories, onSave, onCancel }) {
     }))
   }
 
+  function handleImageChange(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const allowed = ['image/jpeg', 'image/png', 'image/webp']
+    if (!allowed.includes(file.type)) return
+    setImageFile(file)
+    const url = URL.createObjectURL(file)
+    setImagePreview(url)
+  }
+
+  function handleRemoveImage() {
+    setImageFile(null)
+    setImagePreview(null)
+  }
+
   async function handleSubmit(e) {
     e.preventDefault()
     if (!form.name.trim() || !form.category) return
     if (form.hasVariants && form.formats.length === 0) return
     setSaving(true)
+    setFormError('')
     try {
-      const data = buildProductFromForm(form, categories, flavorSources)
-      await onSave(data)
+      // Determine existing image key (keep if no new file)
+      let imageKey = product?.image && isImageKey(product.image) ? product.image : null
+
+      if (imageFile && product?.id) {
+        // Editing: upload first, then save with key
+        const { uploadUrl, key } = await adminGetUploadUrl(product.id, imageFile.type)
+        await uploadImageToS3(uploadUrl, imageFile, imageFile.type)
+        imageKey = key
+      }
+
+      const data = buildProductFromForm(form, categories, flavorSources, imageKey)
+      const result = await onSave(data)
+
+      // New product with image: upload after create, then update
+      if (!product && imageFile && result?.id) {
+        const { uploadUrl, key } = await adminGetUploadUrl(result.id, imageFile.type)
+        await uploadImageToS3(uploadUrl, imageFile, imageFile.type)
+        await onSave({ ...data, image: key }, result.id)
+      }
+
+      onDone()
+    } catch (err) {
+      console.error('Error guardando producto:', err)
+      setFormError(err.message || 'Error al guardar el producto')
     } finally {
       setSaving(false)
     }
@@ -354,7 +434,7 @@ function ProductForm({ product, categories, onSave, onCancel }) {
         </h2>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1fr_340px]">
+      <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
         {/* ── Left column: Form ── */}
         <div className="space-y-6">
           {/* ── Basic info section ── */}
@@ -403,6 +483,41 @@ function ProductForm({ product, categories, onSave, onCancel }) {
                 ))}
               </select>
             </div>
+          </div>
+
+          {/* ── Image upload ── */}
+          <div className="space-y-2">
+            <Label>Imagen del producto</Label>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              JPG, PNG o WebP. Si no subís imagen se usa el icono de la categoría.
+            </p>
+            {imagePreview ? (
+              <div className="relative w-fit">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="h-28 w-28 rounded-lg border border-gray-200 object-cover dark:border-gray-700"
+                />
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white shadow-sm hover:bg-red-600"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            ) : (
+              <label className="flex h-28 w-28 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 transition-colors hover:border-gray-400 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:hover:border-gray-500 dark:hover:bg-gray-750">
+                <ImagePlus className="h-6 w-6 text-gray-400" />
+                <span className="text-xs text-gray-500 dark:text-gray-400">Subir</span>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+              </label>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -884,17 +999,15 @@ function ProductForm({ product, categories, onSave, onCancel }) {
               <Eye className="h-4 w-4" />
               Vista previa
             </div>
-            <div className="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900">
-              <div className="flex h-32 items-center justify-center bg-gray-100 text-4xl dark:bg-gray-800">
-                {getCategoryIcon(categories, form.category)}
-              </div>
-              <div className="flex flex-1 flex-col gap-2 p-4">
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                  {form.name || 'Nombre del producto'}
-                </h3>
-                <p className="flex-1 text-sm text-gray-500 dark:text-gray-400">
-                  {form.description || 'Descripción del producto'}
-                </p>
+            <ProductCardShell
+              image={imagePreview ? (
+                <img src={imagePreview} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <span className="text-4xl">{getCategoryIcon(categories, form.category)}</span>
+              )}
+              name={form.name || 'Nombre del producto'}
+              description={form.description || 'Descripción del producto'}
+            >
                 {form.archetype === 'simple' && !form.hasVariants && form.extras.filter((e) => e.name.trim()).length === 0 ? (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
@@ -941,8 +1054,7 @@ function ProductForm({ product, categories, onSave, onCancel }) {
                     </button>
                   </div>
                 )}
-              </div>
-            </div>
+            </ProductCardShell>
             {(form.paused || form.counterOnly || form.comboOnly) && (
               <div className="space-y-1 text-center">
                 {form.paused && (
@@ -963,34 +1075,6 @@ function ProductForm({ product, categories, onSave, onCancel }) {
               </div>
             )}
 
-            {/* Formats summary */}
-            {form.hasVariants && form.formats.some((f) => f.name.trim()) && (
-              <div className="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
-                <p className="mb-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Formatos</p>
-                <div className="space-y-1">
-                  {form.formats.filter((f) => f.name.trim()).map((fmt) => (
-                    <div key={fmt.id} className="flex items-center justify-between text-sm">
-                      <span>{fmt.name}</span>
-                      <span className="font-medium">{formatPrice(fmt.price)}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Extras summary */}
-            {form.extras.filter((e) => e.name.trim()).length > 0 && (
-              <div className="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
-                <p className="mb-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Extras</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {form.extras.filter((e) => e.name.trim()).map((ext) => (
-                    <span key={ext.id} className="rounded-full border border-gray-200 px-2 py-0.5 text-xs dark:border-gray-700">
-                      {ext.name} {ext.price > 0 && `+${formatPrice(ext.price)}`}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -1000,6 +1084,7 @@ function ProductForm({ product, categories, onSave, onCancel }) {
         form={form}
         categories={categories}
         flavorSources={flavorSources}
+        imagePreview={imagePreview}
         open={showDetail}
         onClose={() => setShowDetail(false)}
       />
@@ -1011,17 +1096,15 @@ function ProductForm({ product, categories, onSave, onCancel }) {
             <Eye className="h-4 w-4" />
             Vista previa
           </div>
-          <div className="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900">
-            <div className="flex h-32 items-center justify-center bg-gray-100 text-4xl dark:bg-gray-800">
-              {getCategoryIcon(categories, form.category)}
-            </div>
-            <div className="flex flex-1 flex-col gap-2 p-4">
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                {form.name || 'Nombre del producto'}
-              </h3>
-              <p className="flex-1 text-sm text-gray-500 dark:text-gray-400">
-                {form.description || 'Descripción del producto'}
-              </p>
+          <ProductCardShell
+            image={imagePreview ? (
+              <img src={imagePreview} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <span className="text-4xl">{getCategoryIcon(categories, form.category)}</span>
+            )}
+            name={form.name || 'Nombre del producto'}
+            description={form.description || 'Descripción del producto'}
+          >
               {form.archetype === 'simple' && !form.hasVariants && form.extras.filter((e) => e.name.trim()).length === 0 ? (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
@@ -1068,8 +1151,7 @@ function ProductForm({ product, categories, onSave, onCancel }) {
                   </button>
                 </div>
               )}
-            </div>
-          </div>
+          </ProductCardShell>
           {(form.paused || form.counterOnly || form.comboOnly) && (
             <div className="space-y-1 text-center">
               {form.paused && (
@@ -1093,6 +1175,11 @@ function ProductForm({ product, categories, onSave, onCancel }) {
       </div>
 
       {/* Submit */}
+      {formError && (
+        <div className="rounded-md bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
+          {formError}
+        </div>
+      )}
       <div className="flex justify-end gap-2 border-t border-gray-200 pt-4 dark:border-gray-700">
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancelar
@@ -1154,16 +1241,28 @@ export default function AdminProductosPage() {
     setEditingProduct(null)
   }
 
-  async function handleSave(data) {
+  async function handleSave(data, updateId) {
+    if (updateId) {
+      const updated = await adminUpdateProduct(updateId, data)
+      setProducts((prev) =>
+        prev.map((p) => (p.id === updated.id ? updated : p)),
+      )
+      return updated
+    }
     if (editingProduct) {
       const updated = await adminUpdateProduct(editingProduct.id, data)
       setProducts((prev) =>
         prev.map((p) => (p.id === updated.id ? updated : p)),
       )
+      return updated
     } else {
       const created = await adminCreateProduct(data)
       setProducts((prev) => [...prev, created])
+      return created
     }
+  }
+
+  function handleDone() {
     setView('list')
     setEditingProduct(null)
   }
@@ -1213,6 +1312,7 @@ export default function AdminProductosPage() {
           product={editingProduct}
           categories={categories}
           onSave={handleSave}
+          onDone={handleDone}
           onCancel={handleCancelForm}
         />
       </div>
@@ -1289,7 +1389,11 @@ export default function AdminProductosPage() {
                   <td className="px-3 py-2 font-mono text-xs text-gray-400">
                     {p.id}
                   </td>
-                  <td className="px-3 py-2 text-lg">{p.image}</td>
+                  <td className="px-3 py-2">
+                    <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded bg-gray-100 dark:bg-gray-800">
+                      <ProductImage image={p.image} fallback={catMap[p.category]?.icon || '🍽️'} />
+                    </div>
+                  </td>
                   <td className="px-3 py-2">
                     <div className="font-medium">{p.name}</div>
                     <div className="mt-0.5 flex flex-wrap items-center gap-1">

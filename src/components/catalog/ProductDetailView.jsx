@@ -5,6 +5,30 @@ import { Label } from '@/components/ui/label'
 import { ArrowRight, Check, Minus, Plus, ShoppingCart } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
+function isImageKey(image) {
+  return image && image.startsWith('products/')
+}
+
+function isImageUrl(image) {
+  return image && (image.startsWith('/') || image.startsWith('blob:') || image.startsWith('http'))
+}
+
+function DetailImage({ image }) {
+  const [broken, setBroken] = useState(false)
+  if ((isImageKey(image) || isImageUrl(image)) && !broken) {
+    const src = isImageKey(image) ? `/${image}` : image
+    return (
+      <img
+        src={src}
+        alt=""
+        className="h-full w-full object-cover"
+        onError={() => setBroken(true)}
+      />
+    )
+  }
+  return <span className="text-5xl">{broken ? '🍽️' : (image || '🍽️')}</span>
+}
+
 /**
  * Shared product detail view used by both the customer page and the admin preview dialog.
  *
@@ -127,8 +151,8 @@ export default function ProductDetailView({
   return (
     <div className="space-y-5">
       {/* Image */}
-      <div className="flex h-40 items-center justify-center rounded-md bg-gray-100 text-5xl dark:bg-gray-800">
-        {product.image ?? '🍽️'}
+      <div className="mx-auto flex h-48 w-48 items-center justify-center overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
+        <DetailImage image={product.image} />
       </div>
 
       {/* Name + description */}

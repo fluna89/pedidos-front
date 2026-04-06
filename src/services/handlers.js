@@ -214,6 +214,21 @@ export async function adminGetBaseProducts() {
   return api.get('/admin/products/base')
 }
 
+export async function adminGetUploadUrl(productId, contentType = 'image/webp') {
+  return api.get(
+    `/admin/products/upload-url?productId=${encodeURIComponent(productId)}&contentType=${encodeURIComponent(contentType)}`,
+  )
+}
+
+export async function uploadImageToS3(uploadUrl, file, contentType) {
+  const res = await fetch(uploadUrl, {
+    method: 'PUT',
+    headers: { 'Content-Type': contentType },
+    body: file,
+  })
+  if (!res.ok) throw new Error('Error subiendo imagen')
+}
+
 // ── Admin: Flavor Sources ─────────────────────────────────────
 
 export async function adminGetFlavorSources() {
