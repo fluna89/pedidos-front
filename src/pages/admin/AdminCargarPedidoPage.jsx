@@ -38,6 +38,7 @@ import {
   Store,
   Truck,
   ShoppingCart,
+  HandCoins,
   Tag,
   Loader2,
   CheckCircle,
@@ -343,7 +344,7 @@ export default function AdminCargarPedidoPage() {
   const [customerName, setCustomerName] = useState('')
 
   // ── Order type ──
-  const [orderType, setOrderType] = useState('pickup')
+  const [orderType, setOrderType] = useState('mostrador')
 
   // ── Address (delivery) ──
   const [address, setAddress] = useState({
@@ -462,7 +463,7 @@ export default function AdminCargarPedidoPage() {
     cartItems.length > 0 &&
     selectedPayment &&
     (customerName.trim() || linkedUser) &&
-    (orderType === 'pickup' || address.street.trim()) &&
+    (orderType !== 'delivery' || address.street.trim()) &&
     !submitting
 
   async function handleSubmit() {
@@ -497,7 +498,7 @@ export default function AdminCargarPedidoPage() {
     setLinkedUser(null)
     setCustomerName('')
     setCustomerQuery('')
-    setOrderType('pickup')
+    setOrderType('mostrador')
     setAddress({ street: '', floor: '', apartment: '', city: '', comment: '' })
     setAppliedCoupon(null)
     setCouponCode('')
@@ -507,10 +508,13 @@ export default function AdminCargarPedidoPage() {
   }
 
   // ── Group menu items by category ──
+  const visibleItems = orderType === 'mostrador'
+    ? menuItems
+    : menuItems.filter((p) => !p.counterOnly)
   const itemsByCategory = categories
     .map((cat) => ({
       ...cat,
-      items: menuItems.filter((p) => p.category === cat.id),
+      items: visibleItems.filter((p) => p.category === cat.id),
     }))
     .filter((cat) => cat.items.length > 0)
 
@@ -644,33 +648,27 @@ export default function AdminCargarPedidoPage() {
               <CardTitle className="text-base">Tipo de pedido</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setOrderType('pickup')}
-                  className={cn(
-                    'flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium transition-colors',
-                    orderType === 'pickup'
-                      ? 'border-gray-900 bg-gray-50 dark:border-gray-100 dark:bg-gray-800'
-                      : 'border-gray-200 hover:border-gray-400 dark:border-gray-700',
-                  )}
-                >
-                  <Store className="h-4 w-4" />
-                  Retiro en local
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setOrderType('delivery')}
-                  className={cn(
-                    'flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium transition-colors',
-                    orderType === 'delivery'
-                      ? 'border-gray-900 bg-gray-50 dark:border-gray-100 dark:bg-gray-800'
-                      : 'border-gray-200 hover:border-gray-400 dark:border-gray-700',
-                  )}
-                >
-                  <Truck className="h-4 w-4" />
-                  Delivery
-                </button>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { value: 'mostrador', label: 'Mostrador', icon: HandCoins },
+                  { value: 'pickup', label: 'Retiro en local', icon: Store },
+                  { value: 'delivery', label: 'Delivery', icon: Truck },
+                ].map(({ value, label, icon: Icon }) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setOrderType(value)}
+                    className={cn(
+                      'flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium transition-colors',
+                      orderType === value
+                        ? 'border-gray-900 bg-gray-50 dark:border-gray-100 dark:bg-gray-800'
+                        : 'border-gray-200 hover:border-gray-400 dark:border-gray-700',
+                    )}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {label}
+                  </button>
+                ))}
               </div>
 
               {/* Address fields (delivery only) */}

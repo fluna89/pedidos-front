@@ -43,6 +43,7 @@ import {
   CreditCard,
   Truck,
   Store,
+  HandCoins,
   Tag,
   Star,
   Phone,
@@ -170,7 +171,7 @@ function KanbanColumn({ title, orders, onCancel, onViewDetail, onPrint, newOrder
             </div>
             <p className="truncate text-xs font-medium">{order.customerName || 'Invitado'}</p>
             <p className="truncate text-[10px] text-gray-500 dark:text-gray-400">
-              {order.orderType === 'pickup' ? 'Retiro' : order.address?.street || 'Delivery'}
+              {order.orderType === 'mostrador' ? 'Mostrador' : order.orderType === 'pickup' ? 'Retiro' : order.address?.street || 'Delivery'}
             </p>
             <div className="mt-1 flex items-center justify-between">
               <span className="text-[10px] text-gray-500">{formatDate(order.createdAt)}</span>
@@ -276,7 +277,7 @@ function ComandaPrint({ order, comandaMessage }) {
           <div style={{ fontSize: '22px', fontWeight: 'bold' }}>PEDIDO #{order.id}</div>
           <div style={{ fontSize: '11px' }}>{formatDate(order.createdAt)}</div>
           <div style={{ fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase' }}>
-            {isDelivery ? 'DELIVERY' : 'RETIRO EN LOCAL'}
+            {order.orderType === 'mostrador' ? 'VENTA EN MOSTRADOR' : isDelivery ? 'DELIVERY' : 'RETIRO EN LOCAL'}
           </div>
         </div>
 
@@ -389,8 +390,8 @@ function OrderDetailDialog({ order, open, onOpenChange }) {
           <div className="space-y-2">
             <p className="font-semibold">{order.customerName || 'Invitado'}</p>
             <div className="flex items-center gap-1.5 text-gray-600 dark:text-gray-400">
-              {isDelivery ? <Truck className="h-3.5 w-3.5" /> : <Store className="h-3.5 w-3.5" />}
-              <span>{isDelivery ? 'Delivery' : 'Retiro en local'}</span>
+              {order.orderType === 'mostrador' ? <HandCoins className="h-3.5 w-3.5" /> : isDelivery ? <Truck className="h-3.5 w-3.5" /> : <Store className="h-3.5 w-3.5" />}
+              <span>{order.orderType === 'mostrador' ? 'Venta en mostrador' : isDelivery ? 'Delivery' : 'Retiro en local'}</span>
             </div>
             {order.contactPhone && (
               <div className="flex items-center gap-1.5 text-gray-600 dark:text-gray-400">
@@ -1029,7 +1030,11 @@ export default function AdminPedidosPage() {
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    {order.orderType === 'pickup' ? (
+                    {order.orderType === 'mostrador' ? (
+                      <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
+                        Mostrador
+                      </span>
+                    ) : order.orderType === 'pickup' ? (
                       <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
                         Retiro
                       </span>

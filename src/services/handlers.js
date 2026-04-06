@@ -280,6 +280,7 @@ export function getOrderStatusLabels() {
 
 export const orderStatusLabels = {
   pendiente: 'Pendiente',
+  pendiente_pago: 'Pendiente de pago',
   confirmado: 'Confirmado',
   en_preparacion: 'En preparación',
   listo: 'Listo',
