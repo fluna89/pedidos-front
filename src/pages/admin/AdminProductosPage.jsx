@@ -37,7 +37,6 @@ import {
   ChevronUp,
   Eye,
   ShoppingCart,
-  MessageSquare,
   Pause,
   Play,
   AlertCircle,
@@ -154,8 +153,9 @@ function ProductPreviewCard({ form, categories, imagePreview, itemPricing, onSho
   const mockActions = (
     <div className="flex items-center gap-1">
       <span className="flex h-6 w-6 items-center justify-center rounded-full border border-gray-200 text-gray-400 dark:border-gray-700">
-        <MessageSquare className="h-3 w-3" />
+        <Minus className="h-3 w-3" />
       </span>
+      <span className="w-5 text-center text-xs font-medium">1</span>
       <span className="flex h-6 w-6 items-center justify-center rounded-full border border-gray-200 dark:border-gray-700">
         <Plus className="h-3 w-3" />
       </span>

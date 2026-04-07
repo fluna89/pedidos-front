@@ -1,10 +1,9 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
 import { useCart } from '@/hooks/useCart'
 import useStoreStatus from '@/hooks/useStoreStatus'
-import { Minus, Plus, ShoppingCart, Check, MessageSquare, Trash2 } from 'lucide-react'
+import { Minus, Plus, ShoppingCart, Check, Trash2 } from 'lucide-react'
 import ProductCardShell from './ProductCardShell'
 
 function isImageKey(image) {
@@ -85,19 +84,15 @@ export default function ProductCard({ product }) {
     .filter((i) => i.productId === product.id)
     .reduce((sum, i) => sum + i.quantity, 0)
 
-  const [comment, setComment] = useState('')
-  const [showComment, setShowComment] = useState(false)
   const [added, setAdded] = useState(false)
 
   function handleSimpleAdd() {
     if (!simple) return
     const format = product.formats[0] || { id: 'f-default', name: 'Estándar', price: minPrice }
-    addItem(product, format, [], comment, [])
+    addItem(product, format, [], '', [])
     setAdded(true)
     setTimeout(() => {
       setAdded(false)
-      setComment('')
-      setShowComment(false)
     }, 1200)
   }
 
@@ -160,20 +155,6 @@ export default function ProductCard({ product }) {
   // ── Top-right controls ─────────────────────────────
   const topActions = (
     <div className="flex items-center gap-1">
-      {!product.isCombo && (
-        <button
-          type="button"
-          onClick={() => setShowComment((v) => !v)}
-          className={`flex h-6 w-6 items-center justify-center rounded-full border transition-colors ${
-            showComment
-              ? 'border-gray-400 text-gray-600 dark:border-gray-500 dark:text-gray-300'
-              : 'border-gray-200 text-gray-400 hover:border-gray-400 hover:text-gray-600 dark:border-gray-700 dark:hover:border-gray-500 dark:hover:text-gray-300'
-          }`}
-          title="Agregar aclaración"
-        >
-          <MessageSquare className="h-3 w-3" />
-        </button>
-      )}
       {simple ? (
         <QtyControls
           qty={inCart ? cartItem.quantity : 0}
@@ -200,15 +181,6 @@ export default function ProductCard({ product }) {
       isCombo={product.isCombo}
       actions={topActions}
     >
-        {showComment && !product.isCombo && (
-          <Textarea
-            placeholder="Ej: sin sal, bien cocido..."
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            rows={2}
-            className="text-sm"
-          />
-        )}
         {simple ? (
           <div className="space-y-2">
             {inCart ? (

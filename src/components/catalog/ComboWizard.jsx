@@ -19,18 +19,33 @@ import ProductDetailView from './ProductDetailView'
  * - onAdd(comboCartItem): called with the final cart-ready combo object
  * - preview: if true, renders only the overview (no state, no async loads)
  */
-export default function ComboWizard({ combo, onAdd, preview, previewMode }) {
+export default function ComboWizard({ combo, onAdd, preview, previewMode, initialSteps, editMode }) {
   if (preview) return <ComboOverview combo={combo} onStart={onAdd} />
-  return <ComboWizardFull combo={combo} onAdd={onAdd} previewMode={previewMode} />
+  return <ComboWizardFull combo={combo} onAdd={onAdd} previewMode={previewMode} initialSteps={initialSteps} editMode={editMode} />
 }
 
-function ComboWizardFull({ combo, onAdd, previewMode }) {
+function ComboWizardFull({ combo, onAdd, previewMode, initialSteps, editMode }) {
   // 'overview' | stepIndex (number) | 'summary'
-  const [phase, setPhase] = useState('overview')
+  const [phase, setPhase] = useState(initialSteps ? 'summary' : 'overview')
   // Products available at each step: { [stepIdx]: Product[] }
   const [stepProducts, setStepProducts] = useState({})
   // The chosen product for each step
-  const [stepChoices, setStepChoices] = useState({})
+  const [stepChoices, setStepChoices] = useState(() => {
+    if (!initialSteps) return {}
+    // Pre-populate from cart item's comboSteps
+    const choices = {}
+    initialSteps.forEach((cs, idx) => {
+      choices[idx] = {
+        productId: cs.productId,
+        productName: cs.productName,
+        format: cs.format,
+        extras: cs.extras || [],
+        flavors: cs.flavors || [],
+        comment: cs.comment || '',
+      }
+    })
+    return choices
+  })
   // Loading state
   const [loadingProducts, setLoadingProducts] = useState(false)
   const [added, setAdded] = useState(false)
@@ -288,12 +303,12 @@ function ComboWizardFull({ combo, onAdd, previewMode }) {
             {added ? (
               <>
                 <Check className="mr-1 h-4 w-4" />
-                ¡Agregado!
+                {editMode ? '¡Guardado!' : '¡Agregado!'}
               </>
             ) : (
               <>
                 <ShoppingCart className="mr-1 h-4 w-4" />
-                Agregar — ${comboTotal.toLocaleString('es-AR')}
+                {editMode ? 'Guardar' : 'Agregar'} — ${comboTotal.toLocaleString('es-AR')}
               </>
             )}
           </Button>

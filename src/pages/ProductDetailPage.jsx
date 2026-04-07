@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { getMenuItem, getFlavors } from '@/services/handlers'
 import { useCart } from '@/hooks/useCart'
 import useStoreStatus from '@/hooks/useStoreStatus'
@@ -18,8 +18,14 @@ import ComboWizard from '@/components/catalog/ComboWizard'
 export default function ProductDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { addItem } = useCart()
+  const location = useLocation()
+  const { addItem, replaceItem } = useCart()
   const { isOpen: storeIsOpen, message: storeClosedMessage } = useStoreStatus()
+
+  // Edit mode: passed via navigation state from CartPage
+  const editCartId = location.state?.editCartId ?? null
+  const editItem = location.state?.editItem ?? null
+  const isEditing = !!editCartId
 
   const [product, setProduct] = useState(null)
   const [allFlavors, setAllFlavors] = useState([])
@@ -55,21 +61,25 @@ export default function ProductDetailPage() {
     }
   }, [id, navigate])
 
+  const goBack = isEditing ? '/cart' : '/menu'
+
   function handleAdd(format, extras, comment, flavors) {
-    addItem(product, format, extras, comment, flavors || [])
-    setTimeout(() => navigate('/menu'), 800)
+    if (isEditing) {
+      replaceItem(editCartId, product, format, extras, comment, flavors || [])
+    } else {
+      addItem(product, format, extras, comment, flavors || [])
+    }
+    setTimeout(() => navigate(goBack), 800)
   }
 
   function handleComboAdd({ comboSteps, unitPrice }) {
-    addItem(
-      product,
-      { id: product.formats[0]?.id, name: product.name, price: unitPrice },
-      [],
-      '',
-      [],
-      comboSteps,
-    )
-    setTimeout(() => navigate('/menu'), 800)
+    const format = { id: product.formats[0]?.id, name: product.name, price: unitPrice }
+    if (isEditing) {
+      replaceItem(editCartId, product, format, [], '', [], comboSteps)
+    } else {
+      addItem(product, format, [], '', [], comboSteps)
+    }
+    setTimeout(() => navigate(goBack), 800)
   }
 
   if (loading) {
@@ -90,10 +100,10 @@ export default function ProductDetailPage() {
             variant="outline"
             size="sm"
             className="mb-2 w-fit"
-            onClick={() => navigate('/menu')}
+            onClick={() => navigate(goBack)}
           >
             <ArrowLeft className="mr-1 h-4 w-4" />
-            Volver al menú
+            {isEditing ? 'Volver al carrito' : 'Volver al menú'}
           </Button>
           {!product.isCombo && (
             <>
@@ -110,12 +120,24 @@ export default function ProductDetailPage() {
             </div>
           )}
           {product.isCombo ? (
-            <ComboWizard combo={product} onAdd={storeIsOpen ? handleComboAdd : null} />
+            <ComboWizard
+              combo={product}
+              onAdd={storeIsOpen ? handleComboAdd : null}
+              initialSteps={isEditing ? editItem?.comboSteps : undefined}
+              editMode={isEditing}
+            />
           ) : (
             <ProductDetailView
               product={product}
               allFlavors={allFlavors}
               onAdd={storeIsOpen ? handleAdd : null}
+              editMode={isEditing}
+              initialState={isEditing ? {
+                format: product.formats.find((f) => f.id === editItem?.format?.id) || editItem?.format,
+                flavorQuantities: editItem?.flavors?.reduce((acc, f) => ({ ...acc, [f.id]: f.quantity || 1 }), {}) || {},
+                extras: editItem?.extras || [],
+                comment: editItem?.comment || '',
+              } : undefined}
             />
           )}
         </CardContent>

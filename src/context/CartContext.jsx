@@ -59,6 +59,31 @@ export function CartProvider({ children }) {
     )
   }, [])
 
+  const replaceItem = useCallback((cartId, product, format, extras = [], comment = '', flavors = [], comboSteps = null) => {
+    const unitPrice = comboSteps ? format.price : calcUnitPrice(format, extras)
+    setItems((prev) =>
+      prev.map((i) => {
+        if (i.cartId !== cartId) return i
+        return {
+          ...i,
+          productId: product.id,
+          name: product.name,
+          format: { id: format.id, name: format.name, price: format.price },
+          flavors: flavors.map((f) => ({
+            id: f.id,
+            name: f.name,
+            ...(f.quantity && { quantity: f.quantity }),
+            ...(f.price != null && { price: f.price }),
+          })),
+          extras: extras.map((e) => ({ id: e.id, name: e.name, price: e.price })),
+          ...(comboSteps ? { comboSteps } : {}),
+          comment,
+          unitPrice,
+        }
+      }),
+    )
+  }, [])
+
   const clearCart = useCallback(() => {
     setItems([])
     setOrderComment('')
@@ -82,6 +107,7 @@ export function CartProvider({ children }) {
     orderComment,
     setOrderComment,
     addItem,
+    replaceItem,
     removeItem,
     updateQuantity,
     clearCart,

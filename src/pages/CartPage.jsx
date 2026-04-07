@@ -1,12 +1,13 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useCart } from '@/hooks/useCart'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent } from '@/components/ui/card'
-import { Minus, Plus, Trash2, ShoppingCart, ArrowLeft } from 'lucide-react'
+import { Minus, Plus, Trash2, ShoppingCart, ArrowLeft, Pencil } from 'lucide-react'
 
 export default function CartPage() {
+  const navigate = useNavigate()
   const {
     items,
     orderComment,
@@ -132,14 +133,30 @@ export default function CartPage() {
                 </Button>
               </div>
 
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                onClick={() => removeItem(item.cartId)}
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
+              <div className="flex flex-col gap-1">
+                {(item.flavors.length > 0 || item.extras.length > 0 || item.comboSteps) && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+                    onClick={() =>
+                      navigate(`/menu/${item.productId}`, {
+                        state: { editCartId: item.cartId, editItem: item },
+                      })
+                    }
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </Button>
+                )}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                  onClick={() => removeItem(item.cartId)}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ))}

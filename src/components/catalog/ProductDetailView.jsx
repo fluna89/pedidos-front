@@ -45,6 +45,7 @@ export default function ProductDetailView({
   onAdd,
   preview = false,
   stepMode = false,
+  editMode = false,
   unitCountOverride,
   initialState,
 }) {
@@ -440,7 +441,7 @@ export default function ProductDetailView({
         {added ? (
           <>
             <Check className="mr-1 h-4 w-4" />
-            {stepMode ? '¡Listo!' : '¡Agregado!'}
+            {stepMode ? '¡Listo!' : editMode ? '¡Guardado!' : '¡Agregado!'}
           </>
         ) : stepMode ? (
           <>
@@ -450,7 +451,7 @@ export default function ProductDetailView({
         ) : (
           <>
             <ShoppingCart className="mr-1 h-4 w-4" />
-            Agregar{' '}
+            {editMode ? 'Guardar' : 'Agregar'}{' '}
             {selectedFormat
               ? `— $${totalPrice.toLocaleString('es-AR')}`
               : ''}
