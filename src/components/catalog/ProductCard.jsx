@@ -3,7 +3,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { useCart } from '@/hooks/useCart'
 import useStoreStatus from '@/hooks/useStoreStatus'
-import { Minus, Plus, ShoppingCart, Check, Trash2 } from 'lucide-react'
+import { Textarea } from '@/components/ui/textarea'
+import { Minus, Plus, ShoppingCart, Check, Trash2, MessageSquare } from 'lucide-react'
 import ProductCardShell from './ProductCardShell'
 
 function isImageKey(image) {
@@ -85,11 +86,13 @@ export default function ProductCard({ product }) {
     .reduce((sum, i) => sum + i.quantity, 0)
 
   const [added, setAdded] = useState(false)
+  const [comment, setComment] = useState('')
+  const [showComment, setShowComment] = useState(false)
 
   function handleSimpleAdd() {
     if (!simple) return
     const format = product.formats[0] || { id: 'f-default', name: 'Estándar', price: minPrice }
-    addItem(product, format, [], '', [])
+    addItem(product, format, [], comment, [])
     setAdded(true)
     setTimeout(() => {
       setAdded(false)
@@ -155,6 +158,19 @@ export default function ProductCard({ product }) {
   // ── Top-right controls ─────────────────────────────
   const topActions = (
     <div className="flex items-center gap-1">
+      {simple && (
+        <button
+          type="button"
+          onClick={() => setShowComment(!showComment)}
+          className={`flex h-6 w-6 items-center justify-center rounded-full border transition-colors ${
+            showComment || comment
+              ? 'border-primary text-primary'
+              : 'border-gray-200 text-gray-400 hover:border-gray-400 dark:border-gray-700 dark:hover:border-gray-500'
+          }`}
+        >
+          <MessageSquare className="h-3 w-3" />
+        </button>
+      )}
       {simple ? (
         <QtyControls
           qty={inCart ? cartItem.quantity : 0}
@@ -181,6 +197,15 @@ export default function ProductCard({ product }) {
       isCombo={product.isCombo}
       actions={topActions}
     >
+        {showComment && simple && (
+          <Textarea
+            placeholder="Aclaraciones..."
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            rows={2}
+            className="text-sm"
+          />
+        )}
         {simple ? (
           <div className="space-y-2">
             {inCart ? (
