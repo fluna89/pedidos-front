@@ -137,6 +137,78 @@ function buildProductFromForm(form, categories, flavorSources, imageKey) {
   }
 }
 
+function ProductPreviewCard({ form, categories, imagePreview, itemPricing, onShowDetail }) {
+  const isSimple = form.archetype === 'simple' && !form.hasVariants && form.extras.filter((e) => e.name.trim()).length === 0
+  const minPrice = form.hasVariants && form.formats.length > 0
+    ? Math.min(...form.formats.map((f) => f.price))
+    : form.price || 0
+
+  function getButtonLabel() {
+    if (isSimple) return `Agregar — ${form.price ? formatPrice(form.price) : '$0'}`
+    if (itemPricing) return `Agregar — desde $${minPrice.toLocaleString('es-AR')} c/u`
+    if (form.hasVariants && form.formats.length > 1) return `Agregar — desde $${minPrice.toLocaleString('es-AR')}`
+    const price = form.hasVariants && form.formats[0]?.price ? form.formats[0].price : (form.price || 0)
+    return `Agregar — $${price.toLocaleString('es-AR')}`
+  }
+
+  const mockActions = (
+    <div className="flex items-center gap-1">
+      <span className="flex h-6 w-6 items-center justify-center rounded-full border border-gray-200 text-gray-400 dark:border-gray-700">
+        <MessageSquare className="h-3 w-3" />
+      </span>
+      <span className="flex h-6 w-6 items-center justify-center rounded-full border border-gray-200 dark:border-gray-700">
+        <Plus className="h-3 w-3" />
+      </span>
+    </div>
+  )
+
+  return (
+    <>
+      <ProductCardShell
+        image={imagePreview ? (
+          <img src={imagePreview} alt="" className="h-full w-full object-cover" />
+        ) : (
+          <span className="text-4xl">{getCategoryIcon(categories, form.category)}</span>
+        )}
+        name={form.name || 'Nombre del producto'}
+        description={form.description || 'Descripción del producto'}
+        actions={mockActions}
+      >
+        {isSimple ? (
+          <div className="flex w-full items-center justify-center gap-1.5 rounded-md bg-gray-900 px-3 py-1.5 text-xs font-medium text-white dark:bg-gray-100 dark:text-gray-900">
+            <ShoppingCart className="h-3 w-3" />
+            {getButtonLabel()}
+          </div>
+        ) : (
+          <Button size="sm" className="w-full" onClick={onShowDetail}>
+            <ShoppingCart className="mr-1 h-3.5 w-3.5" />
+            {getButtonLabel()}
+          </Button>
+        )}
+      </ProductCardShell>
+      {(form.paused || form.counterOnly || form.comboOnly) && (
+        <div className="space-y-1 text-center">
+          {form.paused && (
+            <p className="text-xs font-medium text-amber-600 dark:text-amber-400">
+              ⚠ Pausado — no aparecerá en el menú hasta que lo actives
+            </p>
+          )}
+          {form.counterOnly && (
+            <p className="text-xs font-medium text-blue-600 dark:text-blue-400">
+              ⚠ Solo venta en mostrador — no aparecerá en el menú online
+            </p>
+          )}
+          {form.comboOnly && (
+            <p className="text-xs font-medium text-purple-600 dark:text-purple-400">
+              ⚠ Solo para combos — no aparecerá en el menú
+            </p>
+          )}
+        </div>
+      )}
+    </>
+  )
+}
+
 function makeEmptyFormat() {
   return { id: `f-${Date.now()}`, name: '', price: 0, unitCount: 1 }
 }
@@ -999,82 +1071,7 @@ function ProductForm({ product, categories, onSave, onDone, onCancel }) {
               <Eye className="h-4 w-4" />
               Vista previa
             </div>
-            <ProductCardShell
-              image={imagePreview ? (
-                <img src={imagePreview} alt="" className="h-full w-full object-cover" />
-              ) : (
-                <span className="text-4xl">{getCategoryIcon(categories, form.category)}</span>
-              )}
-              name={form.name || 'Nombre del producto'}
-              description={form.description || 'Descripción del producto'}
-            >
-                {form.archetype === 'simple' && !form.hasVariants && form.extras.filter((e) => e.name.trim()).length === 0 ? (
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        {form.price ? formatPrice(form.price) : '$0'}
-                      </span>
-                      <div className="flex items-center gap-1.5">
-                        <span className="flex h-6 w-6 items-center justify-center rounded-full border border-gray-200 text-gray-400 dark:border-gray-700">
-                          <MessageSquare className="h-3 w-3" />
-                        </span>
-                        <span className="flex h-6 w-6 items-center justify-center rounded-full border border-gray-200 dark:border-gray-700">
-                          <Minus className="h-3 w-3" />
-                        </span>
-                        <span className="w-4 text-center text-xs font-medium text-gray-900 dark:text-gray-100">1</span>
-                        <span className="flex h-6 w-6 items-center justify-center rounded-full border border-gray-200 dark:border-gray-700">
-                          <Plus className="h-3 w-3" />
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex w-full items-center justify-center gap-1.5 rounded-md bg-gray-900 px-3 py-1.5 text-xs font-medium text-white dark:bg-gray-100 dark:text-gray-900">
-                      <ShoppingCart className="h-3 w-3" />
-                      Agregar — {form.price ? formatPrice(form.price) : '$0'}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {itemPricing
-                        ? 'Armá tu pedido'
-                        : !form.hasVariants
-                          ? form.price ? formatPrice(form.price) : '$0'
-                          : form.formats.length > 1
-                            ? `Desde ${formatPrice(Math.min(...form.formats.map((f) => f.price)))}`
-                            : form.formats[0]?.price
-                              ? formatPrice(form.formats[0].price)
-                              : '$0'}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setShowDetail(true)}
-                      className="inline-flex items-center rounded-md bg-gray-900 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-gray-700 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-300"
-                    >
-                      Elegir
-                    </button>
-                  </div>
-                )}
-            </ProductCardShell>
-            {(form.paused || form.counterOnly || form.comboOnly) && (
-              <div className="space-y-1 text-center">
-                {form.paused && (
-                  <p className="text-xs font-medium text-amber-600 dark:text-amber-400">
-                    ⚠ Pausado — no aparecerá en el menú hasta que lo actives
-                  </p>
-                )}
-                {form.counterOnly && (
-                  <p className="text-xs font-medium text-blue-600 dark:text-blue-400">
-                    ⚠ Solo venta en mostrador — no aparecerá en el menú online
-                  </p>
-                )}
-                {form.comboOnly && (
-                  <p className="text-xs font-medium text-purple-600 dark:text-purple-400">
-                    ⚠ Solo para combos — no aparecerá en el menú
-                  </p>
-                )}
-              </div>
-            )}
-
+            <ProductPreviewCard form={form} categories={categories} imagePreview={imagePreview} itemPricing={itemPricing} onShowDetail={() => setShowDetail(true)} />
           </div>
         </div>
       </div>
@@ -1096,81 +1093,7 @@ function ProductForm({ product, categories, onSave, onDone, onCancel }) {
             <Eye className="h-4 w-4" />
             Vista previa
           </div>
-          <ProductCardShell
-            image={imagePreview ? (
-              <img src={imagePreview} alt="" className="h-full w-full object-cover" />
-            ) : (
-              <span className="text-4xl">{getCategoryIcon(categories, form.category)}</span>
-            )}
-            name={form.name || 'Nombre del producto'}
-            description={form.description || 'Descripción del producto'}
-          >
-              {form.archetype === 'simple' && !form.hasVariants && form.extras.filter((e) => e.name.trim()).length === 0 ? (
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {form.price ? formatPrice(form.price) : '$0'}
-                    </span>
-                    <div className="flex items-center gap-1.5">
-                      <span className="flex h-6 w-6 items-center justify-center rounded-full border border-gray-200 text-gray-400 dark:border-gray-700">
-                        <MessageSquare className="h-3 w-3" />
-                      </span>
-                      <span className="flex h-6 w-6 items-center justify-center rounded-full border border-gray-200 dark:border-gray-700">
-                        <Minus className="h-3 w-3" />
-                      </span>
-                      <span className="w-4 text-center text-xs font-medium text-gray-900 dark:text-gray-100">1</span>
-                      <span className="flex h-6 w-6 items-center justify-center rounded-full border border-gray-200 dark:border-gray-700">
-                        <Plus className="h-3 w-3" />
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex w-full items-center justify-center gap-1.5 rounded-md bg-gray-900 px-3 py-1.5 text-xs font-medium text-white dark:bg-gray-100 dark:text-gray-900">
-                    <ShoppingCart className="h-3 w-3" />
-                    Agregar — {form.price ? formatPrice(form.price) : '$0'}
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                    {itemPricing
-                      ? 'Armá tu pedido'
-                      : !form.hasVariants
-                        ? form.price ? formatPrice(form.price) : '$0'
-                        : form.formats.length > 1
-                          ? `Desde ${formatPrice(Math.min(...form.formats.map((f) => f.price)))}`
-                          : form.formats[0]?.price
-                            ? formatPrice(form.formats[0].price)
-                            : '$0'}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setShowDetail(true)}
-                    className="inline-flex items-center rounded-md bg-gray-900 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-gray-700 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-300"
-                  >
-                    Elegir
-                  </button>
-                </div>
-              )}
-          </ProductCardShell>
-          {(form.paused || form.counterOnly || form.comboOnly) && (
-            <div className="space-y-1 text-center">
-              {form.paused && (
-                <p className="text-xs font-medium text-amber-600 dark:text-amber-400">
-                  ⚠ Pausado — no aparecerá en el menú hasta que lo actives
-                </p>
-              )}
-              {form.counterOnly && (
-                <p className="text-xs font-medium text-blue-600 dark:text-blue-400">
-                  ⚠ Solo venta en mostrador — no aparecerá en el menú online
-                </p>
-              )}
-              {form.comboOnly && (
-                <p className="text-xs font-medium text-purple-600 dark:text-purple-400">
-                  ⚠ Solo para combos — no aparecerá en el menú
-                </p>
-              )}
-            </div>
-          )}
+          <ProductPreviewCard form={form} categories={categories} imagePreview={imagePreview} itemPricing={itemPricing} onShowDetail={() => setShowDetail(true)} />
         </div>
       </div>
 

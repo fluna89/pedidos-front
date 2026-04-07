@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { useCart } from '@/hooks/useCart'
@@ -35,6 +35,35 @@ function ProductCardImage({ image }) {
   return <span className="text-4xl">{broken ? '🍽️' : (image || '🍽️')}</span>
 }
 
+/* ── Quantity controls (top-right of card) ────────────── */
+function QtyControls({ qty, onIncrement, onDecrement, disabled }) {
+  return (
+    <div className="flex items-center gap-1">
+      {qty > 0 && (
+        <button
+          type="button"
+          onClick={onDecrement}
+          disabled={disabled}
+          className="flex h-6 w-6 items-center justify-center rounded-full border border-gray-200 transition-colors hover:border-gray-400 dark:border-gray-700 dark:hover:border-gray-500"
+        >
+          <Minus className="h-3 w-3" />
+        </button>
+      )}
+      {qty > 0 && (
+        <span className="w-4 text-center text-xs font-semibold">{qty}</span>
+      )}
+      <button
+        type="button"
+        onClick={onIncrement}
+        disabled={disabled}
+        className="flex h-6 w-6 items-center justify-center rounded-full border border-gray-200 transition-colors hover:border-gray-400 dark:border-gray-700 dark:hover:border-gray-500"
+      >
+        <Plus className="h-3 w-3" />
+      </button>
+    </div>
+  )
+}
+
 export default function ProductCard({ product }) {
   const minPrice = product.formats.length > 0
     ? Math.min(...product.formats.map((f) => f.price))
@@ -43,6 +72,7 @@ export default function ProductCard({ product }) {
   const simple = isSimpleProduct(product)
   const { items, addItem, updateQuantity, removeItem } = useCart()
   const { isOpen: storeIsOpen } = useStoreStatus()
+  const navigate = useNavigate()
 
   // Find existing cart item for this simple product
   const cartItem = simple
@@ -50,36 +80,36 @@ export default function ProductCard({ product }) {
     : null
   const inCart = !!cartItem
 
-  // Count total quantity of this product in cart (for non-simple badge)
+  // Count total quantity of this product in cart (all variants)
   const cartQty = items
     .filter((i) => i.productId === product.id)
     .reduce((sum, i) => sum + i.quantity, 0)
 
-  const [pendingQty, setPendingQty] = useState(1)
   const [comment, setComment] = useState('')
   const [showComment, setShowComment] = useState(false)
   const [added, setAdded] = useState(false)
 
-  function handleAdd() {
+  function handleSimpleAdd() {
     if (!simple) return
     const format = product.formats[0] || { id: 'f-default', name: 'Estándar', price: minPrice }
-    const newItem = addItem(product, format, [], comment, [])
-    if (pendingQty > 1) updateQuantity(newItem.cartId, pendingQty)
+    addItem(product, format, [], comment, [])
     setAdded(true)
     setTimeout(() => {
       setAdded(false)
-      setPendingQty(1)
       setComment('')
       setShowComment(false)
     }, 1200)
   }
 
-  function handleCartIncrement() {
-    if (!cartItem) return
-    updateQuantity(cartItem.cartId, cartItem.quantity + 1)
+  function handleSimpleIncrement() {
+    if (inCart) {
+      updateQuantity(cartItem.cartId, cartItem.quantity + 1)
+    } else {
+      handleSimpleAdd()
+    }
   }
 
-  function handleCartDecrement() {
+  function handleSimpleDecrement() {
     if (!cartItem) return
     if (cartItem.quantity <= 1) {
       removeItem(cartItem.cartId)
@@ -93,147 +123,148 @@ export default function ProductCard({ product }) {
     removeItem(cartItem.cartId)
   }
 
+  function handleNonSimpleIncrement() {
+    navigate(`/menu/${product.id}`)
+  }
+
+  function handleNonSimpleDecrement() {
+    // Remove the last-added item for this product
+    const productItems = items.filter((i) => i.productId === product.id)
+    if (productItems.length > 0) {
+      const last = productItems[productItems.length - 1]
+      if (last.quantity > 1) {
+        updateQuantity(last.cartId, last.quantity - 1)
+      } else {
+        removeItem(last.cartId)
+      }
+    }
+  }
+
+  // ── Price label logic ──────────────────────────────
+  function getPriceLabel() {
+    if (product.isCombo) {
+      if (product.comboPrice?.type === 'fixed') {
+        return `Armar — $${product.comboPrice.value.toLocaleString('es-AR')}`
+      }
+      return `Armar — ${product.comboPrice?.value}% dto.`
+    }
+    if (product.unitPricing && product.minItemPrice) {
+      return `Agregar — desde $${product.minItemPrice.toLocaleString('es-AR')} c/u`
+    }
+    if (hasMultipleFormats) {
+      return `Agregar — desde $${minPrice.toLocaleString('es-AR')}`
+    }
+    return `Agregar — $${minPrice.toLocaleString('es-AR')}`
+  }
+
+  // ── Top-right controls ─────────────────────────────
+  const topActions = (
+    <div className="flex items-center gap-1">
+      {!product.isCombo && (
+        <button
+          type="button"
+          onClick={() => setShowComment((v) => !v)}
+          className={`flex h-6 w-6 items-center justify-center rounded-full border transition-colors ${
+            showComment
+              ? 'border-gray-400 text-gray-600 dark:border-gray-500 dark:text-gray-300'
+              : 'border-gray-200 text-gray-400 hover:border-gray-400 hover:text-gray-600 dark:border-gray-700 dark:hover:border-gray-500 dark:hover:text-gray-300'
+          }`}
+          title="Agregar aclaración"
+        >
+          <MessageSquare className="h-3 w-3" />
+        </button>
+      )}
+      {simple ? (
+        <QtyControls
+          qty={inCart ? cartItem.quantity : 0}
+          onIncrement={handleSimpleIncrement}
+          onDecrement={handleSimpleDecrement}
+          disabled={!storeIsOpen}
+        />
+      ) : (
+        <QtyControls
+          qty={cartQty}
+          onIncrement={handleNonSimpleIncrement}
+          onDecrement={handleNonSimpleDecrement}
+          disabled={!storeIsOpen}
+        />
+      )}
+    </div>
+  )
+
   return (
     <ProductCardShell
       image={<ProductCardImage image={product.image} />}
       name={product.name}
       description={product.description}
       isCombo={product.isCombo}
+      actions={topActions}
     >
+        {showComment && !product.isCombo && (
+          <Textarea
+            placeholder="Ej: sin sal, bien cocido..."
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            rows={2}
+            className="text-sm"
+          />
+        )}
         {simple ? (
           <div className="space-y-2">
             {inCart ? (
-              /* ── In-cart mode: adjust quantity or remove ── */
-              <>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">
-                    ${minPrice.toLocaleString('es-AR')}
-                  </span>
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      onClick={handleCartDecrement}
-                      className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 transition-colors hover:border-gray-400 dark:border-gray-700 dark:hover:border-gray-500"
-                      disabled={!storeIsOpen}
-                    >
-                      <Minus className="h-3 w-3" />
-                    </button>
-                    <span className="w-5 text-center text-sm font-medium">{cartItem.quantity}</span>
-                    <button
-                      type="button"
-                      onClick={handleCartIncrement}
-                      className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 transition-colors hover:border-gray-400 dark:border-gray-700 dark:hover:border-gray-500"
-                      disabled={!storeIsOpen}
-                    >
-                      <Plus className="h-3 w-3" />
-                    </button>
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="flex-none"
-                    onClick={handleRemove}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button size="sm" className="flex-1" disabled>
-                    <Check className="mr-1 h-3.5 w-3.5" />
-                    En carrito — ${(minPrice * cartItem.quantity).toLocaleString('es-AR')}
-                  </Button>
-                </div>
-              </>
-            ) : (
-              /* ── Add mode: pick quantity and add ── */
-              <>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">
-                    ${minPrice.toLocaleString('es-AR')}
-                  </span>
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => setShowComment((v) => !v)}
-                      className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 text-gray-400 transition-colors hover:border-gray-400 hover:text-gray-600 dark:border-gray-700 dark:hover:border-gray-500 dark:hover:text-gray-300"
-                      title="Agregar aclaración"
-                    >
-                      <MessageSquare className="h-3.5 w-3.5" />
-                    </button>
-                    <button
-                      type="button"
-                      disabled={pendingQty <= 1}
-                      onClick={() => setPendingQty((q) => Math.max(1, q - 1))}
-                      className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 transition-colors hover:border-gray-400 disabled:cursor-not-allowed disabled:opacity-30 dark:border-gray-700 dark:hover:border-gray-500"
-                    >
-                      <Minus className="h-3 w-3" />
-                    </button>
-                    <span className="w-5 text-center text-sm font-medium">{pendingQty}</span>
-                    <button
-                      type="button"
-                      onClick={() => setPendingQty((q) => q + 1)}
-                      className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 transition-colors hover:border-gray-400 dark:border-gray-700 dark:hover:border-gray-500"
-                    >
-                      <Plus className="h-3 w-3" />
-                    </button>
-                  </div>
-                </div>
-
-                {showComment && (
-                  <Textarea
-                    placeholder="Ej: sin sal, bien cocido..."
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    rows={2}
-                    className="text-sm"
-                  />
-                )}
-
+              <div className="flex gap-2">
                 <Button
                   size="sm"
-                  className="w-full"
-                  disabled={added || !storeIsOpen}
-                  onClick={handleAdd}
+                  variant="outline"
+                  className="flex-none"
+                  onClick={handleRemove}
                 >
-                  {added ? (
-                    <>
-                      <Check className="mr-1 h-3.5 w-3.5" />
-                      ¡Agregado!
-                    </>
-                  ) : (
-                    <>
-                      <ShoppingCart className="mr-1 h-3.5 w-3.5" />
-                      Agregar — ${(minPrice * pendingQty).toLocaleString('es-AR')}
-                    </>
-                  )}
+                  <Trash2 className="h-3.5 w-3.5" />
                 </Button>
-              </>
+                <Button size="sm" className="flex-1" disabled>
+                  <Check className="mr-1 h-3.5 w-3.5" />
+                  En carrito — ${(minPrice * cartItem.quantity).toLocaleString('es-AR')}
+                </Button>
+              </div>
+            ) : (
+              <Button
+                size="sm"
+                className="w-full"
+                disabled={added || !storeIsOpen}
+                onClick={handleSimpleAdd}
+              >
+                {added ? (
+                  <>
+                    <Check className="mr-1 h-3.5 w-3.5" />
+                    ¡Agregado!
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart className="mr-1 h-3.5 w-3.5" />
+                    Agregar — ${minPrice.toLocaleString('es-AR')}
+                  </>
+                )}
+              </Button>
             )}
           </div>
         ) : (
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">
-                {product.isCombo && product.comboPrice
-                  ? product.comboPrice.type === 'fixed'
-                    ? `Desde $${product.comboPrice.value.toLocaleString('es-AR')}`
-                    : `${product.comboPrice.value}% OFF`
-                  : product.unitPricing
-                    ? 'Armá tu pedido'
-                    : hasMultipleFormats
-                      ? `Desde $${minPrice.toLocaleString('es-AR')}`
-                      : `$${minPrice.toLocaleString('es-AR')}`}
-              </span>
-              <Link to={`/menu/${product.id}`} className={!storeIsOpen ? 'pointer-events-none' : ''}>
-                <Button size="sm" disabled={!storeIsOpen}>{product.isCombo ? 'Armar combo' : 'Elegir'}</Button>
-              </Link>
-            </div>
+          <div className="flex gap-2">
             {cartQty > 0 && (
-              <div className="flex items-center gap-1.5 rounded-md bg-green-50 px-3 py-1.5 text-xs font-medium text-green-700 dark:bg-green-950/40 dark:text-green-400">
-                <Check className="h-3 w-3" />
-                {cartQty} en el carrito
-              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                className="flex-none"
+                onClick={handleNonSimpleDecrement}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
             )}
+            <Link to={`/menu/${product.id}`} className={`flex-1 ${!storeIsOpen ? 'pointer-events-none' : ''}`}>
+              <Button size="sm" className="w-full" disabled={!storeIsOpen}>
+                <ShoppingCart className="mr-1 h-3.5 w-3.5" />
+                {getPriceLabel()}
+              </Button>
+            </Link>
           </div>
         )}
     </ProductCardShell>

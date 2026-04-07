@@ -1,6 +1,6 @@
 import { Card, CardContent } from '@/components/ui/card'
 
-export default function ProductCardShell({ image, name, description, isCombo, className, children }) {
+export default function ProductCardShell({ image, name, description, isCombo, actions, className, children }) {
   return (
     <Card
       className={`flex flex-row items-center overflow-hidden ${
@@ -18,7 +18,10 @@ export default function ProductCardShell({ image, name, description, isCombo, cl
         {image}
       </div>
       <CardContent className="flex flex-1 flex-col gap-2 p-4">
-        <h3 className="font-semibold">{name}</h3>
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="font-semibold">{name}</h3>
+          {actions}
+        </div>
         <p className="flex-1 text-sm text-gray-500 dark:text-gray-400">
           {description}
         </p>
