@@ -56,6 +56,7 @@ export default function CheckoutPage() {
 
   // Payment state
   const [paymentMethod, setPaymentMethod] = useState(null)
+  const [cashPaysWith, setCashPaysWith] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
 
@@ -159,6 +160,7 @@ export default function CheckoutPage() {
             : null,
         paymentMethodId: paymentMethod.id,
         contactPhone: contactPhone.trim(),
+        ...(paymentMethod.id === 'cash' && cashPaysWith ? { cashPaysWith: Number(cashPaysWith) } : {}),
       })
 
       // 3. Process payment
@@ -513,6 +515,8 @@ export default function CheckoutPage() {
       <PaymentMethodSelector
         selectedId={paymentMethod?.id ?? null}
         onSelect={handlePaymentSelect}
+        cashPaysWith={cashPaysWith}
+        onCashPaysWithChange={setCashPaysWith}
       />
 
       {/* Order summary */}

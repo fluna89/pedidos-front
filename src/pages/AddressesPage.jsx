@@ -59,7 +59,14 @@ function PersonalDataSection() {
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="space-y-1">
-            <Label htmlFor="account-name">Nombre</Label>
+            <Label htmlFor="account-name" className="flex items-center gap-1.5">
+              Nombre
+              {user?.name && (
+                <span className="flex items-center gap-0.5 text-xs font-normal text-green-600 dark:text-green-400">
+                  <Check className="h-3 w-3" /> Guardado
+                </span>
+              )}
+            </Label>
             <Input
               id="account-name"
               value={name}
@@ -67,7 +74,14 @@ function PersonalDataSection() {
             />
           </div>
           <div className="space-y-1">
-            <Label htmlFor="account-email">Email</Label>
+            <Label htmlFor="account-email" className="flex items-center gap-1.5">
+              Email
+              {user?.email && (
+                <span className="flex items-center gap-0.5 text-xs font-normal text-green-600 dark:text-green-400">
+                  <Check className="h-3 w-3" /> Guardado
+                </span>
+              )}
+            </Label>
             <Input
               id="account-email"
               type="email"
@@ -76,7 +90,14 @@ function PersonalDataSection() {
             />
           </div>
           <div className="space-y-1">
-            <Label htmlFor="account-phone">Teléfono</Label>
+            <Label htmlFor="account-phone" className="flex items-center gap-1.5">
+              Teléfono
+              {user?.phone && (
+                <span className="flex items-center gap-0.5 text-xs font-normal text-green-600 dark:text-green-400">
+                  <Check className="h-3 w-3" /> Guardado
+                </span>
+              )}
+            </Label>
             <Input
               id="account-phone"
               type="tel"

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getPaymentMethods } from '@/services/handlers'
+import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 import { Loader2, Copy, Check } from 'lucide-react'
@@ -10,10 +11,14 @@ import { Loader2, Copy, Check } from 'lucide-react'
  *  - orderType: 'delivery' | 'pickup'
  *  - selectedId: string | null — id of currently selected method
  *  - onSelect(method) — called when a method is chosen
+ *  - cashPaysWith: string — amount the customer will pay with (cash only)
+ *  - onCashPaysWithChange(value) — called when "pago con" input changes
  */
 export default function PaymentMethodSelector({
   selectedId,
   onSelect,
+  cashPaysWith = '',
+  onCashPaysWithChange,
 }) {
   const [methods, setMethods] = useState([])
   const [loaded, setLoaded] = useState(false)
@@ -140,11 +145,24 @@ export default function PaymentMethodSelector({
         </div>
       )}
 
-      {/* Cash note */}
+      {/* Cash — pay with amount */}
       {selected?.id === 'cash' && (
-        <div className="rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-700 dark:bg-amber-950 dark:text-amber-300">
-          💵 Tené el monto exacto preparado. El pedido queda pendiente hasta
-          confirmar el cobro.
+        <div className="rounded-md bg-amber-50 px-4 py-3 dark:bg-amber-950">
+          <label className="mb-2 block text-sm font-medium text-amber-800 dark:text-amber-200">
+            💵 ¿Con cuánto pagás?
+          </label>
+          <Input
+            type="number"
+            inputMode="numeric"
+            min="0"
+            placeholder="Ej: 10000"
+            value={cashPaysWith}
+            onChange={(e) => onCashPaysWithChange?.(e.target.value)}
+            className="bg-white dark:bg-gray-900"
+          />
+          <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+            Indicá el monto para que te llevemos el cambio. Dejá vacío si pagás con el monto exacto.
+          </p>
         </div>
       )}
     </div>
