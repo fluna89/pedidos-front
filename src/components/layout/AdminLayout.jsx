@@ -7,6 +7,7 @@ import {
   Clock,
   Gift,
   IceCreamCone,
+  MapPin,
   List,
   LogOut,
   Moon,
@@ -24,6 +25,7 @@ const navItems = [
   { to: '/admin/listas', label: 'Listas de opciones', icon: List },
   { to: '/admin/cargar-pedido', label: 'Cargar pedido', icon: PlusCircle },
   { to: '/admin/horarios', label: 'Horarios', icon: Clock },
+  { to: '/admin/zonas', label: 'Zonas de delivery', icon: MapPin },
   { to: '/admin/config', label: 'Configuración', icon: Settings },
 ]
 
@@ -102,7 +104,7 @@ export default function AdminLayout() {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto p-6">
+      <main className="flex flex-1 flex-col overflow-y-auto p-6">
         <Outlet />
       </main>
     </div>

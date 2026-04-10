@@ -137,6 +137,16 @@ export async function adminToggleEmergency(emergencyShutdown, emergencyMessage =
   return api.put('/admin/store/emergency', { emergencyShutdown, emergencyMessage })
 }
 
+// ── Admin: Delivery Config ────────────────────────────────────
+
+export async function adminGetDeliveryConfig() {
+  return api.get('/admin/delivery/config')
+}
+
+export async function adminUpdateDeliveryConfig(data) {
+  return api.put('/admin/delivery/config', data)
+}
+
 // ── Admin: User Search ────────────────────────────────────────
 
 export async function adminSearchUsers(query) {

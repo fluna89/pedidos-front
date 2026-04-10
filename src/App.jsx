@@ -31,6 +31,7 @@ import AdminCombosPage from '@/pages/admin/AdminCombosPage'
 import AdminListasPage from '@/pages/admin/AdminListasPage'
 import AdminCargarPedidoPage from '@/pages/admin/AdminCargarPedidoPage'
 import AdminHorariosPage from '@/pages/admin/AdminHorariosPage'
+import AdminZonasPage from '@/pages/admin/AdminZonasPage'
 import AdminConfigPage from '@/pages/admin/AdminConfigPage'
 
 function SessionExpiredRedirect() {
@@ -82,6 +83,7 @@ function App() {
                   <Route path="listas" element={<AdminListasPage />} />
                   <Route path="cargar-pedido" element={<AdminCargarPedidoPage />} />
                   <Route path="horarios" element={<AdminHorariosPage />} />
+                  <Route path="zonas" element={<AdminZonasPage />} />
                   <Route path="config" element={<AdminConfigPage />} />
                 </Route>
               </Routes>
