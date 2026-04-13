@@ -21,7 +21,6 @@ function PersonalDataSection() {
   const { user, updateUser } = useAuth()
 
   const [name, setName] = useState(user?.name || '')
-  const [email, setEmail] = useState(user?.email || '')
   const [phone, setPhone] = useState(user?.phone || '')
   const [saving, setSaving] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -29,7 +28,6 @@ function PersonalDataSection() {
 
   const hasChanges =
     name !== (user?.name || '') ||
-    email !== (user?.email || '') ||
     phone !== (user?.phone || '')
 
   async function handleSave(e) {
@@ -40,7 +38,7 @@ function PersonalDataSection() {
     setSuccess(false)
 
     try {
-      const updated = await updateUserProfile(user.id, { name, email, phone })
+      const updated = await updateUserProfile(user.id, { name, phone })
       updateUser(updated)
       setSuccess(true)
       setTimeout(() => setSuccess(false), 3000)
@@ -85,8 +83,9 @@ function PersonalDataSection() {
             <Input
               id="account-email"
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={user?.email || ''}
+              disabled
+              className="disabled:opacity-70"
             />
           </div>
           <div className="space-y-1">
@@ -127,12 +126,14 @@ function PersonalDataSection() {
               'Guardar cambios'
             )}
           </Button>
-          <Link
-            to="/recover"
-            className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-          >
-            Cambiar contraseña
-          </Link>
+          {user?.hasPassword && (
+            <Link
+              to="/recover"
+              className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            >
+              Cambiar contraseña
+            </Link>
+          )}
         </CardFooter>
       </form>
     </Card>

@@ -62,6 +62,7 @@ export function AuthProvider({ children }) {
 
   async function login(email, password) {
     const res = await api.post('/auth/login', { email, password })
+    if (!res.token || !res.user) throw new Error('Respuesta del servidor inválida')
     const userData = { ...res.user, token: res.token }
     persistUser(userData)
     return userData
@@ -69,6 +70,7 @@ export function AuthProvider({ children }) {
 
   async function register(name, email, password, phone) {
     const res = await api.post('/auth/register', { name, email, password, phone })
+    if (!res.token || !res.user) throw new Error('Respuesta del servidor inválida')
     const userData = { ...res.user, token: res.token }
     persistUser(userData)
     return userData
@@ -80,13 +82,15 @@ export function AuthProvider({ children }) {
       email: guestData.email || undefined,
       phone: guestData.phone || undefined,
     })
+    if (!res.token || !res.user) throw new Error('Respuesta del servidor inválida')
     const userData = { ...res.user, isGuest: true, token: res.token }
     persistUser(userData)
     return userData
   }
 
-  async function loginWithGoogle(googleIdToken) {
-    const res = await api.post('/auth/google', { token: googleIdToken })
+  async function loginWithGoogle(authCode) {
+    const res = await api.post('/auth/google', { code: authCode })
+    if (!res.token || !res.user) throw new Error('Respuesta del servidor inválida')
     const userData = { ...res.user, provider: 'google', token: res.token }
     persistUser(userData)
     return userData
