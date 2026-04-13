@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import { GoogleOAuthProvider } from '@react-oauth/google'
 import { AuthProvider } from '@/context/AuthContext'
 import { useAuth } from '@/hooks/useAuth'
 import { ThemeProvider } from '@/context/ThemeContext'
@@ -50,6 +51,7 @@ function SessionExpiredRedirect() {
 function App() {
   return (
     <ThemeProvider>
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
       <AuthProvider>
         <StoreStatusProvider>
         <AddressProvider>
@@ -93,6 +95,7 @@ function App() {
         </AddressProvider>
         </StoreStatusProvider>
       </AuthProvider>
+      </GoogleOAuthProvider>
     </ThemeProvider>
   )
 }

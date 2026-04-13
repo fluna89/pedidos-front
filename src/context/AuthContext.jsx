@@ -85,10 +85,8 @@ export function AuthProvider({ children }) {
     return userData
   }
 
-  async function loginWithGoogle() {
-    // In production the front would get a Google ID token first;
-    // for now we send a placeholder so the backend mock-creates the user.
-    const res = await api.post('/auth/google', { token: 'google-id-placeholder' })
+  async function loginWithGoogle(googleIdToken) {
+    const res = await api.post('/auth/google', { token: googleIdToken })
     const userData = { ...res.user, provider: 'google', token: res.token }
     persistUser(userData)
     return userData
